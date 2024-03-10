@@ -1,0 +1,10 @@
+version: '3'
+services:
+  user-service:
+    image: user-service:latest
+    ports:
+      - "8001:8001"
+  product-catalogue-service:
+    image: product-catalogue-service:latest
+    ports:
+      - "8002:8002"

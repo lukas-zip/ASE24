@@ -1,0 +1,14 @@
+version: '3'
+services:
+  user-service:
+    image: user-service:latest
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/user_service/persistent:/user/persistent
+  product-catalogue-service:
+    image: product-catalogue-service:latest
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./services/product_catalogue_service/persistent:/product_catalogue/persistent
