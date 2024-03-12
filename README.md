@@ -1,2 +1,0 @@
-# ASE24
-In a world in which consumers are more likely to want local suppliers and sustainable individualized products, we pursue building a platform that gives creative individuals, artists and small businesses an opportunity to sell their products of any kind. Mainly having in mind handcrafted products like jewelry, headbands, paintings, pottery and other accessories for individuals, their home, their loved ones and places their life takes place in. Consumers are able to sign up, browse through the products on offer, inspect and also buy them.
