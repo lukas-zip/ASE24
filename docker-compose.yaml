@@ -10,10 +10,14 @@ services:
     #   - .env.localstack
     volumes:
       - ./backend:/app
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
+    depends_on:
+      - localstack
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
   #   # env_file:
   #   #   - .env.lcoalstack
   #   volumes:
