@@ -31,7 +31,7 @@ services:
       #- "127.0.0.1:4566:4566"            # LocalStack Gateway
       #- "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
-      - services=s3
+      - services=s3,iam,cognito
       #- DEBUG=$(DEBUG -0} #1 with logs
       #- HOSTNAME_EXTERNAL-localhost
       #- DOCKER_HOST=unix:////var/run/docker.sock

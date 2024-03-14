@@ -1,39 +1,120 @@
-import boto3
-import logging
-import json
-import os
-from botocore.exceptions import ClientError 
 from flask import Flask, jsonify, request
+import boto3
+import os
+from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
-@app.route('/login', methods=['POST']) # Change the route to match your login endpoint
+#os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'  # Replace 'us-east-1' with your desired region
+endpoint_url = "http://localstack:4566"
+
+cognito_client = boto3.client(
+    "cognito-idp",
+    aws_access_key_id="test",
+    aws_secret_access_key="test", 
+    region_name="us-east-1", 
+    endpoint_url=endpoint_url,
+)
+
+iam_client = boto3.client(
+    "iam",
+    aws_access_key_id="test",
+    aws_secret_access_key="test", 
+    region_name="us-east-1", 
+    endpoint_url=endpoint_url,
+)
+
+# Initialize AWS clients
+#iam_client = boto3.client("iam", endpoint_url="http://localhost:4566")
+#cognito_client = boto3.client("cognito-idp", endpoint_url="http://localhost:4566")
+
+def create_dummy_user(username, password):
+    try:
+        response = cognito_client.admin_create_user(
+            UserPoolId='<your-user-pool-id>',
+            Username=username,
+            TemporaryPassword=password,
+            UserAttributes=[
+                {
+                    'Name': 'email',
+                    'Value': f'{username}@example.com'
+                },
+                # Add additional user attributes here if needed
+            ],
+            MessageAction='SUPPRESS'
+        )
+        return True
+    except ClientError as e:
+        print("Error creating dummy user:", e)
+        return False
+
+def insert_dummy_users():
+    users = [
+        {'username': 'johndoe@johndoe.com', 'password': '123'},
+        {'username': 'mustermann@mustermann.com', 'password': '456'},
+    ]
+    for user in users:
+        create_dummy_user(user['username'], user['password'])
+
+# Create a route to trigger the insertion of dummy users
+@app.route('/insert_dummy_users', methods=['GET'])
+def trigger_insert_dummy_users():
+    insert_dummy_users()
+    return jsonify({'message': 'Dummy users inserted successfully'}), 200
+
+@app.route('/login', methods=['POST'])
 def login():
+     # Parse username and password from request body
     data = request.json
     username = data.get('username')
     password = data.get('password')
 
-    # Validate username and password (add your authentication logic here)
+    # Check if username and password are provided
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
 
-    # Assuming successful authentication for demonstration
-    return jsonify({'message': 'Login successful'}), 200
+    try:
+        # Authenticate user using Cognito
+        response = cognito_client.initiate_auth(
+            ClientId='<your-client-id>',
+            AuthFlow='USER_PASSWORD_AUTH',
+            AuthParameters={
+                'USERNAME': username,
+                'PASSWORD': password
+            }
+        )
+
+        # Extract tokens from response
+        access_token = response['AuthenticationResult']['AccessToken']
+        id_token = response['AuthenticationResult']['IdToken']
+
+        # Return tokens or any other information you need
+        return jsonify({
+            'message': 'Login successful',
+            'access_token': access_token,
+            'id_token': id_token
+        }), 200
+
+    except ClientError as e:
+        # Handle authentication errors
+        if e.response['Error']['Code'] == 'NotAuthorizedException':
+            return jsonify({'error': 'Incorrect username or password'}), 401
+        elif e.response['Error']['Code'] == 'UserNotFoundException':
+            return jsonify({'error': 'User not found'}), 404
+        else:
+            return jsonify({'error': 'Authentication failed'}), 401
 
 if __name__ == '__main__':
+    insert_dummy_users()
+
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
 # app = Flask (__name__)
 # # Determine endpoint URL based on environment variable
-# endpoint_url = os.environ.get("S3_ENDPOINT_URL", "http://localstack:4566")
 
-# s3 = boto3.client(
-#     "s3",
-#     aws_access_key_id="test",
-#     aws_secret_access_key="test", 
-#     region_name="us-east-1", 
-#     endpoint_url=endpoint_url,
-# )
 
 # #boto3.setup_default_session(profile_name='localstack')
 

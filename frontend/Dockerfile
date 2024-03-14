@@ -33,6 +33,8 @@ COPY . .
 # Install dependencies
 RUN npm install
 
+#RUN logging install
+
 # Build the React app
 RUN npm run build
 
