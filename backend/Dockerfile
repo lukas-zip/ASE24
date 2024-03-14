@@ -8,14 +8,19 @@ RUN pip3 install boto3
 
 RUN pip3 install flask
 
-RUN pip3 install logging
+#RUN pip install logging
 
-RUN pip3 install json
+#RUN pip install json
 
-RUN pip3 install localstack
+#RUN pip install localstack
 
 #RUN pip3 install -r requirements.txt
 
 #COPY . .
+
+# Define environment variables
+#ENV FLASK_APP=myfirstflask.py
+
+ENV FLASK_RUN_HOST=0.0.0.0
 
 CMD ["python3", "myfirstflask.py"]
