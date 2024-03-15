@@ -14,17 +14,6 @@ RUN pip3 install uuid
 
 RUN pip3 install flask-cors
 
-#RUN pip3 install json
-
-#RUN pip install logging
-
-#RUN pip3 install -r requirements.txt
-
-#COPY . .
-
-# Define environment variables
-#ENV FLASK_APP=myfirstflask.py
-
 ENV FLASK_RUN_HOST=0.0.0.0
 
 CMD ["python3", "myfirstflask.py"]

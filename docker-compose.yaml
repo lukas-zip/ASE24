@@ -6,8 +6,6 @@ services:
     build: ./backend
     ports:
       - "5000:5000"
-    # env_file:
-    #   - .env.localstack
     volumes:
       - ./backend:/app
     depends_on:
@@ -18,18 +16,11 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-  #   # env_file:
-  #   #   - .env.lcoalstack
-  #   volumes:
-  #     - ./frontend/public:/app/public
-  #     - ./frontend/src:/app/src
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack
     ports:
       - "4566:4566"
-      #- "127.0.0.1:4566:4566"            # LocalStack Gateway
-      #- "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
       - services=s3,iam,dynamodb
       - DEBUG=$(DEBUG -0} #1 with logs
