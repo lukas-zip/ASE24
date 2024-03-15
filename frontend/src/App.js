@@ -17,6 +17,7 @@ function App() {
         console.log('Response:', response); // Log the entire response object
         if (response.data && response.data.message === 'Login successful') {
             // Handle successful login (e.g., redirect to another page)
+            
             console.log('Login successful');
             // Redirect or set some state indicating successful login
         } else {
