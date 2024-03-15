@@ -12,6 +12,8 @@ RUN pip3 install localstack
 
 RUN pip3 install uuid
 
+RUN pip3 install flask-cors
+
 #RUN pip3 install json
 
 #RUN pip install logging

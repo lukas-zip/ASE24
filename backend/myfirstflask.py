@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import boto3
 import uuid
 from botocore.exceptions import ClientError
 
 app = Flask(__name__)
+CORS(app)
 
 # Initialize AWS clients
 endpoint_url = "http://localstack:4566"
@@ -125,7 +127,7 @@ def login():
         return jsonify({'error': 'Email and password are required'}), 400
 
     user = get_user_by_email(email)
-    print(jsonify(user))
+    #print(jsonify(user))
     if user:
         stored_password = user.get('password', {}).get('S')
         print("Stored password:", stored_password)
