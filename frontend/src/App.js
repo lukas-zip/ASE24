@@ -1,30 +1,48 @@
 import React, { useState } from 'react';
-import Login from './Login'; // Import the Login component
-import Dashboard from './Dashboard'; // Import the Dashboard component (or any other component for authenticated users)
+import axios from 'axios';
 
-const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track authentication status
+function App() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // Function to handle successful login
-  const handleLogin = () => {
-    setIsLoggedIn(true); // Set isLoggedIn state to true when login is successful
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    setIsLoggedIn(false); // Set isLoggedIn state to false when logout is triggered
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('/login', {
+        email: email,
+        password: password,
+      });
+      console.log(response.data);
+      // Handle successful login (e.g., redirect to another page)
+    } catch (error) {
+      console.error('Login error:', error.response);
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.error);
+      } else {
+        setErrorMessage('An error occurred during login.');
+      }
+    }
   };
 
   return (
-    <div>
-      {/* Conditionally render either the Login component or Dashboard component based on isLoggedIn state */}
-      {isLoggedIn ? (
-        <Dashboard onLogout={handleLogout} /> // Pass handleLogout function to Dashboard component
-      ) : (
-        <Login onLogin={handleLogin} /> // Pass handleLogin function to Login component
-      )}
+    <div className="App">
+      <h2>Login</h2>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
-};
+}
 
 export default App;

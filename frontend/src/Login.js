@@ -1,79 +1,42 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-const Login = () => {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Reset error state
-    setError('');
-    setLoading(true);
-
+  const handleLogin = async () => {
     try {
-      // Make API request to authenticate user
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post('http://localhost:5000/login', {
+        email: email,
+        password: password,
       });
-
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      // Mark user as logged in
-      setIsLoggedIn(true);
-    } catch (err) {
-      setError('Login failed. Please check your email and password.');
-    } finally {
-      setLoading(false);
+      console.log(response.data);
+      // Handle successful login (e.g., redirect to another page)
+    } catch (error) {
+      console.error('Login error:', error.response.data);
+      // Handle login error (e.g., display error message)
     }
   };
 
   return (
     <div>
       <h2>Login</h2>
-      {isLoggedIn ? (
-        <p>Welcome back, {email}!</p>
-      ) : (
-        <>
-          {error && <p>{error}</p>}
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="password">Password:</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-        </>
-      )}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
-};
+}
 
 export default Login;

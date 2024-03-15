@@ -33,6 +33,8 @@ COPY . .
 # Install dependencies
 RUN npm install
 
+RUN npm install axios
+
 #RUN logging install
 
 # Build the React app

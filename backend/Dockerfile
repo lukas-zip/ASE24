@@ -8,11 +8,13 @@ RUN pip3 install boto3
 
 RUN pip3 install flask
 
+RUN pip3 install localstack
+
+RUN pip3 install uuid
+
+#RUN pip3 install json
+
 #RUN pip install logging
-
-#RUN pip install json
-
-#RUN pip install localstack
 
 #RUN pip3 install -r requirements.txt
 
