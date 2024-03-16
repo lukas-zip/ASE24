@@ -2,27 +2,29 @@ version: '3'
 
 services:
 
-  backend:
-    build: ./backend
+  user-service:
+    build: ./backend/user-service
     ports:
       - "5000:5000"
     # env_file:
     #   - .env.localstack
     volumes:
-      - ./backend:/app
+      - ./backend/user-service:/app
     depends_on:
       - localstack
+
   frontend:
-    build: ./frontend
+    build: frontend
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      - user-service
   #   # env_file:
   #   #   - .env.lcoalstack
   #   volumes:
   #     - ./frontend/public:/app/public
   #     - ./frontend/src:/app/src
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack
