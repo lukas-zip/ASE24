@@ -5,7 +5,7 @@ import pngurl4 from '@/assets/pic/game.webp'
 import pngurl5 from '@/assets/pic/workoutPlan.jpg'
 
 const PROJECT_VARIABLE = {
-    PROJECT_NAME: "Project Name",
+    PROJECT_NAME: "Clarie",
     PROJECT_PROMO: [
         { id: 1, title: "Project Promo title 1", pic: pngurl1 },
         { id: 2, title: "Project Promo title 2", pic: pngurl2 },

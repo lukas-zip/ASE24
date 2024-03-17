@@ -2,11 +2,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Dashboard from "../pages/Dashboard"
 import Login from '../pages/Login'
 import ErrorPage from '../pages/ErrorPage'
-import StatisticBoard from '../pages/Statistic'
 import ProtectedRouter from './protectedRouter'
-import Home from '../pages/Home'
+import SellerHome from '../pages/SellerPages/Home'
 import { useSelector } from 'react-redux'
 import CheckProtectedRouter from './CheckProtectedRouter'
+import ClientHomePage from '../pages/ClientHomePage'
+import IdentityInfoPage from '../pages/IdentityInfoPage'
 
 export default function MyRouter() {
     // const { user } = useSelector(state => state.user)
@@ -15,12 +16,6 @@ export default function MyRouter() {
             path: "/",
             element: <CheckProtectedRouter><Dashboard /></CheckProtectedRouter>,
             errorElement: <ErrorPage />,
-            // children: [
-            //     {
-            //         path: "home",
-            //         element: <ProtectedRouter><Home /></ProtectedRouter>,
-            //     },
-            // ]
         },
         {
             path: "/seller",
@@ -29,27 +24,30 @@ export default function MyRouter() {
             children: [
                 {
                     path: "home",
-                    element: <ProtectedRouter><Home /></ProtectedRouter>,
+                    element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
                     // loader: async () => await getStatistics()
                 },
             ]
         },
         {
             path: "/buyer",
-            element: <ProtectedRouter><Dashboard /></ProtectedRouter>,
+            element: <ClientHomePage />,
+            // element: <ProtectedRouter><ClientHomePage /></ProtectedRouter>,
             errorElement: <ErrorPage />,
-            children: [
-                {
-                    path: "products",
-                    element: <ProtectedRouter><Home /></ProtectedRouter>,
-                    // loader: async () => await getStatistics()
-                },
-                {
-                    path: "profile",
-                    element: <ProtectedRouter><StatisticBoard /></ProtectedRouter>,
-                    // loader: async () => await getStatistics()
-                },
-            ]
+            // children: [
+            //     {
+            //         path: "products",
+            //         element: <ProtectedRouter><Home /></ProtectedRouter>,
+            //     },
+            //     {
+            //         path: "profile",
+            //         element: <ProtectedRouter><StatisticBoard /></ProtectedRouter>,
+            //     },
+            // ]
+        },
+        {
+            path: "/info",
+            element: <IdentityInfoPage />
         },
         {
             path: "/login",

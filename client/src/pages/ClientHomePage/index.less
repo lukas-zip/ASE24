@@ -1,0 +1,165 @@
+@darkBlockBackgroundColor: #1d1d1d;
+@lightBlockBackgroundColor: #ffffff;
+@darkTextColor: #e7e7e7;
+@darkTextColorforcomment: #747474;
+@lightTextColor: #313131;
+@darkHtmlBackgroundColor: #171717;
+@lightHtmlBackgroundColor: #ffffff;
+@lightDashboardBackgroundColor: #f3f3f3;
+@darkBackgroundColor: #0c0f0e;
+@lightBackgroundColor: #ffffff;
+
+.App {
+    height: 100%;
+    width: 100%;
+    background-color: @lightHtmlBackgroundColor;
+    transition: 0.3s;
+
+    .myDashboard {
+        min-width: 1000px;
+        min-height: 500px;
+        color: @darkTextColor;
+        overflow: hidden;
+        height: 98%;
+        background-color: @lightDashboardBackgroundColor;
+        transition: 0.3s;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 1%;
+        right: 1%;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+
+
+        .sidebar {
+            flex-basis: 80px;
+            width: 80px;
+            min-width: 80px;
+            margin-left: 10px;
+            height: 98%;
+            background-color: @darkBlockBackgroundColor;
+            border-radius: 16px;
+        }
+
+        .sidebar-light {
+            background-color: @lightBlockBackgroundColor;
+            transition: 0.3s;
+        }
+
+        .contentBox {
+            flex: 1;
+            height: 98%;
+            border-radius: 16px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+
+            .contendBox-left {
+                flex-basis: 70%;
+                height: 100%;
+                border-radius: 16px;
+                display: flex;
+                flex-direction: column;
+                padding-right: 3px;
+
+                .sayHello {
+                    width: 100%;
+                    height: 10%;
+                    display: flex;
+                    align-items: center;
+                    border-radius: 16px;
+                    margin-bottom: 1%;
+                }
+
+
+                .contendBox-left-subTop {
+                    width: 100%;
+                    height: 38%;
+                    border-radius: 16px;
+                    display: flex;
+                    margin-bottom: 1%;
+
+                    .contacts {
+                        width: 33%;
+                        height: 100%;
+                        padding-right: 10px;
+                    }
+
+                    .contacts-light {
+                        .ant-card-body {
+                            background-color: #fff;
+                            transition: 0.3s;
+                        }
+                    }
+
+                    .statistic {
+                        width: 66%;
+                        height: 100%;
+                        border-radius: 16px;
+                    }
+                }
+
+                .contendBox-left-subBottom {
+                    width: 100%;
+                    height: 50%;
+                    border-radius: 16px;
+                    display: flex;
+
+                    .competition {
+                        width: 33%;
+                        height: 100%;
+                        padding-right: 10px;
+                    }
+
+                    .competition-light {
+
+                        // background-color: @lightBlockBackgroundColor;
+                        .ant-list-item {
+                            background-color: #fff;
+                            transition: 0.3s;
+                        }
+                    }
+
+                    .trend {
+                        width: 66%;
+                        height: 100%;
+                        background-color: @darkBlockBackgroundColor;
+                        border-radius: 16px;
+                    }
+
+                    .trend-light {
+                        background-color: @lightBlockBackgroundColor;
+                    }
+                }
+            }
+
+            .contendBox-right {
+                flex: 1;
+                margin-right: 10px;
+                height: 100%;
+                background-color: @darkBlockBackgroundColor;
+                transition: 0.3s;
+                // max-width: 100px;
+                border-radius: 16px;
+            }
+
+            .contendBox-right-light {
+                background-color: @lightBlockBackgroundColor;
+                transition: 0.3s;
+            }
+        }
+    }
+
+    .myDashboard-light {
+        background-color: @lightDashboardBackgroundColor;
+        transition: 0.3s;
+        color: @lightTextColor
+    }
+}
+
+.App-light {
+    background-color: @lightHtmlBackgroundColor;
+    transition: 0.3s;
+}

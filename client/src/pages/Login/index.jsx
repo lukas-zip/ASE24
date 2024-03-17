@@ -32,6 +32,7 @@ export default function Login() {
     const activepasswordSup = focusedpasswordSup ? 'active' : ''
     const activeemail = focusedemail ? 'active' : ''
 
+    const [name, setName] = useState('')
     useEffect(() => {
         // const token = localStorage.getItem('token');
         // if (logged !== true) {
@@ -107,6 +108,7 @@ export default function Login() {
                                             setFocusedpassword(false)
                                         }}
                                         onChange={({ target: { value } }) => setSignInInfo({ ...sigInInfo, email: value })}
+                                        // onChange={({ target: { value } }) => setSignInInfo({ ...sigInInfo, email: value })}
                                         className={`input-field ${activepassword}`}
                                         autoComplete="off"
                                         required

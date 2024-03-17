@@ -3,7 +3,7 @@ import { Header } from 'antd/es/layout/layout'
 import './index.less'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setUser, userSlice } from '../../store/user.store';
+import { setUser } from '../../store/user.store';
 import useUserTheme from '../../hooks/useUserTheme';
 import COLORS from '../../constants/COLORS';
 import { updatePassword } from '../../api/user.api';
@@ -12,26 +12,26 @@ import PROJECT_VARIABLE from '../../constants/ProjectNameVariable';
 
 export default function MyLayoutHeader() {
     // const { user: { id, name, email } } = useSelector(state => state.user)
-    const user = { id: 1, name: "leon", email: 'qinleiheng@gmail.com' }
-    const { id, name, email } = user
+    const id = 1
+    const name = "leon"
+    const email = "leon@qq.com"
     const dispatch = useDispatch()
     const navigateTo = useNavigate()
     const loginStatusDiv = (
-        <>
-            <div>
-                <Button type="text" danger onClick={() => {
+        <div style={{ display: "grid", gridTemplateColumns: 'auto' }}>
+            <div
+                className='hoverButton'
+                onClick={() => {
                     dispatch(setUser(null))
                     navigateTo('/login')
-                }}>
-                    Logout
-                </Button>
+                }}
+            >
+                Logout
             </div>
-            <div onClick={() => setUpdatePasswordModelOpen(true)}>
-                <Button type="text" >
-                    Update Password
-                </Button>
+            <div>
+                nihao
             </div>
-        </>
+        </div>
     );
     const [updatePasswordModelOpen, setUpdatePasswordModelOpen] = useState(false)
     const handleUpdate = async (values) => {
