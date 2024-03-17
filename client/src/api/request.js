@@ -4,7 +4,7 @@ import { store } from '@/store';
 import { setGlobalState } from '@/store/global.store';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8082',
+    baseURL: 'http://127.0.0.1:5001',
     // baseURL: 'https://medal.onrender.com/api',
     // timeout: 6000,
 });
