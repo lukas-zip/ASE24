@@ -1,6 +1,5 @@
 from typing import Union
 from fastapi import FastAPI
-from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -16,16 +15,41 @@ DB: list[Person] = [
 ]
 
 
-@app.get("/")
+@app.get("/company/{company_id}")
 def read_root():
-    return {"Hello": "World"}
+    return 'company retrieved successfully' 
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.delete("/company/{company_id}")
+def delete_item(item_id: int, q: Union[str, None] = None):
+    return 'company deleted successfully' 
 
 
-@app.get("/db")
-def read_item():
-    return DB
+@app.put("/company/{company_id}")
+def update_item():
+    return 'company updated successfully'
+
+@app.post("/company/{company_id}")
+def add_item():
+    return 'company added successfully'
+
+
+##################
+
+@app.get("/user/{company_id}")
+def read_root():
+    return 'user retrieved successfully' 
+
+
+@app.delete("/user/{company_id}")
+def delete_item(item_id: int, q: Union[str, None] = None):
+    return 'user deleted successfully' 
+
+
+@app.put("/user/{company_id}")
+def update_item():
+    return 'user updated successfully'
+
+@app.post("/user/{company_id}")
+def add_item():
+    return 'user added successfully'
