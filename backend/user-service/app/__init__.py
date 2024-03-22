@@ -4,9 +4,8 @@ from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
-    dynamodb.create_profiles_table()
-    dynamodb.create_email_index()
-    dynamodb.add_dummy_users()
+    dynamodb.create_user_management_tables()
+    dynamodb.add_dummy_data()
     CORS(app)
     return app
 
