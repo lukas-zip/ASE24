@@ -7,6 +7,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . /user-service
 
-EXPOSE 5001
+EXPOSE 8001
 
 CMD ["python3", "run.py", "--host=0.0.0.0"]
