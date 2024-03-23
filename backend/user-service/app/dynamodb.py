@@ -23,7 +23,7 @@ def create_user_management_tables():
             AttributeDefinitions=[
                 {'AttributeName': 'PK', 'AttributeType': 'S'},
                 {'AttributeName': 'SK', 'AttributeType': 'S'},
-                {'AttributeName': 'Email', 'AttributeType': 'S'}
+                {'AttributeName': 'email', 'AttributeType': 'S'}
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
             GlobalSecondaryIndexes=[
@@ -31,38 +31,19 @@ def create_user_management_tables():
                     'IndexName': 'EmailIndex',
                     'KeySchema': [
                         # Email will be the partition key for the GSI
-                        {'AttributeName': 'Email', 'KeyType': 'HASH'}
+                        {'AttributeName': 'email', 'KeyType': 'HASH'}
                     ],
-                    'Projection': {
-                        'ProjectionType': 'KEYS_ONLY'
-                    }
+                    'Projection': {'ProjectionType': 'ALL'},
+                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
                 }
             ]
         )
-        print("EcommercePlatform table created:", response)
+        print("UserManagement table created:", response)
     except ClientError as e:
-        print("Error creating EcommercePlatform table:", e)
+        print("Error creating UserManagement table:", e)
 
 
-# Function to get a user by email
-# def get_user_by_email(email):
-#     try:
-#         response = db_users.query(
-#             TableName='UserProfiles',
-#             IndexName='email-index',  # Assuming 'email-index' is the name of your GSI
-#             KeyConditionExpression='email = :email',
-#             ExpressionAttributeValues={':email': {'S': email}}
-#         )
-#         items = response.get('Items', [])
-#         if items:
-#             return items[0]
-#         else:
-#             return None
-#     except ClientError as e:
-#         print("Error getting user by email:", e)
-#         return None
-
-# Function to add a user
+# Function to add a user to the dynamodb
 def add_user(email, password, username):
     try:
         if user_in_db(email) is not None:
@@ -77,30 +58,16 @@ def add_user(email, password, username):
             Item={
                 'PK': {'S': f'USER#{user_uuid}'},
                 'SK': {'S': f'PROFILE#{user_uuid}'},
-                'Type': {'S': 'User'},
-                'Email': {'S': email},
-                'Password': {'S': password},
-                'Username': {'S': username}
+                'type': {'S': 'User'},
+                'email': {'S': email},
+                'username': {'S': username},
+                'password': {'S': password}
             }
         )
         print("User added with UUID:", user_uuid)
         return user_uuid
     except ClientError as e:
         print("Error adding user:", e)
-
-
-def user_in_db(email):
-    try:
-        response = db_user_management.query(
-            TableName='UserManagement',
-            IndexName='EmailIndex',  # Replace with the actual name of your GSI
-            KeyConditionExpression='Email = :email',
-            ExpressionAttributeValues={':email': {'S': email}}
-        )
-        return response['Items'][0] if response['Items'] else None
-    except ClientError as e:
-        print(f"Error checking email existence: {e}")
-        return None  # Assuming that if there's an error, the check is inconclusive
 
 
 # Function to get a user by UUID
@@ -118,6 +85,21 @@ def get_user(user_uuid):
         print("Error getting user:", e)
 
 
+def user_in_db(email):
+    try:
+        response = db_user_management.query(
+            TableName='UserManagement',
+            IndexName='EmailIndex',
+            KeyConditionExpression='email = :email',
+            ExpressionAttributeValues={':email': {'S': email}}
+        )
+        return response['Items'][0] if response['Items'] else None
+    except ClientError as e:
+        print(f"Error checking email existence: {e}")
+        return None  # Assuming that if there's an error, the check is inconclusive
+
+
+# Function to add a shop to the dynamodb
 def add_shop(shop_name, email, password, address, phone):
     try:
         # Check if the user already exists
@@ -134,15 +116,15 @@ def add_shop(shop_name, email, password, address, phone):
             Item={
                 'PK': {'S': f'SHOP#{shop_uuid}'},
                 'SK': {'S': f'DETAILS#{shop_uuid}'},
-                'Type': {'S': 'Shop'},
-                'Email': {'S': email},
-                'Password': {'S': password},
-                'ShopName': {'S': shop_name},
-                'Address': {'S': address},
-                'Phone': {'S': phone}
+                'type': {'S': 'Shop'},
+                'email': {'S': email},
+                'password': {'S': password},
+                'shop_name': {'S': shop_name},
+                'address': {'S': address},
+                'phone': {'S': phone}
             }
         )
-        print("Shop added with ID:", shop_uuid)
+        print("Shop added with UUID:", shop_uuid)
         return shop_uuid
     except ClientError as e:
         print("Error adding shop:", e)
@@ -161,28 +143,3 @@ def get_shop(shop_id):
         return response.get('Item')
     except ClientError as e:
         print("Error getting shop:", e)
-
-
-# Function to add dummy users
-def add_dummy_data():
-    dummy_users = [
-        {"email": "john.doe@example.com", "password": "password1", "username": "johndoe"},
-        {"email": "jane.doe@example.com", "password": "password2", "username": "janedoe"},
-        {"email": "max.smith@example.com", "password": "password3", "username": "maxsmith"}
-    ]
-    # Adding dummy users
-    for user in dummy_users:
-        add_user(email=user["email"], password=user["password"], username=user["username"])
-
-    dummy_shops = [
-        {"shop_name": "John Micro", "email": "micro@example.com", "password": "password11",
-         "address": "Hoferstrasse 19, Zuerich", "phone": "+41 1234567890"},
-        {"shop_name": "Jane Hydro", "email": "hydro@example.com", "password": "password22",
-         "address": "Bernerstrasse 18, Bern", "phone": "+41 2395678901"},
-        {"shop_name": "Max Electro", "email": "electro@example.com", "password": "password33",
-         "address": "Weinhofstrasse 123, Luzern", "phone": "+41 3456789012"}
-    ]
-    # Adding dummy shops
-    for shop in dummy_shops:
-        add_shop(shop_name=shop["shop_name"], email=shop["email"], password=shop["password"], address=shop["address"],
-                 phone=shop["phone"])
