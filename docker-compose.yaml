@@ -13,12 +13,24 @@ services:
     depends_on:
       - localstack
 
+  inventory_management:
+    build: ./backend/inventory_management
+    ports:
+      - "8002:8000"
+    # env_file:
+    #   - .env.localstack
+    volumes:
+      - ./backend/inventory_management:/app
+    depends_on:
+      - localstack
+
   client:
     build: client
     ports:
       - "3000:3000"
     depends_on:
       - user-service
+      - inventory_management
   #   # env_file:
   #   #   - .env.lcoalstack
   #   volumes:
