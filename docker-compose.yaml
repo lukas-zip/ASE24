@@ -6,10 +6,10 @@ services:
     build: ./backend/user-service
     ports:
       - "8001:8001"
-    # env_file:
-    #   - .env.localstack
     volumes:
       - ./backend/user-service:/app
+    environment:
+      - FLASK_ENV=development
     depends_on:
       - localstack
 
@@ -19,11 +19,6 @@ services:
       - "3000:3000"
     depends_on:
       - user-service
-  #   # env_file:
-  #   #   - .env.lcoalstack
-  #   volumes:
-  #     - ./frontend/public:/app/public
-  #     - ./frontend/src:/app/src
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
@@ -34,12 +29,11 @@ services:
       #- "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
       - services=s3,iam,dynamodb
-      - DEBUG=$(DEBUG -0} #1 with logs
+      - DEBUG=1
       - HOSTNAME_EXTERNAL-localhost
       - DOCKER_HOST=unix:////var/run/docker.sock
+      - DATA_DIR=/tmp/localstack/data
       - services=s3:4566
-      #- port_web_ui: 8082
-      - debug=1
       - lambda_executor=${lambda_executor-}
       - aws_region=us-east-1
       - aws_access_key_id=test
