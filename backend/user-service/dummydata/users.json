@@ -1,0 +1,23 @@
+[
+  {
+    "email": "john.doe@example.com",
+    "password": "password1",
+    "username": "johndoe",
+    "address": "John Street, Zuerich 12345",
+    "phone": "1234567890"
+  },
+  {
+    "email": "jane.doe@example.com",
+    "password": "password2",
+    "username": "janedoe",
+    "address": "Jane Road, Bern 23456",
+    "phone": "2345678901"
+  },
+  {
+    "email": "max.smith@example.com",
+    "password": "password3",
+    "username": "maxsmith",
+    "address": "Maxstasse, Maxtown 34567",
+    "phone": "3456789012"
+  }
+]

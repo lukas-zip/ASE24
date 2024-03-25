@@ -1,27 +1,24 @@
 import boto3
 import uuid
 from botocore.exceptions import ClientError
-import os
-from werkzeug.utils import secure_filename
-from botocore.exceptions import ClientError
-from flask import Flask, Response
+import bcrypt
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 db_user_management = boto3.client(
     "dynamodb",
+    aws_access_key_id="test",  # Dummy Access Key for LocalStack
+    aws_secret_access_key="test",  # Dummy Secret Key for LocalStack
+    region_name="us-east-1",  # or your LocalStack configuration's region
+    endpoint_url="http://localstack:4566"  # URL for LocalStack
+)
+s3_client = boto3.client(
+    "s3",
     aws_access_key_id="test",
     aws_secret_access_key="test",
     region_name="us-east-1",
     endpoint_url="http://localstack:4566"
-)
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id="test",  # Dummy Access Key
-    aws_secret_access_key="test",  # Dummy Secret Key
-    region_name="us-east-1",  # or your LocalStack configuration's region
-    endpoint_url="http://localstack:4566"  # URL for LocalStack (adjust if using a different port)
 )
 
 # Create S3 bucket on LocalStack
@@ -66,14 +63,42 @@ def create_user_management_tables():
         print("Error creating UserManagement table:", e)
 
 
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+def check_password(email, password):
+    """
+    Verify if the provided password matches the hashed password stored in DynamoDB.
+
+    :param email: The email of the user, used to retrieve the user's data from DynamoDB.
+    :param password: The password to be verified.
+    :return: True if the password is correct, False otherwise.
+    """
+    try:
+        # Retrieve the user data based on the email
+        entity = user_in_db(email)
+        if entity is None:
+            return False  # User not found
+        stored_hashed_password = entity['password'].get('S').encode('utf-8')
+        # Compare the provided password with the stored hashed password
+        return bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password)
+    except ClientError as e:
+        print(f"An error occurred: {e}")
+        return False
+
+
+
 # Function to add a user to the dynamodb
-def add_user(email, password, username):
+def add_user(email, password, username, address, phone):
     try:
         if user_in_db(email) is not None:
             return {'error': 'Email already in use by a different profile'}
 
         # Generate UUID for the new user
         user_uuid = str(uuid.uuid4())
+
+        # Hash the password before storing it
+        hashed_password = hash_password(password)
 
         # Put the new item into the table
         db_user_management.put_item(
@@ -82,10 +107,12 @@ def add_user(email, password, username):
                 'PK': {'S': f'USER#{user_uuid}'},
                 'SK': {'S': f'PROFILE#{user_uuid}'},
                 'type': {'S': 'User'},
-                'profile_picture': {'S': "NONE"},
+                'profile_picture': {'S': 'NONE'},
                 'email': {'S': email},
                 'username': {'S': username},
-                'password': {'S': password}
+                'password': {'S': hashed_password.decode('utf-8')},
+                'address': {'S': address},
+                'phone': {'S': phone}
             }
         )
         print("User added with UUID:", user_uuid)
@@ -109,22 +136,8 @@ def get_user(user_uuid):
         print("Error getting user:", e)
 
 
-def user_in_db(email):
-    try:
-        response = db_user_management.query(
-            TableName='UserManagement',
-            IndexName='EmailIndex',
-            KeyConditionExpression='email = :email',
-            ExpressionAttributeValues={':email': {'S': email}}
-        )
-        return response['Items'][0] if response['Items'] else None
-    except ClientError as e:
-        print(f"Error checking email existence: {e}")
-        return None  # Assuming that if there's an error, the check is inconclusive
-
-
 # Function to add a shop to the dynamodb
-def add_shop(shop_name, email, password, address, phone):
+def add_shop(shop_name, email, password, address, phone, description):
     try:
         # Check if the user already exists
         if user_in_db(email):
@@ -134,6 +147,9 @@ def add_shop(shop_name, email, password, address, phone):
         # Generate UUID for the new user
         shop_uuid = str(uuid.uuid4())
 
+        # Hash the password before storing it
+        hashed_password = hash_password(password)
+
         # Put the new item into the table
         response = db_user_management.put_item(
             TableName='UserManagement',
@@ -141,9 +157,11 @@ def add_shop(shop_name, email, password, address, phone):
                 'PK': {'S': f'SHOP#{shop_uuid}'},
                 'SK': {'S': f'DETAILS#{shop_uuid}'},
                 'type': {'S': 'Shop'},
+                'profile_picture': {'S': 'NONE'},
                 'email': {'S': email},
-                'password': {'S': password},
                 'shop_name': {'S': shop_name},
+                'description': {'S': description},
+                'password': {'S': hashed_password.decode('utf-8')},
                 'address': {'S': address},
                 'phone': {'S': phone}
             }
@@ -175,6 +193,20 @@ def get_shop(shop_uuid):
         print("Error getting shop:", e)
 
 
+def user_in_db(email):
+    try:
+        response = db_user_management.query(
+            TableName='UserManagement',
+            IndexName='EmailIndex',
+            KeyConditionExpression='email = :email',
+            ExpressionAttributeValues={':email': {'S': email}}
+        )
+        return response['Items'][0] if response['Items'] else None
+    except ClientError as e:
+        print(f"Error checking email existence: {e}")
+        return None
+
+
 def get_entity(entity_uuid):
     """
     Fetch an entity (user or shop) from the DynamoDB table using the entity UUID.
@@ -185,17 +217,60 @@ def get_entity(entity_uuid):
     try:
         # Attempt to fetch the user
         user_response = get_user(entity_uuid)
-        if user_response is not None and 'Item' in user_response:
-            return user_response['Item']
+        if user_response is not None:
+            return user_response
 
         # If not found, attempt to fetch the shop
         shop_response = get_shop(entity_uuid)
-        if shop_response is not None and 'Item' in shop_response:
-            return shop_response['Item']
+        if shop_response is not None:
+            return shop_response
         # If no entity is found, return None
         return None
     except ClientError as e:
         print("Error getting entity:", e)
+
+
+def update_entity(entity_uuid, attributes, new_password=None):
+    try:
+        entity_type = get_entity(entity_uuid)['type'].get('S')
+        # Base update expression setup
+        update_expression = "set "
+        expression_attribute_values = {}
+
+        # Dynamically build the update expression based on provided attributes
+        for key, value in attributes.items():
+            update_expression += f"{key} = :{key}, "
+            expression_attribute_values[f":{key}"] = {'S': value}
+
+        # Remove the trailing comma and space from the update expression
+        update_expression = update_expression.rstrip(", ")
+
+        # If a new password is provided, hash it and append it to the update expression
+        if new_password:
+            hashed_password = hash_password(new_password)
+            update_expression += f", password = :password"
+            expression_attribute_values[":password"] = hashed_password.decode('utf-8')
+
+        # Determine the key prefix based on the entity type
+        pk_value, sk_value = pk_sk_values(entity_uuid)
+
+        # Execute the update operation
+        response = db_user_management.update_item(
+            TableName='UserManagement',
+            Key={
+                'PK': {'S': pk_value},
+                'SK': {'S': sk_value},
+            },
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ReturnValues="UPDATED_NEW"
+        )
+
+        print(f"{entity_type.capitalize()} updated successfully.")
+        return response
+    except ClientError as e:
+        print(f"Error updating: {e}")
+        raise e
 
 
 # Uploads a profile picture to S3 and updates the user's DynamoDB entry.
@@ -205,16 +280,14 @@ def update_profile_picture(entity_uuid, file_path, filename):
         s3_client.upload_file(file_path, bucket_name, f"{entity_uuid}/{filename}")
         image_url = f"http://{bucket_name}.s3.localhost.localstack.cloud:4566/{entity_uuid}/{filename}"
 
-        # Determine the prefix based on the entity type
-        entity_type = get_user(entity_uuid)['type']
-        prefix = 'USER#' if entity_type.get('S') == 'User' else 'SHOP#'
+        pk_value, sk_value = pk_sk_values(entity_uuid)
 
         # Update the item in the table to include the profile picture URL
         response = db_user_management.update_item(
             TableName='UserManagement',
             Key={
-                'PK': {'S': f'{prefix}{entity_uuid}'},
-                'SK': {'S': f'PROFILE#{entity_uuid}' if entity_type.get('S') == 'User' else f'DETAILS#{entity_uuid}'},
+                'PK': {'S': pk_value},
+                'SK': {'S': sk_value},
             },
             UpdateExpression='SET profile_picture = :val',
             ExpressionAttributeValues={
@@ -222,7 +295,35 @@ def update_profile_picture(entity_uuid, file_path, filename):
             },
             ReturnValues="UPDATED_NEW"
         )
-        print(f"{entity_type} profile picture updated:", response)
+        print(f"Profile picture updated:", response)
         return response
     except ClientError as e:
         print(f"Error updating profile picture:", e)
+
+
+def delete_entity_from_db(entity_uuid):
+    try:
+        pk_value, sk_value = pk_sk_values(entity_uuid)
+        # Perform the delete operation
+        db_user_management.delete_item(
+            TableName='UserManagement',
+            Key={
+                'PK': {'S': pk_value},
+                'SK': {'S': sk_value}
+            }
+        )
+        return True
+    except ClientError as e:
+        print(f"Error deleting: {e}")
+        return False
+
+def pk_sk_values(entity_uuid):
+    try:
+        entity_type = get_entity(entity_uuid)['type'].get('S')
+        prefix = 'USER' if entity_type == 'User' else 'SHOP'
+        pk_value = f'{prefix}#{entity_uuid}'
+        sk_value = f'PROFILE#{entity_uuid}' if entity_type == 'User' else f'DETAILS#{entity_uuid}'
+        return pk_value, sk_value
+    except ClientError as e:
+        print(f"Error updating: {e}")
+        raise e
