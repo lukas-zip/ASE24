@@ -212,14 +212,22 @@ def update_picture(entity_uuid):
         file.save(file_path)
         profile_picture_url = dynamodb.update_profile_picture(entity_uuid, file_path, new_filename)
         os.remove(file_path)
-        return jsonify({'status': True, 'message': 'File uploaded successfully', 'url': profile_picture_url}), 200
+
+        jsonify({'status': True, 'message': 'File uploaded successfully', 'url': profile_picture_url}), 200
+
+        response = dynamodb.get_entity_json(entity_uuid)
+        if not response:
+            return jsonify({'status': False, 'error': 'No entity or failed to retrieve it'}), 400
+        return jsonify({'status': True, 'message': response}), 201
     return jsonify({'status': False, 'message': 'File uploaded unsuccessfull'}), 401
 
 
 @app.route('/get/<entity_uuid>', methods=['GET'])
 def get_entity(entity_uuid):
     try:
-        response = dynamodb.get_shop_json(dynamodb.get_entity(entity_uuid))
+        response = dynamodb.get_entity_json(entity_uuid)
+        if not response:
+            return jsonify({'status': False, 'error': 'No entity or failed to retrieve it'}), 400
         return jsonify({'status': True, 'message': response}), 201
     except Exception as e:
         print(f"An error occurred: {str(e)}")
@@ -231,9 +239,9 @@ def delete_entity(entity_uuid):
     try:
         response = dynamodb.delete_entity(entity_uuid)
         if response:
-            return jsonify({'status': True, 'message': f'{entity_uuid} deleted successfully'}), 200
+            return jsonify({'status': True, 'message': f'Deleted successfully'}), 200
         else:
-            return jsonify({'status': False, 'error': f'Failed to delete {entity_uuid}'}), 400
+            return jsonify({'status': False, 'error': f'No entity or failed to delete'}), 400
     except ClientError as e:
         print(f"Error deleting {entity_uuid}: {e}")
         return jsonify({'status': False, 'error': f'An error occurred while deleting the {entity_uuid}'}), 500

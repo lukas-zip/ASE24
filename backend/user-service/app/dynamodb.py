@@ -216,6 +216,8 @@ def user_in_db(email):
 def update_entity(entity_uuid, attributes):
     try:
         entity_type = get_entity_type(entity_uuid)
+        if entity_type is None:
+            return False
         logging.error(entity_type)
         # Base update expression setup
         update_expression = "set "
@@ -273,8 +275,27 @@ def get_entity(entity_uuid):
     except ClientError as e:
         print("Error getting entity:", e)
 
+
+def get_entity_json(entity_uuid):
+    try:
+        entity = get_entity(entity_uuid)
+        if entity is None:
+            return False
+        entity_type = entity.get('Item')['type'].get('S')
+        return get_user_json(get_user(entity_uuid)) if entity_type == 'User' else get_shop_json(get_shop(entity_uuid))
+    except ClientError as e:
+        print("Error getting entity:", e)
+
+
 def get_entity_type(entity_uuid):
-    return get_entity(entity_uuid).get('Item')['type'].get('S')
+    try:
+        response = get_entity(entity_uuid)
+        # Check if 'Item' is in the response and it is not None
+        if response is None:
+            return None
+        return response['Item'].get('type', {}).get('S')
+    except ClientError as e:
+        print("Error getting entity:", e)
 
 
 # Uploads a profile picture to S3 and updates the user's DynamoDB entry.
@@ -284,7 +305,10 @@ def update_profile_picture(entity_uuid, file_path, filename):
         s3_client.upload_file(file_path, bucket_name, f"{entity_uuid}/{filename}")
         image_url = f"http://{bucket_name}.s3.localhost.localstack.cloud:4566/{entity_uuid}/{filename}"
 
-        pk_value, sk_value = pk_sk_values(entity_uuid)
+        response = pk_sk_values(entity_uuid)
+        if not response:
+            return False
+        pk_value, sk_value = response
 
         # Update the item in the table to include the profile picture URL
         response = db_user_management.update_item(
@@ -305,18 +329,21 @@ def update_profile_picture(entity_uuid, file_path, filename):
         print(f"Error updating profile picture:", e)
 
 
-def delete_entity_from_db(entity_uuid):
+def delete_entity(entity_uuid):
     try:
-        pk_value, sk_value = pk_sk_values(entity_uuid)
-        # Perform the delete operation
-        db_user_management.delete_item(
-            TableName='UserManagement',
-            Key={
-                'PK': {'S': pk_value},
-                'SK': {'S': sk_value}
-            }
-        )
-        return True
+        response = pk_sk_values(entity_uuid)
+        if response:
+            pk_value, sk_value = response
+            # Perform the delete operation
+            db_user_management.delete_item(
+                TableName='UserManagement',
+                Key={
+                    'PK': {'S': pk_value},
+                    'SK': {'S': sk_value}
+                }
+            )
+            return True
+        return False
     except ClientError as e:
         print(f"Error deleting: {e}")
         return False
@@ -324,6 +351,8 @@ def delete_entity_from_db(entity_uuid):
 def pk_sk_values(entity_uuid):
     try:
         entity_type = get_entity_type(entity_uuid)
+        if entity_type is None:
+            return False
         pk_prefix = 'USER' if entity_type == 'User' else 'SHOP'
         sk_prefix = 'PROFILE' if entity_type == 'User' else 'DETAILS'
         pk_value = f'{pk_prefix}#{entity_uuid}'
