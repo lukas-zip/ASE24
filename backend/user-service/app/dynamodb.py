@@ -134,7 +134,7 @@ def change_password(entity_uuid, old_password, new_password):
 def add_user(email, password, username, address, phone):
     try:
         if user_in_db(email) is not None:
-            return {'error': 'Email already in use by a different profile'}
+            return None
 
         # Generate UUID for the new user
         user_uuid = str(uuid.uuid4())
@@ -167,8 +167,7 @@ def add_user(email, password, username, address, phone):
 def add_shop(shop_name, email, password, address, phone, description):
     try:
         # Check if the user already exists
-        if user_in_db(email):
-            print(f"Email already in use by a different profile")
+        if user_in_db(email) is not None:
             return None
 
         # Generate UUID for the new user

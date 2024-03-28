@@ -29,10 +29,11 @@ def register_user():
         return jsonify({'status': False, 'error': 'Email, username and password are required!'}), 400
 
     try:
-        new_user = dynamodb.add_user(email, password, username, address, phone), 200
+        new_user = dynamodb.add_user(email, password, username, address, phone)
         if new_user is None:
-            return jsonify({'status': False, 'error': 'Unable to register the user.'}), 400
+            return jsonify({'status': False, 'error': 'Unable to register the user. E-Mail address may already be in use.'}), 400
         return jsonify({'status': True, 'message': new_user}), 200
+
     except ClientError as e:
         print("Error adding user:", e)
         return jsonify({'status': False, 'error': 'An error occurred while registering the user'}), 500
@@ -53,7 +54,7 @@ def register_shop():
     try:
         new_shop = dynamodb.add_shop(shop_name, email, password, address, phone, description)
         if new_shop is None:
-            return jsonify({'status': False, 'error': 'Unable to register the shop.'}), 400
+            return jsonify({'status': False, 'error': 'Unable to register the shop. E-Mail address may already be in use.'}), 400
         return jsonify({'status': True, 'message': new_shop}), 200
 
     except ClientError as e:
