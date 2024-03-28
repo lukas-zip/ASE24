@@ -87,6 +87,45 @@ def check_password(email, password):
         return False
 
 
+def change_password(entity_uuid, old_password, new_password):
+    # Retrieve the user's current password hash from DynamoDB
+    entity = get_entity(entity_uuid).get('Item')
+
+    if not entity:
+        print('Entity not found')
+        return False
+
+    entity_type = entity['type'].get('S')
+    stored_hashed_password = entity['password'].get('S').encode('utf-8')
+
+    # Verify the old password
+    if not bcrypt.checkpw(old_password.encode('utf-8'), stored_hashed_password):
+        return "mismatch"
+
+    # Hash the new password and update in DynamoDB
+    new_password_hash = hash_password(new_password)
+    pk_value, sk_value = pk_sk_values(entity_uuid)
+
+    try:
+        db_user_management.update_item(
+            TableName='UserManagement',
+            Key={
+                'PK': {'S': pk_value},
+                'SK': {'S': sk_value},
+            },
+            UpdateExpression='SET password = :val',
+            ExpressionAttributeValues={
+                ':val': {'S': new_password_hash.decode('utf-8')}
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        print(f"{pk_value} updated successfully.")
+        update_data = get_user_json(get_user(pk_value[5:])) if entity_type == 'User' else get_shop_json(get_shop(pk_value[5:]))
+        return update_data
+    except ClientError as e:
+        print(f"Error updating: {e}")
+        raise e
+
 
 # Function to add a user to the dynamodb
 def add_user(email, password, username, address, phone):
@@ -116,24 +155,9 @@ def add_user(email, password, username, address, phone):
             }
         )
         print("User added with UUID:", user_uuid)
-        return user_uuid
+        return get_user_json(get_user(user_uuid))
     except ClientError as e:
         print("Error adding user:", e)
-
-
-# Function to get a user by UUID
-def get_user(user_uuid):
-    try:
-        response = db_user_management.get_item(
-            TableName='UserManagement',
-            Key={
-                'PK': {'S': f'USER#{user_uuid}'},
-                'SK': {'S': f'PROFILE#{user_uuid}'}
-            }
-        )
-        return response.get('Item')
-    except ClientError as e:
-        print("Error getting user:", e)
 
 
 # Function to add a shop to the dynamodb
@@ -142,7 +166,7 @@ def add_shop(shop_name, email, password, address, phone, description):
         # Check if the user already exists
         if user_in_db(email):
             print(f"Email already in use by a different profile")
-            return
+            return None
 
         # Generate UUID for the new user
         shop_uuid = str(uuid.uuid4())
@@ -151,7 +175,7 @@ def add_shop(shop_name, email, password, address, phone, description):
         hashed_password = hash_password(password)
 
         # Put the new item into the table
-        response = db_user_management.put_item(
+        db_user_management.put_item(
             TableName='UserManagement',
             Item={
                 'PK': {'S': f'SHOP#{shop_uuid}'},
@@ -167,30 +191,9 @@ def add_shop(shop_name, email, password, address, phone, description):
             }
         )
         print("Shop added with UUID:", shop_uuid)
-        return shop_uuid
+        return get_shop_json(get_shop(shop_uuid))
     except ClientError as e:
         print("Error adding shop:", e)
-
-
-# Function to get a shop by ID
-def get_shop(shop_uuid):
-    """
-    Retrieve a shop's details from the DynamoDB table based on its UUID.
-
-    :param shop_uuid: The UUID of the shop to retrieve.
-    :return: A dictionary representing the shop item if found, None otherwise.
-    """
-    try:
-        response = db_user_management.get_item(
-            TableName='UserManagement',
-            Key={
-                'PK': {'S': f'SHOP#{shop_uuid}'},
-                'SK': {'S': f'DETAILS#{shop_uuid}'}
-            }
-        )
-        return response.get('Item')
-    except ClientError as e:
-        print("Error getting shop:", e)
 
 
 def user_in_db(email):
@@ -207,32 +210,10 @@ def user_in_db(email):
         return None
 
 
-def get_entity(entity_uuid):
-    """
-    Fetch an entity (user or shop) from the DynamoDB table using the entity UUID.
-
-    :param entity_uuid: The UUID of the entity to fetch.
-    :return: The entity item if found, None otherwise.
-    """
+def update_entity(entity_uuid, attributes):
     try:
-        # Attempt to fetch the user
-        user_response = get_user(entity_uuid)
-        if user_response is not None:
-            return user_response
-
-        # If not found, attempt to fetch the shop
-        shop_response = get_shop(entity_uuid)
-        if shop_response is not None:
-            return shop_response
-        # If no entity is found, return None
-        return None
-    except ClientError as e:
-        print("Error getting entity:", e)
-
-
-def update_entity(entity_uuid, attributes, new_password=None):
-    try:
-        entity_type = get_entity(entity_uuid)['type'].get('S')
+        entity_type = get_entity(entity_uuid).get('Item')['type'].get('S')
+        logging.error(entity_type)
         # Base update expression setup
         update_expression = "set "
         expression_attribute_values = {}
@@ -245,17 +226,11 @@ def update_entity(entity_uuid, attributes, new_password=None):
         # Remove the trailing comma and space from the update expression
         update_expression = update_expression.rstrip(", ")
 
-        # If a new password is provided, hash it and append it to the update expression
-        if new_password:
-            hashed_password = hash_password(new_password)
-            update_expression += f", password = :password"
-            expression_attribute_values[":password"] = hashed_password.decode('utf-8')
-
         # Determine the key prefix based on the entity type
         pk_value, sk_value = pk_sk_values(entity_uuid)
 
         # Execute the update operation
-        response = db_user_management.update_item(
+        db_user_management.update_item(
             TableName='UserManagement',
             Key={
                 'PK': {'S': pk_value},
@@ -265,12 +240,35 @@ def update_entity(entity_uuid, attributes, new_password=None):
             ExpressionAttributeValues=expression_attribute_values,
             ReturnValues="UPDATED_NEW"
         )
-
-        print(f"{entity_type.capitalize()} updated successfully.")
-        return response
+        print(f"{pk_value} updated successfully.")
+        update_data = get_user_json(get_user(pk_value[5:])) if entity_type == 'User' else get_shop_json(get_shop(pk_value[5:]))
+        return update_data
     except ClientError as e:
         print(f"Error updating: {e}")
         raise e
+
+
+def get_entity(entity_uuid):
+    """
+    Fetch an entity (user or shop) from the DynamoDB table using the entity UUID.
+
+    :param entity_uuid: The UUID of the entity to fetch.
+    :return: The entity item if found, None otherwise.
+    """
+    try:
+        # Attempt to fetch the user
+        user_response = get_user(entity_uuid)
+        if user_response.get('Item') is not None:
+            return user_response
+
+        # If not found, attempt to fetch the shop
+        shop_response = get_shop(entity_uuid)
+        if shop_response.get('Item') is not None:
+            return shop_response
+        # If no entity is found, return None
+        return None
+    except ClientError as e:
+        print("Error getting entity:", e)
 
 
 # Uploads a profile picture to S3 and updates the user's DynamoDB entry.
@@ -319,11 +317,78 @@ def delete_entity_from_db(entity_uuid):
 
 def pk_sk_values(entity_uuid):
     try:
-        entity_type = get_entity(entity_uuid)['type'].get('S')
-        prefix = 'USER' if entity_type == 'User' else 'SHOP'
-        pk_value = f'{prefix}#{entity_uuid}'
-        sk_value = f'PROFILE#{entity_uuid}' if entity_type == 'User' else f'DETAILS#{entity_uuid}'
+        entity_type = get_entity(entity_uuid).get('Item')['type'].get('S')
+        pk_prefix = 'USER' if entity_type == 'User' else 'SHOP'
+        sk_prefix = 'PROFILE' if entity_type == 'User' else 'DETAILS'
+        pk_value = f'{pk_prefix}#{entity_uuid}'
+        sk_value = f'{sk_prefix}#{entity_uuid}'
         return pk_value, sk_value
     except ClientError as e:
         print(f"Error updating: {e}")
         raise e
+
+
+def get_user(user_uuid):
+    try:
+        response = db_user_management.get_item(
+            TableName='UserManagement',
+            Key={
+                'PK': {'S': f'USER#{user_uuid}'},
+                'SK': {'S': f'PROFILE#{user_uuid}'}
+            }
+        )
+        return response
+    except ClientError as e:
+        print("Error getting user:", e)
+
+
+# Function to get a user by UUID
+def get_user_json(user):
+    try:
+        user_dict = {
+            'user_id': user.get('Item', {}).get('PK', {}).get('S', None)[5:]
+                if user.get('Item', {}).get('PK', {}).get('S', None) else None,
+            'type': user.get('Item', {}).get('type', {}).get('S', None),
+            'profile_picture': user.get('Item', {}).get('profile_picture', {}).get('S', None),
+            'email': user.get('Item', {}).get('email', {}).get('S', None),
+            'username': user.get('Item', {}).get('username', {}).get('S', None),
+            'address': user.get('Item', {}).get('address', {}).get('S', None),
+            'phone': user.get('Item', {}).get('phone', {}).get('S', None)
+        }
+        return user_dict
+    except ClientError as e:
+        print("Error getting user:", e)
+
+
+# Function to get a user by UUID
+def get_shop(shop_uuid):
+    try:
+        response = db_user_management.get_item(
+            TableName='UserManagement',
+            Key={
+                'PK': {'S': f'SHOP#{shop_uuid}'},
+                'SK': {'S': f'DETAILS#{shop_uuid}'}
+            }
+        )
+        return response
+    except ClientError as e:
+        print("Error getting shop:", e)
+
+
+# Function to get a user by UUID
+def get_shop_json(shop):
+    try:
+        shop_dict = {
+            'shop_id': shop.get('Item', {}).get('PK', {}).get('S', None)[5:]
+                if shop.get('Item', {}).get('PK', {}).get('S', None) else None,
+            'type': shop.get('Item', {}).get('type', {}).get('S', None),
+            'profile_picture': shop.get('Item', {}).get('profile_picture', {}).get('S', None),
+            'email': shop.get('Item', {}).get('email', {}).get('S', None),
+            'shop_name': shop.get('Item', {}).get('shop_name', {}).get('S', None),
+            'description': shop.get('Item', {}).get('description', {}).get('S', None),
+            'address': shop.get('Item', {}).get('address', {}).get('S', None),
+            'phone': shop.get('Item', {}).get('phone', {}).get('S', None)
+        }
+        return shop_dict
+    except ClientError as e:
+        print("Error getting user:", e)
