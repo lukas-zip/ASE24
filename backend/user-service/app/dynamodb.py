@@ -66,7 +66,7 @@ def create_user_management_tables():
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-def check_password(email, password):
+def check_login(email, password):
     """
     Verify if the provided password matches the hashed password stored in DynamoDB.
 
@@ -81,7 +81,10 @@ def check_password(email, password):
             return False  # User not found
         stored_hashed_password = entity['password'].get('S').encode('utf-8')
         # Compare the provided password with the stored hashed password
-        return bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password)
+        if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
+            entity_uuid = entity['PK'].get('S')[5:]
+            return get_user_json(get_user(entity_uuid)) if entity['type'].get('S') == 'User' else get_shop_json(get_shop(entity_uuid))
+        return False
     except ClientError as e:
         print(f"An error occurred: {e}")
         return False
@@ -212,7 +215,7 @@ def user_in_db(email):
 
 def update_entity(entity_uuid, attributes):
     try:
-        entity_type = get_entity(entity_uuid).get('Item')['type'].get('S')
+        entity_type = get_entity_type(entity_uuid)
         logging.error(entity_type)
         # Base update expression setup
         update_expression = "set "
@@ -270,6 +273,9 @@ def get_entity(entity_uuid):
     except ClientError as e:
         print("Error getting entity:", e)
 
+def get_entity_type(entity_uuid):
+    return get_entity(entity_uuid).get('Item')['type'].get('S')
+
 
 # Uploads a profile picture to S3 and updates the user's DynamoDB entry.
 def update_profile_picture(entity_uuid, file_path, filename):
@@ -317,7 +323,7 @@ def delete_entity_from_db(entity_uuid):
 
 def pk_sk_values(entity_uuid):
     try:
-        entity_type = get_entity(entity_uuid).get('Item')['type'].get('S')
+        entity_type = get_entity_type(entity_uuid)
         pk_prefix = 'USER' if entity_type == 'User' else 'SHOP'
         sk_prefix = 'PROFILE' if entity_type == 'User' else 'DETAILS'
         pk_value = f'{pk_prefix}#{entity_uuid}'

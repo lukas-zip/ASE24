@@ -37,43 +37,6 @@ def register_user():
         print("Error adding user:", e)
         return jsonify({'status': False, 'error': 'An error occurred while registering the user'}), 500
 
-
-@app.route('/user/update/<user_id>', methods=['PUT'])
-def update_user(user_id):
-    # Retrieve the data sent in the request
-    data = request.json
-    email = data.get('email')
-    username = data.get('username')
-    address = data.get('address')
-    phone = data.get('phone')
-
-    if not email:
-        return jsonify({'status': False, 'error': 'Email cannot be empty!'}), 400
-
-    # Check if the email is in the right format
-    if email:
-        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_regex, email):
-            return jsonify({'status': False, 'error': 'Invalid email format!'}), 400
-
-    attributes = {
-        'email': email,
-        'username': username,
-        'address': address,
-        'phone': phone
-    }
-
-    try:
-        update_response = dynamodb.update_entity(user_id, attributes)
-        if update_response:
-            return jsonify({'status': True, 'message': update_response}), 200
-        else:
-            return jsonify({'status': False, 'error': 'Failed to update user'}), 400
-    except ClientError as e:
-        print(f"Error updating user: {e}")
-        return jsonify({'status': False, 'error': 'An error occurred while updating the user'}), 500
-
-
 # Shop registration by retrieving data from post request and saving into dynamodb
 @app.route('/shop/register', methods=['POST'])
 def register_shop():
@@ -98,8 +61,35 @@ def register_shop():
         return jsonify({'status': False, 'error': 'An error occurred while registering the shop'}), 500
 
 
-# Update function for shops
-@app.route('/shop/update/<shop_id>', methods=['PUT'])
+# Check if user already  exists and provide login to platform
+@app.route('/login', methods=['POST'])
+def login():
+    # Retrieve data from post request
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'status': False, 'error': 'Email and password are required'}), 400
+
+    try:
+        # Check if entity exists and password is correct
+        login = dynamodb.check_login(email, password)
+        if login:
+            return jsonify({'status': True, 'message': login}), 200
+        else:
+            return jsonify({'status': False, 'error': 'Invalid login credentials'}), 401
+    except ClientError as e:
+        return jsonify({'status': False, 'error': str(e)}), 500
+
+
+@app.route('/update/<entity_uuid>', methods=['PUT'])
+def update_entity(entity_uuid):
+    entity_type = dynamodb.get_entity_type(entity_uuid)
+    return update_user(entity_uuid) if entity_type == 'User' else update_shop(entity_uuid)
+
+
+# Update function for shop
 def update_shop(shop_id):
     # Retrieve the data sent in the request
     data = request.json
@@ -138,7 +128,42 @@ def update_shop(shop_id):
         return jsonify({'status': False, 'error': 'An error occurred while updating the shop'}), 500
 
 
-@app.route('/password/update/<entity_uuid>', methods=['PUT'])
+def update_user(user_id):
+    # Retrieve the data sent in the request
+    data = request.json
+    email = data.get('email')
+    username = data.get('username')
+    address = data.get('address')
+    phone = data.get('phone')
+
+    if not email:
+        return jsonify({'status': False, 'error': 'Email cannot be empty!'}), 400
+
+    # Check if the email is in the right format
+    if email:
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            return jsonify({'status': False, 'error': 'Invalid email format!'}), 400
+
+    attributes = {
+        'email': email,
+        'username': username,
+        'address': address,
+        'phone': phone
+    }
+
+    try:
+        update_response = dynamodb.update_entity(user_id, attributes)
+        if update_response:
+            return jsonify({'status': True, 'message': update_response}), 200
+        else:
+            return jsonify({'status': False, 'error': 'Failed to update user'}), 400
+    except ClientError as e:
+        print(f"Error updating user: {e}")
+        return jsonify({'status': False, 'error': 'An error occurred while updating the user'}), 500
+
+
+@app.route('/password/<entity_uuid>', methods=['PUT'])
 def change_password(entity_uuid):
     data = request.json
     old_password = data.get('old_password')
@@ -159,29 +184,7 @@ def change_password(entity_uuid):
         return jsonify({'status': False, 'error': str(e)}), 500
 
 
-
-# Check if user already  exists and provide login to platform
-@app.route('/login', methods=['POST'])
-def login():
-    # Retrieve data from post request
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({'status': False, 'error': 'Email and password are required'}), 400
-
-    try:
-        # Check if entity exists and password is correct
-        if dynamodb.check_password(email, password):
-            return jsonify({'status': True, 'message': 'Login successful'}), 200
-        else:
-            return jsonify({'status': False, 'error': 'Invalid login credentials'}), 401
-    except ClientError as e:
-        return jsonify({'status': False, 'error': str(e)}), 500
-
-
-@app.route('/profilepicture/<entity_uuid>', methods=['POST'])
+@app.route('/profilepicture/<entity_uuid>', methods=['PUT'])
 def update_picture(entity_uuid):
     if 'file' not in request.files:
         return jsonify({'status': False, 'error': 'No file part'}), 400
@@ -213,6 +216,16 @@ def update_picture(entity_uuid):
     return jsonify({'status': False, 'message': 'File uploaded unsuccessfull'}), 401
 
 
+@app.route('/get/<entity_uuid>', methods=['GET'])
+def get_entity(entity_uuid):
+    try:
+        response = dynamodb.get_shop_json(dynamodb.get_entity(entity_uuid))
+        return jsonify({'status': True, 'message': response}), 201
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return jsonify({'status': False, 'error': 'An error occurred while fetching the entity.'}), 500
+
+
 @app.route('/delete/<entity_uuid>', methods=['DELETE'])
 def delete_entity(entity_uuid):
     try:
@@ -224,12 +237,3 @@ def delete_entity(entity_uuid):
     except ClientError as e:
         print(f"Error deleting {entity_uuid}: {e}")
         return jsonify({'status': False, 'error': f'An error occurred while deleting the {entity_uuid}'}), 500
-
-@app.route('/get/<entity_uuid>', methods=['GET'])
-def get_entity(entity_uuid):
-    try:
-        response = dynamodb.get_shop_json(dynamodb.get_entity(entity_uuid))
-        return jsonify({'status': True, 'message': response}), 201
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        return jsonify({'status': False, 'error': 'An error occurred while fetching the entity.'}), 500
