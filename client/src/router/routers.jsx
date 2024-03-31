@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import CheckProtectedRouter from './CheckProtectedRouter'
 import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
+import SettingPage from '../pages/ClientHomePage/pages/settingPage'
 
 export default function MyRouter() {
     const { user } = useSelector(state => state.user)
@@ -21,10 +22,19 @@ export default function MyRouter() {
             path: "/shop",
             element: <ProtectedRouter><Dashboard /></ProtectedRouter>,
             errorElement: <ErrorPage />,
-            
             children: [
                 {
                     path: "home",
+                    element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
+                {
+                    path: "statistic",
+                    element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
+                {
+                    path: "settings",
                     element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
                     // loader: async () => await getStatistics()
                 },
@@ -41,8 +51,16 @@ export default function MyRouter() {
                     element: <ProtectedRouter><></></ProtectedRouter>,
                 },
                 {
-                    path: "profile",
+                    path: "cart",
                     element: <ProtectedRouter><></></ProtectedRouter>,
+                },
+                {
+                    path: "statistics",
+                    element: <ProtectedRouter><></></ProtectedRouter>,
+                },
+                {
+                    path: "profile",
+                    element: <ProtectedRouter><SettingPage /></ProtectedRouter>,
                 },
             ]
         },

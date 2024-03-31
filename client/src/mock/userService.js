@@ -36,7 +36,7 @@ Mock.mock("/login", "post", {
         profile_picture: "NONE",
         user_id: "0638fad3-26f8-473a-9b54-6b5fb4ae7e0f",
         username: "John Micro",
-        type: "Shop"
+        type: "User"
     },
     status: true
 })

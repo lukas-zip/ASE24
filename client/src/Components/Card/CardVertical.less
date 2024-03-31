@@ -1,0 +1,89 @@
+.tutorialCardVertical {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+
+    background-color: #1d1d1d;
+
+    &-cover {
+        border-radius: 10px;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+
+        &-detail {
+            width: 100%;
+            position: absolute;
+            bottom: 4px;
+            display: flex;
+            padding: 10px;
+            color: #fff;
+            font-weight: 600;
+            line-height: 24px;
+            justify-content: space-between;
+
+            &-level {
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 4px;
+                line-height: 24px;
+                background-color: #4d90f9;
+            }
+
+            &-duration {
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 4px;
+                line-height: 24px;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        img {
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &-bottom {
+        display: flex;
+        padding: 10px;
+        justify-content: space-between;
+
+        &-desc {
+            &-title {
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            &-desc {
+                font-size: 12px;
+                color: #949494;
+            }
+        }
+
+        &-extraBtn {}
+    }
+}
+
+.tutorialCardVertical-light {
+    background-color: #fff;
+
+    &-bottom {
+
+        &-desc {
+            &-brief {
+                color: #9b999b;
+            }
+        }
+
+        &-extraBtn {}
+    }
+}
