@@ -5,12 +5,12 @@ import { useNavigate, Outlet } from 'react-router-dom'
 import './index.less';
 
 const ClientHomePage = () => {
-    const { currentUser, currentTheme } = useSelector((state) => state.user)
+    const { user, currentTheme } = useSelector((state) => state.user)
     const navigateTo = useNavigate()
     const lightAppClassname = currentTheme === 'light' ? 'App-light' : ''
     const lightDashboardClassname = currentTheme === 'light' ? 'myDashboard-light' : ''
     useEffect(() => {
-        !currentUser && navigateTo('/login')
+        !user && navigateTo('/login')
     }, [])
     return (
         <div className={`App ${lightAppClassname}`}>

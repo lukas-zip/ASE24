@@ -5,7 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import MyLayoutHeader from './header';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCollapsed } from '@/store/configuration.store'
-import { DatabaseOutlined, HomeOutlined, MoneyCollectFilled, MoneyCollectOutlined, SettingOutlined, WalletOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, HomeOutlined, SettingOutlined, WalletOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
 const { Content, Sider } = Layout;
@@ -31,7 +31,8 @@ const Dashboard = () => {
   useEffect(() => {
     const pathvariables = pathname.split('/')
     setSelectedKeys(pathvariables[pathvariables.length - 1])
-    // pathname === '/' && navigateTo('/home')
+    console.log("pathname", pathname);
+    pathname === '/shop' && navigateTo('home')
   }, [pathname])
   return (
     <Layout className="layout-page" style={{ minHeight: '100vh' }}>

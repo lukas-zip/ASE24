@@ -1,9 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import pngurl1 from '@/assets/pic/monitorProcess.webp'
-import pngurl2 from '@/assets/pic/contact.webp'
-import pngurl3 from '@/assets/pic/tutorial.webp'
-import pngurl4 from '@/assets/pic/game.webp'
-import pngurl5 from '@/assets/pic/workoutPlan.jpg'
 import { useNavigate } from 'react-router-dom'
 import './index.less'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
@@ -31,13 +26,7 @@ export default function Login() {
     const activenameSup = focusednameSup ? 'active' : ''
     const activepasswordSup = focusedpasswordSup ? 'active' : ''
     const activeemail = focusedemail ? 'active' : ''
-
-    const [name, setName] = useState('')
     useEffect(() => {
-        // const token = localStorage.getItem('token');
-        // if (logged !== true) {
-        //     checkLogged(token)
-        // }
         const timer = window.setInterval(() => {
             setSelectedPic((prev) => {
                 return prev !== 5 ? prev + 1 : 1
@@ -54,9 +43,8 @@ export default function Login() {
     const UserSignIn = async () => {
         const res = await signIn(sigInInfo)
         if (res && res.status !== false) {
-            localStorage.setItem('user', res)
-            dispatch(setUser(res))
-            dispatch(setLogged(true))
+            localStorage.setItem('user', res.value)
+            dispatch(setUser(res.value))
             navigateTo('/')
         } else {
             message.error('Error happen, try again please')

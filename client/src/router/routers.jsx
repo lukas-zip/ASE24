@@ -10,7 +10,7 @@ import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
 
 export default function MyRouter() {
-    // const { user } = useSelector(state => state.user)
+    const { user } = useSelector(state => state.user)
     const router = createBrowserRouter([
         {
             path: "/",
@@ -18,9 +18,10 @@ export default function MyRouter() {
             errorElement: <ErrorPage />,
         },
         {
-            path: "/seller",
+            path: "/shop",
             element: <ProtectedRouter><Dashboard /></ProtectedRouter>,
             errorElement: <ErrorPage />,
+            
             children: [
                 {
                     path: "home",
@@ -30,20 +31,20 @@ export default function MyRouter() {
             ]
         },
         {
-            path: "/buyer",
-            element: <ClientHomePage />,
+            path: "/user",
+            element: <ProtectedRouter><ClientHomePage /></ProtectedRouter>,
             // element: <ProtectedRouter><ClientHomePage /></ProtectedRouter>,
             errorElement: <ErrorPage />,
-            // children: [
-            //     {
-            //         path: "products",
-            //         element: <ProtectedRouter><Home /></ProtectedRouter>,
-            //     },
-            //     {
-            //         path: "profile",
-            //         element: <ProtectedRouter><StatisticBoard /></ProtectedRouter>,
-            //     },
-            // ]
+            children: [
+                {
+                    path: "home",
+                    element: <ProtectedRouter><></></ProtectedRouter>,
+                },
+                {
+                    path: "profile",
+                    element: <ProtectedRouter><></></ProtectedRouter>,
+                },
+            ]
         },
         {
             path: "/info",

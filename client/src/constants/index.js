@@ -1,7 +1,7 @@
 const CONSTANTS = {
     USER_TYPE: {
-        BUYER: 'buyer',
-        SELLER: 'seller',
+        SHOP: 'Shop',
+        USER: 'User',
     }
 }
 

@@ -19,7 +19,8 @@ export default function MyLayoutHeader() {
     const navigateTo = useNavigate()
     const loginStatusDiv = (
         <div style={{ display: "grid", gridTemplateColumns: 'auto' }}>
-            <div
+            <Button
+                danger
                 className='hoverButton'
                 onClick={() => {
                     dispatch(setUser(null))
@@ -27,10 +28,7 @@ export default function MyLayoutHeader() {
                 }}
             >
                 Logout
-            </div>
-            <div>
-                nihao
-            </div>
+            </Button>
         </div>
     );
     const [updatePasswordModelOpen, setUpdatePasswordModelOpen] = useState(false)
