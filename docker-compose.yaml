@@ -2,6 +2,17 @@ version: '3'
 
 services:
 
+  reviews:
+    build: ./backend/reviews
+    ports:
+      - "8003:8003"
+    # env_file:
+    #   - .env.localstack
+    volumes:
+      - ./backend/reviews:/app
+    depends_on:
+      - localstack
+
   user-service:
     build: ./backend/user-service
     ports:

@@ -5,8 +5,8 @@ WORKDIR /reviews
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY . /user-service
+COPY . /reviews
 
-EXPOSE 8001
+EXPOSE 8003
 
 CMD ["python3", "run.py", "--host=0.0.0.0"]
