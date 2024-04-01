@@ -179,8 +179,8 @@ export default function ProfileCard() {
                     </Form>
                 </Modal>
             </div >
-            <div style={{ marginTop: 50 }}>
-                <Form disabled labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+            <div style={{ marginTop: 50, pointerEvents: "none" }}>
+                <Form labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
                     <Form.Item name="name" label={"User Name"}>
                         <Input defaultValue={username} />
                     </Form.Item>

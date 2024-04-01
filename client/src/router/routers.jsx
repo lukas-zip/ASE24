@@ -9,6 +9,9 @@ import CheckProtectedRouter from './CheckProtectedRouter'
 import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
 import SettingPage from '../pages/ClientHomePage/pages/settingPage'
+import ShoppingCartPage from '../pages/ClientHomePage/pages/ShoppingCartPage'
+import StatisticPage from '../pages/ClientHomePage/pages/StatisticPage'
+import UserHomePage from '../pages/ClientHomePage/pages/HomePage'
 
 export default function MyRouter() {
     const { user } = useSelector(state => state.user)
@@ -48,15 +51,15 @@ export default function MyRouter() {
             children: [
                 {
                     path: "home",
-                    element: <ProtectedRouter><></></ProtectedRouter>,
+                    element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
                 },
                 {
                     path: "cart",
-                    element: <ProtectedRouter><></></ProtectedRouter>,
+                    element: <ProtectedRouter><ShoppingCartPage /></ProtectedRouter>,
                 },
                 {
                     path: "statistics",
-                    element: <ProtectedRouter><></></ProtectedRouter>,
+                    element: <ProtectedRouter><StatisticPage /></ProtectedRouter>,
                 },
                 {
                     path: "profile",
