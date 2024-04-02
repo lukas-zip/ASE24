@@ -1,6 +1,9 @@
 import boto3
 import uuid
+from app import s3
 from botocore.exceptions import ClientError
+from io import BytesIO
+from urllib.parse import quote_plus
 
 db_inventory_management = boto3.client(
     "dynamodb",
@@ -9,6 +12,10 @@ db_inventory_management = boto3.client(
     region_name="us-east-1",
     endpoint_url="http://localstack:4566"
 )
+
+# ------------------------------------------
+# Product Database --> Dynamodb
+# ------------------------------------------
 
 # Function to create the profiles table
 def create_product_table():
@@ -40,7 +47,6 @@ def create_product_table():
             }
         )
         print("Products table created.")
-
 
 def create_product_owner_index():
     try:
@@ -96,7 +102,9 @@ def get_products_by_product_owner(product_owner):
                 'product_sale': item.get('product_sale', {}).get('BOOL', False),
                 'product_category': item.get('product_category', {}).get('S', ''),
                 'product_search_attributes': item.get('product_search_attributes', {}).get('S', ''),
-                'product_reviews': item.get('product_reviews', {}).get('S', '')
+                'product_reviews': item.get('product_reviews', {}).get('S', ''),
+                'product_bom': item.get('product_bom', {}).get('S', ''),
+                'product_assemblies': item.get('product_assemblies', {}).get('S', '')
             }
             products[product_id] = product_info
 
@@ -122,7 +130,9 @@ def get_products_by_product_owner(product_owner):
                     'product_sale': item.get('product_sale', {}).get('BOOL', False),
                     'product_category': item.get('product_category', {}).get('S', ''),
                     'product_search_attributes': item.get('product_search_attributes', {}).get('S', ''),
-                    'product_reviews': item.get('product_reviews', {}).get('S', '')
+                    'product_reviews': item.get('product_reviews', {}).get('S', ''),
+                    'product_bom': item.get('product_bom', {}).get('S', ''),
+                    'product_assemblies': item.get('product_assemblies', {}).get('S', '')
                 }
                 products[product_id] = product_info
 
@@ -132,11 +142,47 @@ def get_products_by_product_owner(product_owner):
         print("Error getting products by product owner:", e)
         return {}
 
-
-# Function to add a user
-def add_product(product_owner, product_name, product_picture, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews):
+# check for Item existance
+def product_check(product_id):
     try:
-        # Check if the user already exists
+        response = db_inventory_management.get_item(
+            TableName='Products',
+            Key={
+                'product_id': {'S': product_id}
+            }
+        )
+        item = response.get('Item')
+        return item is not None
+    except ClientError as e:
+        print("Error checking product:", e)
+        return False
+
+def add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file):
+    
+    try:
+        # Generate UUID for the new product
+        product_uuid = str(uuid.uuid4())
+
+        # Put picture into S3
+        bucket_name = 'productpictures'
+        object_key = f'{product_uuid}.jpg'  # Use UUID as object key
+
+        # Convert bytes object to file-like object
+        image_stream = BytesIO(image_file.read())
+
+        try:
+            # Upload the image file to S3
+            s3response = s3.upload_fileobj(image_stream, bucket_name, object_key)
+            print("Product picture added with UUID:", product_uuid)
+        except ClientError as e:
+            print("Error uploading product picture to S3:", e)
+            return
+        
+        # Construct the URL/path to the uploaded image
+        s3_base_url = f'http://localhost:4566/{bucket_name}/' # Der Link ist derzeit auf Local angepasst
+        image_url = s3_base_url + quote_plus(object_key)
+
+        # Check if the product already exists
         existing_products = get_products_by_product_owner(product_owner)
         
         # Iterate over each existing product
@@ -145,9 +191,6 @@ def add_product(product_owner, product_name, product_picture, product_descriptio
                 print(f"A product with the same name already exists for {product_owner}.")
                 return 
 
-        # Generate UUID for the new user
-        product_uuid = str(uuid.uuid4())
-
         # Put the new item into the table
         response = db_inventory_management.put_item(
             TableName='Products',
@@ -155,7 +198,7 @@ def add_product(product_owner, product_name, product_picture, product_descriptio
                 'product_id': {'S': product_uuid},  # Automatically generated UUID
                 'product_owner': {'S': product_owner},
                 'product_name': {'S': product_name},
-                'product_picture': {'S': product_picture},
+                'product_picture': {'S': image_url},  # Store URL/path to the image
                 'product_description': {'S': product_description},
                 'product_current_stock': {'N': str(product_current_stock)},
                 'product_should_stock': {'N': str(product_should_stock)},
@@ -164,43 +207,72 @@ def add_product(product_owner, product_name, product_picture, product_descriptio
                 'product_sale': {'S': str(product_sale)},
                 'product_category': {'S': str(product_category)},
                 'product_search_attributes': {'S': str(product_search_attributes)},
-                'product_reviews': {'S': str(product_reviews)}
+                'product_reviews': {'S': str(product_reviews)},
+                'product_bom': {'S': str(product_bom)}, # Stückliste
+                'product_assemblies': {'S': str(product_assemblies)} # Baugruppe oder nicht
             }
         )
         print("Product added with UUID:", product_uuid)
     except ClientError as e:
-        print("Error adding user:", e)
+        print("Error adding product:", e)
 
-# Function to add dummy users
-def add_dummy_products():
-    dummy_products = [
-        {
-            "product_owner": "999999999",
-            "product_name": "exampleProduct",
-            "product_picture": "https://example.com/product_image.jpg",
-            "product_description": "exampleDescription",
-            "product_current_stock": 0,  # Convert to string
-            "product_should_stock": 0,   # Convert to string
-            "product_price": 0.00,       # Convert to string
-            "product_price_reduction": 0.00,  # Convert to string
-            "product_sale": False,       # Convert to string
-            "product_category": {},        # Empty dictionary #id for category 
-            "product_search_attributes": {},  # Empty dictionary #id for search attributes/tags
-            "product_reviews": {}          # Empty dictionary #id for review
-        }
-    ]
-    for p in dummy_products:
-        add_product(
-            product_owner=p["product_owner"],
-            product_name=p["product_name"],
-            product_picture=p["product_picture"],
-            product_description=p["product_description"],
-            product_current_stock=p["product_current_stock"],
-            product_should_stock=p["product_should_stock"],
-            product_price=p["product_price"],
-            product_price_reduction=p["product_price_reduction"],
-            product_sale=p["product_sale"],
-            product_category=p["product_category"],
-            product_search_attributes=p["product_search_attributes"],
-            product_reviews=p["product_reviews"]
+
+# delete product from table
+def delete_product(product_id):
+    table_name = 'Products'
+    try:
+        response = db_inventory_management.delete_item(
+            TableName=table_name,
+            Key={
+                'product_id': {'S': product_id}
+            }
         )
+
+        response2 = s3.delete_object(product_id)
+
+        print("Product got successfully deleted.")
+        return True
+    except Exception as e:
+        print("Error deleting item.", e)
+        return False
+
+# getting a single product
+def get_product(product_id):
+    table_name = 'Products'
+    try:
+        response = db_inventory_management.get_item(
+            TableName=table_name,
+            Key={
+                'product_id': {'S': product_id}
+            }
+        )
+        item = response.get('Item')
+        if item:
+            product_info = {
+                'product_id': item.get('product_id', {}).get('S', ''),
+                'product_owner': item.get('product_owner', {}).get('S', ''),
+                'product_name': item.get('product_name', {}).get('S', ''),
+                'product_picture': item.get('product_picture', {}).get('S', ''),
+                'product_description': item.get('product_description', {}).get('S', ''),
+                'product_current_stock': item.get('product_current_stock', {}).get('N', ''),
+                'product_should_stock': item.get('product_should_stock', {}).get('N', ''),
+                'product_price': item.get('product_price', {}).get('N', ''),
+                'product_price_reduction': item.get('product_price_reduction', {}).get('N', ''),
+                'product_sale': item.get('product_sale', {}).get('BOOL', False),
+                'product_category': item.get('product_category', {}).get('S', ''),
+                'product_search_attributes': item.get('product_search_attributes', {}).get('S', ''),
+                'product_reviews': item.get('product_reviews', {}).get('S', ''),
+                'product_bom': item.get('product_bom', {}).get('S', ''),
+                'product_assemblies': item.get('product_assemblies', {}).get('S', '')
+            }
+            return product_info
+        else:
+            print("Product not found.")
+            return None
+    except ClientError as e:
+        print("Error getting product:", e)
+        return None
+
+
+
+#update product
