@@ -56,7 +56,7 @@ def insert_product():
     image_file = request.files['image']
     
     # Checking for required fields
-    if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies]):
+    if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
         return jsonify({'error': 'Product data is incomplete.'}), 400
 
     # Check if the image filename is empty
@@ -95,6 +95,33 @@ def delete_product_haendler():
         print("Error deleting product:", e)
         return jsonify({'error': 'An error occurred while processing your request.'}), 500
 
+# process a sell --> providing the ID for the sell of the product
+@app.route('/sell/<product_id>', methods=['PUT'])
+def product_sell(product_id):
+    try:
+        data = request.json
+    
+        # Ensure product_id and product_owner are provided in the request body
+        if 'product_owner' not in data:
+            return jsonify({'error': 'product_owner is required in the request body'}), 400
+        if 'amount' not in data:
+            return jsonify({'error': 'amount is required in the request body'}), 400
+
+        response = dynamodb.perform_sell(product_id, data['product_owner'], data['amount'])
+        if response:
+            return jsonify({'message': 'successfully performed sell.'}), 200
+        else:
+            return jsonify({'error': 'unsuccessful sell'}), 400
+    except ClientError as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+# production recommendations
+# update product
+
 
 
 
@@ -105,8 +132,8 @@ def delete_product_haendler():
 # Consumer functions
 # ------------------------------------------
 
-# get certain product
-@app.route('/product/<uuid:product_id>', methods=['GET'])
+# get certain product, used when clicking on a product --> product view
+@app.route('/product/<product_id>', methods=['GET'])
 def get_product_info(product_id):
     try:
         product_info = dynamodb.get_product(str(product_id))
@@ -118,144 +145,98 @@ def get_product_info(product_id):
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.'}), 500
 
-# get product catalogue for a certain seller
-@app.route('/catalogue/<product_owner>', methods=['GET'])
+# get product catalogue for a certain seller --> used to show all products belonging to one seller
+@app.route('/cataloguesell/<product_owner>', methods=['GET'])
 def get_products_to_sell_catalog(product_owner):
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
-        if products :
-            return jsonify(products), 200
+        final_products = [{
+            'product_id': product_id,
+            **product_info
+        } for product_id, product_info in products.items() if product_info.get('product_assemblies') == 'Final']
+        if final_products:
+            return jsonify(final_products), 200
         else:
             return jsonify({'message': 'no items available for this product_owner'}), 400
     except ClientError as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.'}), 500
     
+# get product catalogue for a certain seller --> shows all products that secondary
+@app.route('/cataloguebuild/<product_owner>', methods=['GET'])
+def get_products_to_build_catalog(product_owner):
+    try:
+        products = dynamodb.get_products_by_product_owner(str(product_owner))
+        final_products = [{
+            'product_id': product_id,
+            **product_info
+        } for product_id, product_info in products.items() if product_info.get('product_assemblies') == 'Secondary']
+        if final_products:
+            return jsonify(final_products), 200
+        else:
+            return jsonify({'message': 'no items available for this product_owner'}), 400
+    except ClientError as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+
+@app.route('/update_product/<product_id>', methods=['PUT'])
+def update_product_route(product_id):
+    try:
+        # Get the updated product data from the request body
+        updated_data = request.json
+        
+        # Ensure product_id and product_owner are provided in the request body
+        if 'product_owner' not in updated_data:
+            return jsonify({'error': 'product_owner is required in the request body'}), 400
+        
+        # Call the update_product function to perform the update
+        success = dynamodb.update_product(product_id, updated_data['product_owner'], updated_data)
+        
+        if success:
+            return jsonify({'message': 'Product updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to update product'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
-
-# process a sell
-# process a production of certain material
-
-
-
+# get products regarding certain attribute /search
+# get products regarding certain category
+# getting all products that contain somehow the search term in either the name, the category or search attributes
+# Define search route
+@app.route('/search', methods=['GET'])
+def search():
+    term = request.args.get('term')
+    if not term:
+        return jsonify({'error': 'Search term parameter is required'}), 400
     
+    # Perform search by category and attributes
+    print("Searching products by category for term:", term)
+    products_by_category = dynamodb.search_products_by_category(term)
+    print("Products by category:", products_by_category)
+    
+    print("Searching products by attributes for term:", term)
+    products_by_attributes = dynamodb.search_products_by_attributes(term)
+    print("Products by attributes:", products_by_attributes)
+    
+    # Combine and return the results
+    combined_results = products_by_category + products_by_attributes
+    return jsonify(combined_results)
+
+@app.route('/category', methods=['GET'])
+def get_category():
+    category = request.args.get('term')
+    if not category:
+        return jsonify({'error': 'Search category parameter is required'}), 400
+    
+    # Perform search by category and attributes
+    print("Searching products by category for term:", category)
+    products_by_category = dynamodb.search_products_by_category(category)
+    print("Products by category:", products_by_category)
+    
+    return jsonify(products_by_category)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# #get product
-# @app.route('/product/fetch/uuid', methods=['GET'])
-# def fetch_product():
-#     pass #for specific request
-
-# @app.route('/product/fetch/product_owner/product_name', methods=['GET'])
-# def fetch_single_product():
-#     pass #for search for example contains string or partial string in name
-
-# @app.route('/product/fetch/catalog', methods=['GET'])
-# def fetch_product_catalog():
-#     pass
-
-# # update product attributes
-# @app.route('/product/update/product_name', methods=['GET'])
-# def update_product_name():
-#     pass
-
-# @app.route('/product/update/product_picture', methods=['GET'])
-# def update_product_picture():
-#     pass
-
-# @app.route('/product/update/product_description', methods=['GET'])
-# def update_product_description():
-#     pass
-
-# @app.route('/product/update/product_current_stock', methods=['GET'])
-# def update_product_current_stock():
-#     pass
-
-# @app.route('/product/update/product_should_stock', methods=['GET'])
-# def update_product_should_stock():
-#     pass
-
-# @app.route('/product/update/product_price', methods=['GET'])
-# def update_product_price():
-#     pass
-
-# @app.route('/product/update/product_price_reduction', methods=['GET'])
-# def update_product_price_reduction():
-#     pass
-
-# @app.route('/product/update/product_sale', methods=['GET'])
-# def update_product_sale():
-#     pass
-
-# @app.route('/product/update/product_category', methods=['GET'])
-# def update_product_category():
-#     pass
-
-# @app.route('/product/update/product_search_attributes', methods=['GET'])
-# def update_product_search_attributes():
-#     pass
-
-# @app.route('/product/update/product_reviews', methods=['GET'])
-# def update_product_reviews():
-#     pass
-
-# @app.route('/product/update/product_bom', methods=['GET'])
-# def update_product_bom():
-#     pass
-
-# @app.route('/product/update/product_assemblies', methods=['GET'])
-# def update_product_assemblies():
-#     pass
-
-
-
-# @app.route('/user/login', methods=['POST'])
-# def login():
-#     data = request.json
-#     email = data.get('email')
-#     password = data.get('password')
-
-#     if not email or not password:
-#         return jsonify({'error': 'Email and password are required'}), 400
-
-#     user = dynamodb.get_user_by_email(email)
-#     # print(jsonify(user))
-#     if user:
-#         stored_password = user.get('password', {}).get('S')
-#         print("Stored password:", stored_password)
-#         print("Password provided by user:", password)
-#         if stored_password == password:
-#             return jsonify({'message': 'Login successful'}), 200
-#     return jsonify({'error': 'Incorrect email or password'}), 401
+# we need a administrative view that states which attributes are available

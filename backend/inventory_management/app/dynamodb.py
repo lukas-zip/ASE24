@@ -39,7 +39,23 @@ def create_product_table():
                 {
                     'AttributeName': 'product_id',
                     'AttributeType': 'S'
-                }
+                },
+                # {
+                #     'AttributeName': 'product_current_stock',
+                #     'AttributeType': 'N'  # Change AttributeType to 'N' for numeric attribute
+                # },
+                # {
+                #     'AttributeName': 'product_should_stock',
+                #     'AttributeType': 'N'  # Change AttributeType to 'N' for numeric attribute
+                # },
+                # {
+                #     'AttributeName': 'product_price',
+                #     'AttributeType': 'N'  # Change AttributeType to 'N' for numeric attribute
+                # },
+                # {
+                #     'AttributeName': 'product_price_reduction',
+                #     'AttributeType': 'N'  # Change AttributeType to 'N' for numeric attribute
+                # }
             ],
             ProvisionedThroughput={
                 'ReadCapacityUnits': 5,
@@ -77,6 +93,52 @@ def create_product_owner_index():
     except ClientError as e:
         print("Error creating global secondary index:", e)
 
+# for search
+def create_gsi():
+    try:
+        response = db_inventory_management.update_table(
+            TableName='Products',
+            AttributeDefinitions=[
+                {'AttributeName': 'product_category', 'AttributeType': 'S'},
+                {'AttributeName': 'product_search_attributes', 'AttributeType': 'S'}
+            ],
+            GlobalSecondaryIndexUpdates=[
+                {
+                    'Create': {
+                        'IndexName': 'product_category_index',
+                        'KeySchema': [{'AttributeName': 'product_category', 'KeyType': 'HASH'}],
+                        'Projection': {'ProjectionType': 'ALL'},
+                        'ProvisionedThroughput': {
+                            'ReadCapacityUnits': 5,
+                            'WriteCapacityUnits': 5
+                        }
+                    }
+                },
+                {
+                    'Create': {
+                        'IndexName': 'product_search_attributes_index',
+                        'KeySchema': [{'AttributeName': 'product_search_attributes', 'KeyType': 'HASH'}],
+                        'Projection': {'ProjectionType': 'ALL'},
+                        'ProvisionedThroughput': {
+                            'ReadCapacityUnits': 5,
+                            'WriteCapacityUnits': 5
+                        }
+                    }
+                }
+            ]
+        )
+        print("Global Secondary Indexes created:", response)
+    except ClientError as e:
+        print("Error creating Global Secondary Indexes:", e)
+
+
+
+
+
+
+
+
+
 # Function to get all products belonging to a shop
 def get_products_by_product_owner(product_owner):
     try:
@@ -92,6 +154,8 @@ def get_products_by_product_owner(product_owner):
         for item in response.get('Items', []):
             product_id = item['product_id']['S']
             product_info = {
+                'product_id': product_id,  # Include product_id in product_info
+                'product_owner': item.get('product_owner', {}).get('S', ''),
                 'product_name': item.get('product_name', {}).get('S', ''),
                 'product_picture': item.get('product_picture', {}).get('S', ''),
                 'product_description': item.get('product_description', {}).get('S', ''),
@@ -120,6 +184,8 @@ def get_products_by_product_owner(product_owner):
             for item in response.get('Items', []):
                 product_id = item['product_id']['S']
                 product_info = {
+                    'product_id': product_id,  # Include product_id in product_info
+                    'product_owner': item.get('product_owner', {}).get('S', ''),
                     'product_name': item.get('product_name', {}).get('S', ''),
                     'product_picture': item.get('product_picture', {}).get('S', ''),
                     'product_description': item.get('product_description', {}).get('S', ''),
@@ -273,6 +339,163 @@ def get_product(product_id):
         print("Error getting product:", e)
         return None
 
-
-
 #update product
+def update_product(product_id, product_owner, updated_data):
+    try:
+        table_name = 'Products'
+
+        # Check if the product exists
+        if not product_check(product_id):
+            print("Product does not exist.")
+            return False
+        
+        # Check ownership
+        product_info = get_product(product_id)
+        if product_info['product_owner'] != product_owner:
+            print("Provided product_owner does not match the current product_owner.")
+            return False
+        
+        # Prepare UpdateExpression and ExpressionAttributeValues
+        update_expression = "SET "
+        expression_attribute_values = {}
+        
+        for key, value in updated_data.items():
+            # Include only valid attributes for update
+            if key in ['product_name', 'product_description', 'product_current_stock', 
+                       'product_should_stock', 'product_price', 'product_price_reduction', 
+                       'product_sale', 'product_category', 'product_search_attributes', 
+                       'product_reviews', 'product_bom', 'product_assemblies']:
+                update_expression += f"{key} = :{key}, "
+                # Check if the value is numeric
+                if key in ['product_current_stock', 'product_should_stock', 
+                           'product_price', 'product_price_reduction']:
+                    expression_attribute_values[f":{key}"] = {'N': str(value)}  # Use 'N' for numeric attributes
+                else:
+                    expression_attribute_values[f":{key}"] = {'S': str(value)}  # Use 'S' for string attributes
+        
+        # Remove the trailing comma and space from the UpdateExpression
+        update_expression = update_expression.rstrip(", ")
+        
+        # Perform the update operation
+        response = db_inventory_management.update_item(
+            TableName=table_name,
+            Key={
+                'product_id': {'S': product_id}
+            },
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values
+        )
+        
+        print("Product updated successfully.")
+        return True
+    except ClientError as e:
+        print("Error updating product:", e)
+        return False
+
+    
+def perform_sell(product_id, product_owner, ordered_items):
+    try:
+        table_name = 'Products'
+
+        # Check if the product exists
+        if not product_check(product_id):
+            print("Product does not exist.")
+            return False
+        
+        # Check ownership
+        product_info = get_product(product_id) # get current product
+        if product_info['product_owner'] != product_owner:
+            print("Provided product_owner does not match the current product_owner.")
+            return False
+        
+        # Check if there's enough stock available
+        current_stock = int(product_info['product_current_stock'])
+        if current_stock < ordered_items:
+            print("Not enough stock available.")
+            return False
+
+        # Update the product's stock
+        updated_stock = current_stock - ordered_items
+        response = update_product(product_id, product_owner, {'product_current_stock': updated_stock})
+        if not response:
+            print("Failed to update product stock.")
+            return False
+        
+        print("Product sold successfully.")
+        return True
+    except ClientError as e:
+        print("Error updating product:", e)
+        return False
+    
+def search_products_by_category(category_term):
+    try:
+        response = db_inventory_management.scan(
+            TableName='Products',
+            FilterExpression='contains(product_category, :term)',
+            ExpressionAttributeValues={':term': {'S': category_term}}
+        )
+        items = response.get('Items', [])
+        
+        formatted_results = {}
+        for item in items:
+            product_id = item.get('product_id', {}).get('S')
+            product = {
+                "product_assemblies": item.get('product_assemblies', {}).get('S'),
+                "product_bom": item.get('product_bom', {}).get('S'),
+                "product_category": item.get('product_category', {}).get('S'),
+                "product_current_stock": item.get('product_current_stock', {}).get('N'),
+                "product_description": item.get('product_description', {}).get('S'),
+                "product_id": product_id,
+                "product_name": item.get('product_name', {}).get('S'),
+                "product_owner": item.get('product_owner', {}).get('S'),
+                "product_picture": item.get('product_picture', {}).get('S'),
+                "product_price": item.get('product_price', {}).get('N'),
+                "product_price_reduction": item.get('product_price_reduction', {}).get('N'),
+                "product_reviews": item.get('product_reviews', {}).get('S'),
+                "product_sale": item.get('product_sale', {}).get('S') == 'True',
+                "product_search_attributes": item.get('product_search_attributes', {}).get('S'),
+                "product_should_stock": item.get('product_should_stock', {}).get('N')
+            }
+            formatted_results[product_id] = product
+
+        return formatted_results#response.get('Items', [])
+    except ClientError as e:
+        print("Error searching products by category:", e)
+        return []
+
+def search_products_by_attributes(attributes_term):
+    try:
+        response = db_inventory_management.scan(
+            TableName='Products',
+            FilterExpression='contains(product_search_attributes, :term)',
+            ExpressionAttributeValues={':term': {'S': attributes_term}}
+        )
+        
+        items = response.get('Items', [])
+        
+        formatted_results = {}
+        for item in items:
+            product_id = item.get('product_id', {}).get('S')
+            product = {
+                "product_assemblies": item.get('product_assemblies', {}).get('S'),
+                "product_bom": item.get('product_bom', {}).get('S'),
+                "product_category": item.get('product_category', {}).get('S'),
+                "product_current_stock": item.get('product_current_stock', {}).get('N'),
+                "product_description": item.get('product_description', {}).get('S'),
+                "product_id": product_id,
+                "product_name": item.get('product_name', {}).get('S'),
+                "product_owner": item.get('product_owner', {}).get('S'),
+                "product_picture": item.get('product_picture', {}).get('S'),
+                "product_price": item.get('product_price', {}).get('N'),
+                "product_price_reduction": item.get('product_price_reduction', {}).get('N'),
+                "product_reviews": item.get('product_reviews', {}).get('S'),
+                "product_sale": item.get('product_sale', {}).get('S') == 'True',
+                "product_search_attributes": item.get('product_search_attributes', {}).get('S'),
+                "product_should_stock": item.get('product_should_stock', {}).get('N')
+            }
+            formatted_results[product_id] = product
+
+        return formatted_results
+    except ClientError as e:
+        print("Error searching products by attributes:", e)
+        return []
