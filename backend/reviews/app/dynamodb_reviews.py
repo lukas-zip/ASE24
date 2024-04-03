@@ -48,9 +48,9 @@ def create_review_tables():
 # Function to add a review to the dynamodb
 def add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_created):
     try:
-        if check_review(customer_id,product_id):
-            return {'error': 'Customer already added a review for this product'}
-        else:
+        value, status = check_review(customer_id,product_id)
+        if status:
+
             # Generate UUID for the review 
             review_uuid = str(uuid.uuid4())
             #fix uuid for testing
@@ -70,14 +70,17 @@ def add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_cr
                 }
             )
             print("Review added with UUID:", review_uuid)
-            return review_uuid
+            return "Successfully added Review", True
+        
+        else:
+            return "Customer already added a review for this product", False
     except ClientError as e:
         print("Error adding review:", e)
 
 # Fuction to delete item from dynamo DB
 def delete_review(review_uuid,product_id,user_id):
     # check if review belongs to the customer deleting it
-    response_data = get_review(review_uuid,product_id)
+    response_data, status = get_review(review_uuid,product_id)
     customer_id = response_data['customer_id']['S']
     if user_id == customer_id:
         # delete review
@@ -89,21 +92,22 @@ def delete_review(review_uuid,product_id,user_id):
                         'SK': {'S':product_id}
                         }
             )
-            if get_review(review_uuid,product_id) == "No item found!":
-                return "Review deleted successfully"
+            response_data, status = get_review(review_uuid,product_id)
+            if response_data == "No item found!":
+                return 'Successfully deleted Review!',True
             else:
-                return "Review not deleted successfully"
+                return "Review not deleted successfully", False
         except Exception as e:
             print("Error deleting review:", e)
             raise e
     else: 
-        return "The review does not belong to this user"
+        return "The review does not belong to this user", False
     
 ## finish editing review
 def edit_review(review_uuid,product_id, user_id,reviewcontent,rating,time_lastedit,time_created):
     # check if review belongs to the customer deleting it
-    response_data = get_review(review_uuid,product_id)
-    customer_id = response_data['customer_id']['S']
+    response_data, status = get_review(review_uuid,product_id)
+    customer_id = response_data["customer_id"]["S"]
     if user_id == customer_id:
         try:
             # Put the new item into the table
@@ -127,14 +131,13 @@ def edit_review(review_uuid,product_id, user_id,reviewcontent,rating,time_lasted
             print("Error updating review:", e)
             return None
     else:
-        return "The review does not belong to this user"
+        return "The review does not belong to this user", False
 
 # Fuction to check if the customer has already made a review for the product
 def check_review(customer_id,product_id):
     try:
         response = db_reviews.scan(
             TableName='Reviews',
-            #FilterExpression='attribute_exists(SK) AND customer_id = :cid',
             FilterExpression='SK = :sk AND customer_id = :cid',
             ExpressionAttributeValues={
                 ':cid': {'S':customer_id},
@@ -142,10 +145,12 @@ def check_review(customer_id,product_id):
                 }
             )
     
-        if 'Items' in response and len(response['Items']) > 0:
-            return True
+        if len(response['Items']) < 1:
+            return "Customer has not jet made a review for this product",True
+            #return response, True
         else:
-            return False
+            return "Review already exists", False
+            #return response, False
 
     except ClientError as e:
         print(f"Error Review from customer already exists: {e}")
@@ -162,9 +167,27 @@ def get_review(review_uuid,product_id):
             }
         )
         if len(response) > 1:
-            return response['Item']
+            return response['Item'], True
         else:
-            return "No item found!"
+            return "No item found!", False
+    except ClientError as e:
+        print("Error getting review:", e)
+        return "Error getting review!", e
+
+# Get all the reviews to a product
+def get_batch(product_id):
+    try:
+        response = db_reviews.scan(
+            TableName='Reviews',
+            FilterExpression='SK = :sk',
+            ExpressionAttributeValues={
+                ':sk': {'S':product_id}
+                }
+            )
+        if len(response['Items']) > 0:
+            return response['Items'], True
+        else:
+            return "No items found!", False
     except ClientError as e:
         print("Error getting review:", e)
         return "Error getting review!", e
