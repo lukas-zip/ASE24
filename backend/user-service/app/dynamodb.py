@@ -143,6 +143,10 @@ def add_user(email, password, username, address, phone):
         # Hash the password before storing it
         hashed_password = hash_password(password)
 
+        # Replace None with an empty string for optional fields
+        address = address if address is not None else ''
+        phone = phone if phone is not None else ''
+
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
@@ -150,7 +154,7 @@ def add_user(email, password, username, address, phone):
                 'PK': {'S': f'USER#{user_uuid}'},
                 'SK': {'S': f'PROFILE#{user_uuid}'},
                 'type': {'S': 'User'},
-                'profile_picture': {'S': 'NONE'},
+                'profile_picture': {'S': ''},
                 'email': {'S': email},
                 'username': {'S': username},
                 'password': {'S': hashed_password.decode('utf-8')},
@@ -177,6 +181,11 @@ def add_shop(shop_name, email, password, address, phone, description):
         # Hash the password before storing it
         hashed_password = hash_password(password)
 
+        # Replace None with an empty string for optional fields
+        address = address if address is not None else ''
+        phone = phone if phone is not None else ''
+        description = description if description is not None else ''
+
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
@@ -184,7 +193,7 @@ def add_shop(shop_name, email, password, address, phone, description):
                 'PK': {'S': f'SHOP#{shop_uuid}'},
                 'SK': {'S': f'DETAILS#{shop_uuid}'},
                 'type': {'S': 'Shop'},
-                'profile_picture': {'S': 'NONE'},
+                'profile_picture': {'S': ''},
                 'email': {'S': email},
                 'shop_name': {'S': shop_name},
                 'description': {'S': description},
