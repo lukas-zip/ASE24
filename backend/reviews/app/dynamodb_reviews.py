@@ -185,7 +185,21 @@ def get_batch(product_id):
                 }
             )
         if len(response['Items']) > 0:
-            return response['Items'], True
+            #return response['Items'], True
+            items = response.get('Items', [])
+            formatted_review = []
+            for item in items:
+                review = {
+                    "review_id": item.get('PK', {}).get('S'),
+                    "product_id": product_id,
+                    "customer_id": item.get('customer_id', {}).get('S'),
+                    "reviewcontent": item.get('reviewcontent', {}).get('S'),
+                    "rating": item.get('rating', {}).get('S'),
+                    "time_lastedit": item.get('time_lastedit', {}).get('S'),
+                    "time_created": item.get('time_created', {}).get('S'),
+                }
+                formatted_review.append(review)
+            return formatted_review, True
         else:
             return "No items found!", False
     except ClientError as e:

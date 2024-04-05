@@ -6,13 +6,13 @@ import uuid
 from botocore.exceptions import ClientError
 
 # Test if endpoint is available
-@app.route('/review', methods=['GET'])
-def test():
+#@app.route('/review', methods=['GET'])
+#def test():
     # Return success response
-    return jsonify({'message': 'Test successful'}), 201
+ #   return jsonify({'message': 'Test successful'}), 201
 
 # Adding review by retrieving data from post request and saving into dynamodb
-@app.route('/review/add', methods=['POST'])
+@app.route('/review', methods=['POST'])
 def route_add_review():
     data = request.json
     product_id = data.get('product_id')
@@ -35,7 +35,7 @@ def route_add_review():
         print("Error adding review:", e)
 
 # Delete review 
-@app.route('/review/delete', methods=['DELETE'])
+@app.route('/review', methods=['DELETE'])
 def route_delete_review():
     data = request.json
     review_id = data.get('review_id')
@@ -74,7 +74,7 @@ def route_check_review():
         return jsonify({'error': 'Failed to check review'}), 500
 
 # edit existing review
-@app.route('/review/edit', methods=['PUT'])
+@app.route('/review', methods=['PUT'])
 def route_edit_review():
     data = request.json
     review_id = data.get('review_id')
@@ -97,7 +97,7 @@ def route_edit_review():
         print("Error updating review:", e)
         return jsonify({'error': 'Failed to update review'}), 500
     
-@app.route('/review/get', methods=['GET'])
+@app.route('/review/getsingle', methods=['GET'])
 def route_get_review():
     data = request.json
     review_id = data.get('review_id')
@@ -115,10 +115,10 @@ def route_get_review():
         print("Error adding review:", e)
         return jsonify({'error': 'Failed to get review'}), 500
     
-@app.route('/review/getbatch',methods=['GET'])
-def route_get_batch():
-    data = request.json
-    product_id = data.get('product_id')
+@app.route('/review/<product_id>',methods=['GET'])
+def route_get_batch(product_id):
+    #data = request.json
+    #product_id = data.get('product_id')
 
     if not product_id:
         return jsonify({'error': 'ID is required!'}), 400
