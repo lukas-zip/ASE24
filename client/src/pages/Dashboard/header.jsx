@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { setUser } from '../../store/user.store';
 import useUserTheme from '../../hooks/useUserTheme';
 import COLORS from '../../constants/COLORS';
-import { updatePassword } from '../../api/user.api';
+// import { updatePassword } from '../../api/user.api';
 import { useRef, useState } from 'react';
 import PROJECT_VARIABLE from '../../constants/ProjectNameVariable';
 
@@ -37,16 +37,16 @@ export default function MyLayoutHeader() {
         console.log("updatedPassword", updatedPassword);
         if (updatedPassword && updatedPassword.length > 5) {
             const req = { email, password: updatedPassword }
-            await updatePassword(id, req).then(res => {
-                if (res && res.status !== false) {
-                    message.success("Update password successfully!")
-                    // dispatch(setUser(res))
-                    setUpdatePasswordModelOpen(false)
-                    form.resetFields();
-                } else {
-                    message.error("error")
-                }
-            })
+            // await updatePassword(id, req).then(res => {
+            //     if (res && res.status !== false) {
+            //         message.success("Update password successfully!")
+            //         // dispatch(setUser(res))
+            //         setUpdatePasswordModelOpen(false)
+            //         form.resetFields();
+            //     } else {
+            //         message.error("error")
+            //     }
+            // })
         } else {
             message.error("Please input the password, and password must be greater than 5 chars")
         }

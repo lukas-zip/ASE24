@@ -43,19 +43,44 @@
     &-container {
         overflow: auto;
 
-        scrollbar-width: none;
-        /* Firefox */
-        -ms-overflow-style: none;
-
-        /* Internet Explorer 10+ */
-        &::-webkit-scrollbar {
-            display: none;
+        @media (min-width: 600px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
         }
 
-        &-box {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+        @media (min-width: 800px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px;
+            }
         }
     }
 }

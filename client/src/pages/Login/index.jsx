@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './index.less'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { message } from 'antd'
+import { Radio, message } from 'antd'
 import { setUser } from '../../store/user.store'
 import { signIn, signUp } from '../../api/user.api'
 import PROJECT_VARIABLE from '../../constants/ProjectNameVariable'
+import CONSTANTS from '../../constants'
 
 export default function Login() {
     const { user } = useSelector(state => state.user, shallowEqual)
@@ -50,7 +51,7 @@ export default function Login() {
             message.error('Error happen, try again please')
         }
     }
-
+    const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
     const registerUser = async () => {
         await signUp(sigUpInfo)
             .then((res) => {
@@ -137,6 +138,13 @@ export default function Login() {
                                 <h2>Start</h2>
                                 <h6>Already have account</h6>
                                 <a className='toggle' onClick={() => setSignup(false)}>&nbsp;Sign In</a>
+                            </div>
+                            <div>
+                                <label style={{ marginRight: 6 }}>Enrol as: </label>
+                                <Radio.Group defaultValue={CONSTANTS.USER_TYPE.USER} onChange={({ target: { value } }) => setRole(value)}>
+                                    <Radio.Button value={CONSTANTS.USER_TYPE.USER}>User</Radio.Button>
+                                    <Radio.Button value={CONSTANTS.USER_TYPE.SHOP}>Shop</Radio.Button>
+                                </Radio.Group>
                             </div>
                             <div className='actual-form'>
                                 <div className='input-wrap'>

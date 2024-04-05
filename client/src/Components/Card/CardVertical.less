@@ -5,7 +5,7 @@
     border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
-    max-width: 360px;
+    max-width: 400px;
 
     background-color: #1d1d1d;
 
@@ -17,7 +17,33 @@
         overflow: hidden;
         position: relative;
 
+        &-detail {
+            width: 100%;
+            position: absolute;
+            bottom: 4px;
+            display: flex;
+            padding: 10px;
+            color: #fff;
+            font-weight: 600;
+            line-height: 24px;
+            justify-content: space-between;
 
+            &-level {
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 4px;
+                line-height: 24px;
+                background-color: #f92718;
+            }
+
+            &-duration {
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 4px;
+                line-height: 24px;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+        }
 
         img {
             max-width: 100%;
@@ -28,15 +54,18 @@
     }
 
     &-bottom {
-        display: flex;
+        // display: flex;
         padding: 10px;
         padding-bottom: 0;
-        justify-content: space-between;
+        // justify-content: space-between;
 
         &-desc {
+
             &-title {
-                font-size: 18px;
-                font-weight: 600;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                // font-size: 18px;
+                // font-weight: 600;
             }
 
             &-desc {
@@ -51,8 +80,8 @@
             width: 100%;
             bottom: 4px;
             display: flex;
-            padding: 10px;
-            color: #fff;
+            padding: 10px 0;
+            // color: #fff;
             font-weight: 600;
             line-height: 24px;
             justify-content: space-between;
@@ -62,15 +91,26 @@
                 padding: 0 8px;
                 border-radius: 4px;
                 line-height: 24px;
-                background-color: #cf4536;
+                color: #000;
+                font-weight: 1000;
+                // background-color: #cf4536;
+                display: flex;
+                align-items: baseline;
+
+                &-unit {
+                    font-size: 12px;
+                }
             }
 
-            &-duration {
+            &-rate {
                 height: 24px;
                 padding: 0 8px;
                 border-radius: 4px;
                 line-height: 24px;
-                background-color: rgba(0, 0, 0, 0.3);
+                display: flex;
+                align-items: center;
+                font-size: 10px;
+                // background-color: rgba(0, 0, 0, 0.3);
             }
         }
     }

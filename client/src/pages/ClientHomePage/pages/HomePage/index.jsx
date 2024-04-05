@@ -34,6 +34,30 @@ export default function UserHomePage() {
                     <CardVertical />
                     <CardVertical />
                     <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
+                    <CardVertical />
                 </div>
             </div>
             {/* </div> */}
