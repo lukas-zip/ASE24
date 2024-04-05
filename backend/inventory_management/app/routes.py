@@ -13,17 +13,22 @@ import base64
 @app.route('/', methods=['GET'])
 def test():
     # Return success response
-    return jsonify({'message': 'Test was successful for the inventorymanagement'}), 201
+    return jsonify({'value': 'Test was successful for the inventorymanagement', 'status': True}), 201
 
 @app.route('/productsbyowner', methods=['GET'])
 def get_products_by_owner():
     # Retrieve products by owner
     products = dynamodb.get_products_by_product_owner("1324a686-c8b1-4c84-bbd6-17325209d78c6")
 
-    if products:
-        return jsonify(products), 200
+    final_products = [{
+            'product_id': product_id,
+            **product_info
+        } for product_id, product_info in products.items()]
+
+    if final_products:
+        return jsonify({'value': final_products, 'status': True}), 200
     else:
-        return jsonify([]), 200
+        return jsonify({'value':[], 'status': True}), 200
 # ------------------------------------------
 
 
@@ -57,7 +62,7 @@ def insert_product():
     
     # Checking for required fields
     if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
-        return jsonify({'error': 'Product data is incomplete.'}), 400
+        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
 
     # Check if the image filename is empty
     if image_file.filename == '':
@@ -68,10 +73,10 @@ def insert_product():
     # Add the product to the database
     try:
         dynamodb.add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file)
-        return jsonify({'success': 'Product inserted successfully.'}), 200
+        return jsonify({'value': 'Product inserted successfully.', 'status': True}), 200
     except ClientError as e:
         print("Error adding product:", e)
-        return jsonify({'error': 'Failed to insert product.'}), 500
+        return jsonify({'error': 'Failed to insert product.', 'status': False}), 500
 
 # product deletion
 @app.route('/product/delete', methods=['POST'])
@@ -85,35 +90,35 @@ def delete_product_haendler():
             # Commit final deletion
             response = dynamodb.delete_product(product_id)
             if response:
-                return jsonify({'success': 'The item got deleted from the database.'}), 200
+                return jsonify({'value': 'The item got deleted from the database.', 'status': True}), 200
             else:
-                return jsonify({'error': 'An error occurred while deleting the item.'}), 500
+                return jsonify({'error': 'An error occurred while deleting the item.', 'status': False}), 500
         else:
             # Return that the product cannot be deleted since it does not exist
-            return jsonify({'error': 'Product does not exist.'}), 400
+            return jsonify({'error': 'Product does not exist.', 'status': False}), 400
     except ClientError as e:
         print("Error deleting product:", e)
-        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+        return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
 # process a sell --> providing the ID for the sell of the product
-@app.route('/sell/<product_id>', methods=['PUT'])
+@app.route('/product/sell/<product_id>', methods=['PUT'])
 def product_sell(product_id):
     try:
         data = request.json
     
         # Ensure product_id and product_owner are provided in the request body
         if 'product_owner' not in data:
-            return jsonify({'error': 'product_owner is required in the request body'}), 400
+            return jsonify({'error': 'product_owner is required in the request body', 'status': False}), 400
         if 'amount' not in data:
-            return jsonify({'error': 'amount is required in the request body'}), 400
+            return jsonify({'error': 'amount is required in the request body', 'status': False}), 400
 
         response = dynamodb.perform_sell(product_id, data['product_owner'], data['amount'])
         if response:
-            return jsonify({'message': 'successfully performed sell.'}), 200
+            return jsonify({'value': 'successfully performed sell.', 'status': True}), 200
         else:
-            return jsonify({'error': 'unsuccessful sell'}), 400
+            return jsonify({'error': 'unsuccessful sell', 'status': False}), 400
     except ClientError as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 
@@ -138,15 +143,15 @@ def get_product_info(product_id):
     try:
         product_info = dynamodb.get_product(str(product_id))
         if product_info:
-            return jsonify(product_info=product_info), 200
+            return jsonify({'value': product_info, 'status': True}), 200
         else:
-            return jsonify({'error': 'The Item does not exist'}), 400
+            return jsonify({'error': 'The Item does not exist', 'status': False}), 400
     except ClientError as e:
         print(f"Error: {e}")
-        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+        return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
 # get product catalogue for a certain seller --> used to show all products belonging to one seller
-@app.route('/cataloguesell/<product_owner>', methods=['GET'])
+@app.route('/product/cataloguesell/<product_owner>', methods=['GET'])
 def get_products_to_sell_catalog(product_owner):
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
@@ -155,15 +160,15 @@ def get_products_to_sell_catalog(product_owner):
             **product_info
         } for product_id, product_info in products.items() if product_info.get('product_assemblies') == 'Final']
         if final_products:
-            return jsonify(final_products), 200
+            return jsonify({'value': final_products, 'status': True}), 200
         else:
-            return jsonify({'message': 'no items available for this product_owner'}), 400
+            return jsonify({'error': 'no items available for this product_owner', 'status': False}), 400
     except ClientError as e:
         print(f"Error: {e}")
-        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+        return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
     
 # get product catalogue for a certain seller --> shows all products that secondary
-@app.route('/cataloguebuild/<product_owner>', methods=['GET'])
+@app.route('/product/cataloguebuild/<product_owner>', methods=['GET'])
 def get_products_to_build_catalog(product_owner):
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
@@ -172,69 +177,73 @@ def get_products_to_build_catalog(product_owner):
             **product_info
         } for product_id, product_info in products.items() if product_info.get('product_assemblies') == 'Secondary']
         if final_products:
-            return jsonify(final_products), 200
+            return jsonify({'value': final_products, 'status': True}), 200
         else:
-            return jsonify({'message': 'no items available for this product_owner'}), 400
+            return jsonify({'error': 'no items available for this product_owner', 'status': False}), 400
     except ClientError as e:
         print(f"Error: {e}")
-        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+        return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
-@app.route('/update_product/<product_id>', methods=['PUT'])
+@app.route('/product/update_product/<product_id>', methods=['PUT'])
 def update_product_route(product_id):
     try:
-        # Get the updated product data from the request body
+        # Get the updated product data from the request
         updated_data = request.json
         
         # Ensure product_id and product_owner are provided in the request body
         if 'product_owner' not in updated_data:
-            return jsonify({'error': 'product_owner is required in the request body'}), 400
+            return jsonify({'error': 'product_owner is required in the request body', 'status': False}), 400
         
         # Call the update_product function to perform the update
         success = dynamodb.update_product(product_id, updated_data['product_owner'], updated_data)
         
         if success:
-            return jsonify({'message': 'Product updated successfully'}), 200
+            return jsonify({'value': 'Product updated successfully', 'status': True}), 200
         else:
-            return jsonify({'error': 'Failed to update product'}), 500
+            return jsonify({'error': 'Failed to update product', 'status': False}), 500
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'status': False}), 500
 
-
-# get products regarding certain attribute /search
-# get products regarding certain category
-# getting all products that contain somehow the search term in either the name, the category or search attributes
 # Define search route
-@app.route('/search', methods=['GET'])
+@app.route('/product/search', methods=['GET'])
 def search():
     term = request.args.get('term')
     if not term:
-        return jsonify({'error': 'Search term parameter is required'}), 400
+        return jsonify({'error': 'Search term parameter is required', 'status': False}), 400
     
     # Perform search by category and attributes
     print("Searching products by category for term:", term)
     products_by_category = dynamodb.search_products_by_category(term)
     print("Products by category:", products_by_category)
     
+
     print("Searching products by attributes for term:", term)
     products_by_attributes = dynamodb.search_products_by_attributes(term)
     print("Products by attributes:", products_by_attributes)
     
-    # Combine and return the results
-    combined_results = products_by_category + products_by_attributes
-    return jsonify(combined_results)
+ 
 
-@app.route('/category', methods=['GET'])
+    # Combine and return the results
+    combined_results = {**products_by_category, **products_by_attributes}
+    
+    formatted_results = [product_info for _, product_info in combined_results.items()]
+
+    return jsonify({'value': formatted_results, 'status': True}), 200
+
+@app.route('/product/category', methods=['GET'])
 def get_category():
     category = request.args.get('term')
     if not category:
-        return jsonify({'error': 'Search category parameter is required'}), 400
+        return jsonify({'error': 'Search category parameter is required', 'status': False}), 400
     
     # Perform search by category and attributes
     print("Searching products by category for term:", category)
     products_by_category = dynamodb.search_products_by_category(category)
     print("Products by category:", products_by_category)
     
-    return jsonify(products_by_category)
+    formatted_results = [product_info for _, product_info in products_by_category.items()]
+
+    return jsonify({'value': formatted_results, 'status': True}), 200
 
 
 
