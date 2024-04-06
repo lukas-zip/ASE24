@@ -46,7 +46,7 @@ services:
     depends_on:
       - localstack
 
-    client:
+  client:
     build: client
     ports:
       - "3000:3000"
