@@ -40,12 +40,9 @@ def create_orders_table():
             TableName=TABLE_NAME,
             KeySchema=[
                 {'AttributeName': 'order_id', 'KeyType': 'HASH'},
-                {'AttributeName': 'execution_time', 'KeyType': 'RANGE'}
             ],
             AttributeDefinitions=[
                 {'AttributeName': 'order_id', 'AttributeType': 'S'},
-                {'AttributeName': 'execution_time', 'AttributeType': 'S'},
-                {'AttributeName': 'email', 'AttributeType': 'S'}
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10}
         )
@@ -84,13 +81,21 @@ def get_order(order_uuid):
         response = db_order_management.get_item(
             TableName=TABLE_NAME,
             Key={
-                'order_id': {'S': f'{order_uuid}'},
+                'order_id': {'S': f'{str(order_uuid)}'},
             }
         )
         return response
     except ClientError as e:
         print("Error getting order:", e)
+   
 
+
+def get_all_orders():
+    try:
+        response = db_order_management.scan(TableName=TABLE_NAME)
+        return response
+    except ClientError as e:
+        print("Error getting order:", e)
 
 def update_order(order_id, product_id, action):
     try:

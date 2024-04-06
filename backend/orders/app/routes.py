@@ -9,25 +9,9 @@ from datetime import datetime, date
 from types import SimpleNamespace
 import json
 
-#app = Flask(__name__)
 app.config["DEBUG"] = True
-#CORS(app)
 
 
-# class Product():
-#     product_id int
-#     company_id int
-#     category str
-#     price int
-#     quantity_in_stock int 
-#     product_rating int 
-#     created_at datetime
-
-# class Order():
-#     products: list[Product]
-#     total_price: int 
-#     status: str
-#     executed: datetime
 
 # Test if endpoint is available
 @app.route('/', methods=['GET'])
@@ -37,15 +21,22 @@ def test():
     return jsonify({'status': True, 'message': 'Test successful'}), 201
 
 
-@app.get("/orders/{order_id}")
-def get_order(order_id):
-    orders = get_order(order_id)
-    return jsonify('sss'), 201
+@app.get("/orders/<order_id>")
+def get_order_req(order_id):
+    print(order_id)
+    response = dynamodb.get_order(order_id)
+    return jsonify(response), 201
 
 
-@app.delete("/orders/{order_id}")
-def delete_order(order_id: int):
-    res = delete_order(order_id)
+@app.get("/orders/")
+def get_all_orders_req():
+    response = dynamodb.get_all_orders()
+    return jsonify(response), 201
+
+
+@app.delete("/orders/<order_id>")
+def delete_order_req(order_id: int):
+    res = dynamodb.delete_order(order_id)
     return jsonify(res), 201
 
 
@@ -54,12 +45,12 @@ def delete_order(order_id: int):
 #     "product": product_id1",
 #     "action": 'add' / 'remove',
 # }
-@app.put("/orders/{order_id}")
-def update_order(order_id: int):
+@app.put("/orders/<order_id>")
+def update_order_req(order_id: int):
     data = request.json
     data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
     print(order_id, data.product ,data.action)
-    res = update_order(order_id, data.product ,data.action)
+    res = dynamodb.update_order(order_id, data.product ,data.action)
     return jsonify(res), 201
 
 
@@ -67,12 +58,12 @@ def update_order(order_id: int):
 # {
 #     "product": product_id1"
 # }
-# @app.post("/orders/{order_id} ")
-def add_order(order_id: int):
+@app.post("/orders/<order_id>")
+def add_order_req(order_id):
     data = request.json
     data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
     print(order_id, data.product)
-    res = update_order(order_id, data.product)
+    res = dynamodb.add_order(order_id, data.product)
     return jsonify(res), 201
 
 # ----------------------------------------------------------------------------#
