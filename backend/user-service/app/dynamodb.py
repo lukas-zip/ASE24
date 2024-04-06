@@ -92,12 +92,13 @@ def check_login(email, password):
 
 def change_password(entity_uuid, old_password, new_password):
     # Retrieve the user's current password hash from DynamoDB
-    entity = get_entity(entity_uuid).get('Item')
+    entity = get_entity(entity_uuid)
 
     if not entity:
         print('Entity not found')
         return False
 
+    entity = entity.get('Item')
     entity_type = entity['type'].get('S')
     stored_hashed_password = entity['password'].get('S').encode('utf-8')
 
@@ -142,6 +143,10 @@ def add_user(email, password, username, address, phone):
         # Hash the password before storing it
         hashed_password = hash_password(password)
 
+        # Replace None with an empty string for optional fields
+        address = address if address is not None else ''
+        phone = phone if phone is not None else ''
+
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
@@ -149,7 +154,7 @@ def add_user(email, password, username, address, phone):
                 'PK': {'S': f'USER#{user_uuid}'},
                 'SK': {'S': f'PROFILE#{user_uuid}'},
                 'type': {'S': 'User'},
-                'profile_picture': {'S': 'NONE'},
+                'profile_picture': {'S': ''},
                 'email': {'S': email},
                 'username': {'S': username},
                 'password': {'S': hashed_password.decode('utf-8')},
@@ -176,6 +181,11 @@ def add_shop(shop_name, email, password, address, phone, description):
         # Hash the password before storing it
         hashed_password = hash_password(password)
 
+        # Replace None with an empty string for optional fields
+        address = address if address is not None else ''
+        phone = phone if phone is not None else ''
+        description = description if description is not None else ''
+
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
@@ -183,7 +193,7 @@ def add_shop(shop_name, email, password, address, phone, description):
                 'PK': {'S': f'SHOP#{shop_uuid}'},
                 'SK': {'S': f'DETAILS#{shop_uuid}'},
                 'type': {'S': 'Shop'},
-                'profile_picture': {'S': 'NONE'},
+                'profile_picture': {'S': ''},
                 'email': {'S': email},
                 'shop_name': {'S': shop_name},
                 'description': {'S': description},
@@ -328,17 +338,35 @@ def update_profile_picture(entity_uuid, file_path, filename):
         print(f"Error updating profile picture:", e)
 
 
-def delete_entity(entity_uuid):
+def delete_user(user_uuid):
     try:
-        response = pk_sk_values(entity_uuid)
+        response = pk_sk_values(user_uuid)
         if response:
             pk_value, sk_value = response
             # Perform the delete operation
             db_user_management.delete_item(
                 TableName='UserManagement',
                 Key={
-                    'PK': {'S': pk_value},
-                    'SK': {'S': sk_value}
+                    'PK': {'S': f'USER#{user_uuid}'},
+                    'SK': {'S': f'PROFILE#{user_uuid}'}
+                }
+            )
+            return True
+        return False
+    except ClientError as e:
+        print(f"Error deleting: {e}")
+        return False
+
+def delete_shop(shop_uuid):
+    try:
+        response = pk_sk_values(shop_uuid)
+        if response:
+            # Perform the delete operation
+            db_user_management.delete_item(
+                TableName='UserManagement',
+                Key={
+                    'PK': {'S': f'SHOP#{shop_uuid}'},
+                    'SK': {'S': f'DETAILS#{shop_uuid}'}
                 }
             )
             return True
