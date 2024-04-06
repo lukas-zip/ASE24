@@ -79,7 +79,7 @@ def insert_product():
         return jsonify({'error': 'Failed to insert product.', 'status': False}), 500
 
 # product deletion
-@app.route('/product/delete', methods=['POST'])
+@app.route('/product/delete', methods=['DELETE'])
 def delete_product_haendler():
     data = request.json
     product_id = data.get('product_id')
