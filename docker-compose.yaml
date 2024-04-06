@@ -34,6 +34,17 @@ services:
       - ./backend/inventory_management:/app
     depends_on:
       - localstack
+     
+  orders:
+    build: ./backend/orders
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/orders:/app
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - localstack
 
   client:
     build: client
