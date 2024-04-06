@@ -4,8 +4,7 @@ from botocore.exceptions import ClientError
 import bcrypt
 import logging
 
-const TABLE_NAME = 'OrdersManagement'
-const INDEX_NAME = 'TimeIndex'
+TABLE_NAME = 'OrdersManagement'
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -48,18 +47,7 @@ def create_orders_table():
                 {'AttributeName': 'execution_time', 'AttributeType': 'S'},
                 {'AttributeName': 'email', 'AttributeType': 'S'}
             ],
-            ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
-            GlobalSecondaryIndexes=[
-                {
-                    'IndexName': INDEX_NAME,
-                    'KeySchema': [
-                        # Email will be the partition key for the GSI
-                        {'AttributeName': 'execution_time', 'KeyType': 'HASH'}
-                    ],
-                    'Projection': {'ProjectionType': 'ALL'},
-                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
-                }
-            ]
+            ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10}
         )
         print("OrdersManagement table created:", response)
     except ClientError as e:
@@ -67,8 +55,8 @@ def create_orders_table():
 
 
 # add order to the dynamodb
-def add_order(username,order,total_price,execution_time,status):
-
+def add_order(username,orders,prices,total_price,execution_time,status):
+    try:
         # Generate UUID for the new user
         order_uuid = str(uuid.uuid4())
 
@@ -78,14 +66,15 @@ def add_order(username,order,total_price,execution_time,status):
             Item={
                 'order_id': {'S': f'{order_uuid}'},
                 'username': {'S': username},
-                'orders': {'S':  order},
-                'total_price': {'S': total_price},
+                'orders': {'SS':  orders},
+                'prices': {'NS':  prices},
+                'total_price': {'N': total_price},
                 'execution_time': {'S': execution_time},
                 'status': {'S': status}
             }
         )
         print("Order added with UUID:", order_uuid)
-        return get_user_json(get_user(order_uuid))
+        return get_order(order_uuid)
     except ClientError as e: 
         print("Error adding user:", e)
 
@@ -96,7 +85,6 @@ def get_order(order_uuid):
             TableName=TABLE_NAME,
             Key={
                 'order_id': {'S': f'{order_uuid}'},
-                
             }
         )
         return response
@@ -154,7 +142,6 @@ def delete_entity(entity_uuid):
             }
         )
         return True
-    return False
     except ClientError as e:
         print(f"Error deleting: {e}")
         return False

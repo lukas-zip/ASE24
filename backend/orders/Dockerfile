@@ -9,6 +9,6 @@ COPY . /orders/app
 
 ENV FLASK_ENV=development
 
-EXPOSE 8080
+EXPOSE 8004
 
 CMD ["python3", "run.py", "--host=0.0.0.0"]

@@ -2,7 +2,6 @@ import requests
 import json
 
 def get_total_cost(orders):
-    /product/<product_id>
     url = "https://localhost:8002/product/"
     total_price =  0 
     for product_id in order:

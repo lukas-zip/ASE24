@@ -9,25 +9,25 @@ from datetime import datetime, date
 from types import SimpleNamespace
 import json
 
-app = Flask(__name__)
+#app = Flask(__name__)
 app.config["DEBUG"] = True
-CORS(app)
+#CORS(app)
 
 
-class Product():
-    product_id int
-    company_id int
-    category str
-    price int
-    quantity_in_stock int 
-    product_rating int 
-    created_at datetime
+# class Product():
+#     product_id int
+#     company_id int
+#     category str
+#     price int
+#     quantity_in_stock int 
+#     product_rating int 
+#     created_at datetime
 
-class Order():
-    products: list[Product]
-    total_price: int 
-    status: str
-    executed: datetime
+# class Order():
+#     products: list[Product]
+#     total_price: int 
+#     status: str
+#     executed: datetime
 
 # Test if endpoint is available
 @app.route('/', methods=['GET'])
@@ -39,7 +39,7 @@ def test():
 
 @app.get("/orders/{order_id}")
 def get_order(order_id):
-    #orders = get_order(order_id)
+    orders = get_order(order_id)
     return jsonify('sss'), 201
 
 
