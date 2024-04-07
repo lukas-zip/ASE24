@@ -74,7 +74,9 @@ export default function UploadTutorialModal({ getData, removeTab }) {
         const formData = new FormData();
         formData.append('image', imageFile);
         formData.append('product_owner', shop_id);
-        formData.append('product_bom', [""]);
+        formData.append('product_bom', new Array());
+        formData.append('product_reviews', new Array());
+        formData.append('product_name', items.product_name);
 
         for (const key in items) {
             formData.append(key, items[key]);

@@ -5,18 +5,21 @@ import CardTitle from '../CardTitle';
 // import { storage } from '../../firebase'
 import { useRef, useState } from 'react';
 import CONSTANTS from '../../constants';
-// import { createTutorial, updateTutorial } from '../../api/tutorial.api'
-// import EXERCISETYPE from '../../constants/EXERCISETYPE';
-
-const equipmentsOptions = [
-    { value: 'yaling', label: 'yaling' },
-    { value: '跳绳', label: '跳绳' },
-]
+import { useSelector } from 'react-redux';
+import { updateProductForCompany } from '../../api/user.api';
 
 export default function EditProductModal({ getData, selectedProduct, removeTab }) {
+    const { user: { shop_id } } = useSelector(state => state.user)
     const [uploading, setUploading] = useState(false)
     const editFormRef = useRef(null);
-    const [cover, setCover] = useState([])
+    const [cover, setCover] = useState([{
+        uid: '-1',
+        name: 'Product Picture',
+        status: 'done',
+        url: selectedProduct.product_picture,
+        thumbUrl: selectedProduct.product_picture,
+    }])
+    const [imageFile, setImageFile] = useState()
     const propsCover = {
         onRemove: (file) => {
             const index = cover.indexOf(file);
@@ -27,6 +30,7 @@ export default function EditProductModal({ getData, selectedProduct, removeTab }
         beforeUpload: (file) => {
             const isImage = file.type?.startsWith('image')
             if (isImage) {
+                setImageFile(file)
                 setCover([{ ...file, name: file.name }])
             } else {
                 message.error('u only can upload picture here')
@@ -73,13 +77,19 @@ export default function EditProductModal({ getData, selectedProduct, removeTab }
         // }
     }
     const onFinish = async (items) => {
-        const handledItems = { ...items, cover: cover[0].url, video: video[0].url }
+        const reqData = { ...items, product_owner: shop_id }
+        console.log('req', reqData);
+
         try {
-            const res = await updateTutorial(selectedProduct._id, handledItems)
-            console.log(res);
-            message.success('Update successfully')
-            removeTab(`edit${selectedProduct._id}`)
-            getData()
+            await updateProductForCompany(selectedProduct.product_id, reqData).then(res => {
+                if (res.status) {
+                    message.success('Update successfully')
+                    removeTab(`edit${selectedProduct.product_id}`)
+                    getData()
+                } else {
+                    message.error(res.message)
+                }
+            })
         } catch (error) {
             console.log(error);
             message.error('error')
@@ -141,8 +151,8 @@ export default function EditProductModal({ getData, selectedProduct, removeTab }
                 <Form.Item label="Reduction(%)" name="product_price_reduction" rules={[{ required: true, message: 'Please input product_price_reduction!', }]}>
                     <InputNumber min={0} />
                 </Form.Item>
-                <Form.Item label="Cover" name="cover" rules={[{ required: false, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
-                    <Upload name="cover" listType="picture" customRequest={submitCoverToFirebase} maxCount={1} {...propsCover}>
+                <Form.Item label="Cover" rules={[{ required: false, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
+                    <Upload listType="picture" customRequest={submitCoverToFirebase} maxCount={1} {...propsCover}>
                         <Button icon={<UploadOutlined />}>Click to upload</Button>
                     </Upload>
                 </Form.Item>

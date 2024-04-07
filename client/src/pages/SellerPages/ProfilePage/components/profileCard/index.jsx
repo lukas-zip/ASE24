@@ -31,6 +31,7 @@ const updateUser = {
 }
 
 export default function ProfileCard() {
+    const formref = React.useRef();
     const { user } = useSelector((state) => state.user)
     const { profile_picture, phone, address, email } = user
     const username = user.type === CONSTANTS.USER_TYPE.USER ? user.username : user.shop_name
@@ -124,6 +125,7 @@ export default function ProfileCard() {
                 .then((res) => {
                     if (res.status) {
                         dispatch(setUser(res.value))
+                        formref.current.setFieldsValue(res.value);
                         handleEditOk()
                         message.success("Update successfully")
                     } else {
@@ -136,6 +138,7 @@ export default function ProfileCard() {
         }
     }
     const onFinishFailed = (errorInfo) => { message.error("Error: ", errorInfo) }
+
     return (
         <>
             <div style={{ marginTop: 60 }} className='profileCard'>
@@ -177,8 +180,8 @@ export default function ProfileCard() {
                 </Modal>
             </div >
             <div style={{ marginTop: 50, pointerEvents: "none" }}>
-                <Form labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item name="name" label={"Username"}>
+                <Form ref={formref} labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} initialValues={user} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                    <Form.Item name="shop_name" label={"Username"}>
                         <Input defaultValue={username} />
                     </Form.Item>
                     <Form.Item name="address" label={'Address'}>

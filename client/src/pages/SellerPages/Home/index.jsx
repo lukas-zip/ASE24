@@ -9,22 +9,6 @@ import UploadTutorialModal from '../../../Components/uploadTutorial'
 import EditProductModal from '../../../Components/editTutorial'
 import Overview from './components/overview'
 
-// const {
-//     product_assemblies = "Final",
-//     product_name = "dsfsdfkjas;dfjkasd;fjkas;lfjkaslkfjasdlfhaslkdfha;sdjfk;alsdja;sljkf;lkadjf;lasjkdf;lasdkj;asldjk;lasddjk;ladsjk;las",
-//     product_description = "mockcontent",
-//     product_bom = [
-//         "1324a686-c8b1-4c84-bbd6-17325209d78c1",
-//         "1324a686-c8b1-4c84-bbd6-17325209d78c2"
-//     ],
-//     product_picture = "https://archive.trufflesuite.com/img/docs/ganache/ganache-home-empty.png",
-//     product_search_attributes = ["1", "34dsf"],
-//     product_price = 0.87,
-//     product_owner = "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-//     product_price_reduction = "5.0",
-//     product_id = "3623011f-83e6-42f8-8e77-d6748c123000"
-// } = {}
-
 const cardWidth = 230
 const cardHeight = 220
 function index() {
@@ -142,12 +126,12 @@ function index() {
                     <Space wrap size={'middle'}>
                         {allProducts.map((item, key) =>
                             <Card
-                                // key={key}
+                                key={key}
                                 hoverable
                                 style={{ width: cardWidth }}
                                 cover={
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />
+                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src={item.product_picture} />
                                     </div>
                                 }
                                 actions={[

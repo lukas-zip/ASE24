@@ -30,20 +30,17 @@ const items = [
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const {
-        product_assemblies = "Final",
-        product_name = "dsfsdfkjas;dfjkasd;fjkas;lfjkaslkfjasdlfhaslkdfha;sdjfk;alsdja;sljkf;lkadjf;lasjkdf;lasdkj;asldjk;lasddjk;ladsjk;las",
-        product_description = "mockcontent",
-        product_bom = [
-            "1324a686-c8b1-4c84-bbd6-17325209d78c1",
-            "1324a686-c8b1-4c84-bbd6-17325209d78c2"
-        ],
-        product_picture = "https://archive.trufflesuite.com/img/docs/ganache/ganache-home-empty.png",
-        product_search_attributes = ["1", "34dsf"],
-        product_price = 0.87,
-        product_owner = "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-        product_price_reduction = "5.0",
-        product_id = "3623011f-83e6-42f8-8e77-d6748c123000"
-    } = item || {}
+        product_assemblies,
+        product_name,
+        product_description,
+        product_bom,
+        product_picture,
+        product_search_attributes,
+        product_price,
+        product_owner,
+        product_price_reduction,
+        product_id,
+    } = item
 
 
 
@@ -51,7 +48,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const [averageRating, setAverageRating] = useState(0)
     useEffect(() => {
         const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
-        setAverageRating(totalRating / reviewsData.length)
+        isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
     }, [reviewsData])
 
 
@@ -135,7 +132,8 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ fontSize: 14, color: 'rgb(170, 170, 170)' }}>{product_assemblies} Product</div>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span>
+                                {/* <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span> */}
+                                <span style={{ fontSize: 14 }}>{"-"}&nbsp;</span>
                                 <Rate defaultValue={averageRating} disabled style={{ fontSize: 14 }} />
                                 <span style={{ cursor: 'pointer', marginLeft: 10, fontSize: 12, color: '#306f83' }}>
                                     <span>{reviewsData.length}&nbsp;</span>

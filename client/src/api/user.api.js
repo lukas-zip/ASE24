@@ -19,7 +19,7 @@ export const getAllProductsByShopId = (shopId) => request("products", 'get', `/p
 export const getProductById = (productId) => request("products", 'get', `/products/${productId}`);
 export const searchProducts = (data) => request("products", 'post', '/products/search', data);
 export const deleteProductFromCompany = (productId) => request("products", 'delete', `/products/delete`, { product_id: productId });
-export const updateProductForCompany = (productId, data) => request("products", 'put', `/products//product/update_product/${productId}`, data);
+export const updateProductForCompany = (productId, data) => request("products", 'put', `/product/update_product/${productId}`, data);
 export const addProductForCompany = (data) => request("products", 'post', `/product/insert`, data);
 
 // Orders API

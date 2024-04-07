@@ -53,6 +53,7 @@ def insert_product():
     product_sale = request.form.get('product_sale')
     product_category = request.form.getlist('product_category')  # Use getlist() for multiple values
     product_search_attributes = request.form.getlist('product_search_attributes')  # Use getlist() for multiple values
+    product_reviews = request.form.getlist('product_reviews')  # Use getlist() for multiple values
     product_bom = request.form.getlist('product_bom')
     product_assemblies = request.form.get('product_assemblies')
 
