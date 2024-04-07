@@ -97,10 +97,11 @@ def get_all_orders():
     except ClientError as e:
         print("Error getting order:", e)
 
+
+
 def update_order(order_id, product_id, action):
     try:
         order = get_order(order_uuid)
-        order = [123]
         # Base update expression setup
         update_expression = "set "
         expression_attribute_values = {}
@@ -137,7 +138,7 @@ def update_order(order_id, product_id, action):
         print(f"Error updating: {e}")
         raise e
 
-def delete_entity(entity_uuid):
+def delete_order(order_id):
     try:
         # Perform the delete operation
         db_order_management.delete_item(
