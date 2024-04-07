@@ -253,7 +253,7 @@ def get_entity(entity, entity_uuid):
         if entity == 'users':
             response = dynamodb.get_user_json(dynamodb.get_user(entity_uuid))
         elif entity == 'shops':
-            response = dynamodb.get_user_json(dynamodb.get_user(entity_uuid))
+            response = dynamodb.get_shop_json(dynamodb.get_shop(entity_uuid))
         else:
             return jsonify({'status': False, 'message': 'Invalid entity'}), 400
 
