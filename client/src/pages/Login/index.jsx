@@ -4,7 +4,7 @@ import './index.less'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { Radio, message } from 'antd'
 import { setUser } from '../../store/user.store'
-import { signIn, signUp } from '../../api/user.api'
+import { signIn, signUpForUser, signUpForShop } from '../../api/user.api'
 import PROJECT_VARIABLE from '../../constants/ProjectNameVariable'
 import CONSTANTS from '../../constants'
 
@@ -53,16 +53,53 @@ export default function Login() {
     }
     const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
     const registerUser = async () => {
-        await signUp(sigUpInfo)
-            .then((res) => {
-                dispatch(setUser(res))
-                navigateTo('/')
-                message.success('Register Successfully! Have a nice trip!!!')
-            })
-            .catch((err) => {
-                console.log(err);
-                message.error('Registration Failure! Try again please')
-            })
+        const { name, email, password } = sigUpInfo
+        if (role === CONSTANTS.USER_TYPE.USER) {
+            const reqData = {
+                email,
+                password,
+                username: name,
+                address: "",
+                phone: ""
+            }
+            await signUpForUser(reqData)
+                .then((res) => {
+                    if (res.status === true) {
+                        dispatch(setUser(res.value))
+                        navigateTo('/')
+                        message.success('Register Successfully! Have a nice trip!!!')
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    message.error('Registration Failure! Try again please')
+                })
+        } else if (role === CONSTANTS.USER_TYPE.SHOP) {
+            const reqData = {
+                email,
+                password,
+                shop_name: name,
+                description: '',
+                address: "",
+                phone: ""
+            }
+            await signUpForShop(reqData)
+                .then((res) => {
+                    if (res.status === true) {
+                        dispatch(setUser(res.value))
+                        navigateTo('/')
+                        message.success('Register Successfully! Have a nice trip!!!')
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    message.error('Registration Failure! Try again please')
+                })
+        }
     }
 
     return (
@@ -141,7 +178,7 @@ export default function Login() {
                             </div>
                             <div>
                                 <label style={{ marginRight: 6 }}>Enrol as: </label>
-                                <Radio.Group defaultValue={CONSTANTS.USER_TYPE.USER} onChange={({ target: { value } }) => setRole(value)}>
+                                <Radio.Group defaultValue={role} onChange={({ target: { value } }) => setRole(value)}>
                                     <Radio.Button value={CONSTANTS.USER_TYPE.USER}>User</Radio.Button>
                                     <Radio.Button value={CONSTANTS.USER_TYPE.SHOP}>Shop</Radio.Button>
                                 </Radio.Group>

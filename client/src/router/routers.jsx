@@ -12,6 +12,9 @@ import SettingPage from '../pages/ClientHomePage/pages/settingPage'
 import ShoppingCartPage from '../pages/ClientHomePage/pages/ShoppingCartPage'
 import StatisticPage from '../pages/ClientHomePage/pages/StatisticPage'
 import UserHomePage from '../pages/ClientHomePage/pages/HomePage'
+import OrderPage from '../pages/SellerPages/OrderPage'
+import ProfilePage from '../pages/SellerPages/ProfilePage'
+import StatisticPageForSeller from '../pages/SellerPages/Statistics'
 
 export default function MyRouter() {
     const { user } = useSelector(state => state.user)
@@ -32,13 +35,18 @@ export default function MyRouter() {
                     // loader: async () => await getStatistics()
                 },
                 {
+                    path: "order",
+                    element: <ProtectedRouter><OrderPage /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
+                {
                     path: "statistic",
-                    element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
+                    element: <ProtectedRouter><StatisticPageForSeller /></ProtectedRouter>,
                     // loader: async () => await getStatistics()
                 },
                 {
                     path: "settings",
-                    element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
+                    element: <ProtectedRouter><ProfilePage /></ProtectedRouter>,
                     // loader: async () => await getStatistics()
                 },
             ]

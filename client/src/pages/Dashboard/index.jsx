@@ -5,7 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import MyLayoutHeader from './header';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCollapsed } from '@/store/configuration.store'
-import { HomeOutlined, SettingOutlined, WalletOutlined } from '@ant-design/icons';
+import { ContainerOutlined, HomeOutlined, SettingOutlined, WalletOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
 const { Content, Sider } = Layout;
@@ -16,6 +16,7 @@ const Dashboard = () => {
   }
   const mySidebarOptions = [
     getItem("Home", 'home', <HomeOutlined />),
+    getItem("Order", 'order', <ContainerOutlined />),
     getItem("Statistic", 'statistic', <WalletOutlined />),
     getItem("Settings", 'settings', <SettingOutlined />),
   ]

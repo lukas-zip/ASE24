@@ -1,24 +1,82 @@
 import React, { useEffect, useState } from 'react'
-import { Avatar, message, Modal, Tag, Skeleton, List, Popover, Rate, Divider, InputNumber } from 'antd'
+import { Avatar, message, Modal, Tag, Skeleton, List, Popover, Rate, Divider, InputNumber, Dropdown, Button, Input, Space } from 'antd'
 import { useSelector } from 'react-redux'
-import { UserOutlined, LikeFilled, EllipsisOutlined, } from '@ant-design/icons';
+import { UserOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutlined, } from '@ant-design/icons';
 import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
-import { useNavigate } from 'react-router-dom';
+import { createReview, getReviewByProductId, getShopById } from '../../../../api/user.api';
 
-export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
-    const navigateTo = useNavigate()
-    const [itemInfo, setItemInfo] = useState(item)
-    const { title = "mocktitle", content = "mockcontent", reviews = [], imgUrl = ["https://archive.trufflesuite.com/img/docs/ganache/ganache-home-empty.png"], tags = ["1", "34dsf"], price = 100 } = itemInfo || {}
-    const { user } = useSelector((state) => state.user)
-    const [quantity, setQuantity] = useState(1)
-    const getUserData = async () => {
+const items = [
+    {
+        key: '1',
+        danger: true,
+        icon: <DeleteOutlined />,
+        label: (
+            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                delete
+            </a>
+        ),
+    },
+    {
+        key: '2',
+        icon: <EditOutlined />,
+        label: (
+            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                edit
+            </a>
+        ),
     }
-    const getBlogComments = async () => {
+]
+const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
+export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
+    const {
+        product_assemblies = "Final",
+        product_name = "dsfsdfkjas;dfjkasd;fjkas;lfjkaslkfjasdlfhaslkdfha;sdjfk;alsdja;sljkf;lkadjf;lasjkdf;lasdkj;asldjk;lasddjk;ladsjk;las",
+        product_description = "mockcontent",
+        product_bom = [
+            "1324a686-c8b1-4c84-bbd6-17325209d78c1",
+            "1324a686-c8b1-4c84-bbd6-17325209d78c2"
+        ],
+        product_picture = "https://archive.trufflesuite.com/img/docs/ganache/ganache-home-empty.png",
+        product_search_attributes = ["1", "34dsf"],
+        product_price = 0.87,
+        product_owner = "1324a686-c8b1-4c84-bbd6-17325209d78c6",
+        product_price_reduction = "5.0",
+        product_id = "3623011f-83e6-42f8-8e77-d6748c123000"
+    } = item || {}
+
+
+
+    const [reviewsData, setReviews] = useState([])
+    const [averageRating, setAverageRating] = useState(0)
+    useEffect(() => {
+        const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
+        setAverageRating(totalRating / reviewsData.length)
+    }, [reviewsData])
+
+
+    const { user: { user_id } } = useSelector((state) => state.user)
+    const [quantity, setQuantity] = useState(1)
+    const getReviews = async () => {
+        await getReviewByProductId(product_id).then((res) => {
+            if (res.status === true) {
+                console.log(res.value[1].customer_id);
+                setReviews(res.value)
+            }
+        }).catch((err) => {
+            message.error(err.message)
+        })
+    }
+    const getProductOwnerInfo = async () => {
+        await getShopById(product_owner).then((res) => {
+            if (res.status === true) {
+
+            }
+        })
     }
     useEffect(() => {
-        getUserData();
-        getBlogComments()
+        getReviews();
+        getProductOwnerInfo()
     }, [])
     const handleOk = () => {
         setIsOpen(false);
@@ -27,27 +85,66 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
         e.stopPropagation();
         setIsOpen(false);
     };
+
+    const [addReviewModalOpen, setAddReviewModalOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [rate, setRate] = useState(0)
+    const [review, setReview] = useState('')
+    const handleAddReviewModalOpen = () => {
+        setAddReviewModalOpen(true);
+    }
+    const handleSubmitReview = async () => {
+        if (review && rate) {
+            const newReview = {
+                product_id,
+                customer_id: user_id,
+                reviewcontent: review,
+                rating: rate,
+                time_lastedit: "20.03.2024 - 11:50:00",
+                time_created: "20.03.2024 - 11:50:00"
+            }
+            setConfirmLoading(true);
+            await createReview(newReview).then((msg) => {
+                if (msg.status === true) {
+                    message.success("Add review successfully!")
+                    setAddReviewModalOpen(false)
+                } else {
+                    message.error(msg.message)
+                }
+                setRate(0)
+                setReview('')
+                setConfirmLoading(false)
+            }).catch(err => {
+                setRate(0)
+                setReview('')
+                setConfirmLoading(false)
+            })
+
+        } else {
+            message.error("Please complete all the content");
+        }
+    }
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen} onOk={handleOk} onCancel={handleCloseDetailModal}>
             <div className={`BlogModal BlogModal-light`} >
-                {imgUrl.length !== 0 && <div className='blogImg'><MyCarousel imgArr={imgUrl} /></div>}
+                <div className='blogImg'><MyCarousel imgArr={[product_picture]} /></div>
                 <div className={`blogMainPart`} >
                     <div className='blogInfo'>
-                        <div className='blogTitle'>{title}dsfsdfkjas;dfjkasd;fjkas;lfjkaslkfjasdlfhaslkdfha;sdjfk;alsdja;sljkf;lkadjf;lasjkdf;lasdkj;asldjk;lasddjk;ladsjk;las</div>
-                        <div className='blogDescri'>{content}</div>
+                        <div className='blogTitle'>{product_name}</div>
+                        <div className='blogDescri'>{product_description}</div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div style={{ fontSize: 14, color: 'rgb(170, 170, 170)' }}>19 sold</div>
+                            <div style={{ fontSize: 14, color: 'rgb(170, 170, 170)' }}>{product_assemblies} Product</div>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <span style={{ fontSize: 14 }}>{3}&nbsp;</span>
-                                <Rate defaultValue={3} disabled style={{ fontSize: 14 }} />
+                                <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span>
+                                <Rate defaultValue={averageRating} disabled style={{ fontSize: 14 }} />
                                 <span style={{ cursor: 'pointer', marginLeft: 10, fontSize: 12, color: '#306f83' }}>
-                                    <span>34234&nbsp;</span>
+                                    <span>{reviewsData.length}&nbsp;</span>
                                     <span>ratings</span>
                                 </span>
                             </div>
                         </div>
                         <div className='tags'>
-                            {tags.map((tag, index) => <Tag key={index} bordered={false} color="processing">
+                            {product_search_attributes.map((tag, index) => <Tag key={index} bordered={false} color="processing">
                                 <span>#{tag}</span>
                             </Tag>)}
                         </div>
@@ -64,35 +161,56 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         </div>
                         <Divider />
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, gap: 2, fontWeight: 'bold', color: '#4790ff' }}>
-                                <div>CHF</div>
-                                <div style={{ fontSize: 20 }}>{price}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, gap: 2, fontWeight: 'bold', color: '#4790ff' }}>
+                                    <div>CHF</div>
+                                    <div style={{ fontSize: 26 }}>{(product_price * (100 - product_price_reduction) / 100).toPrecision(2)}</div>
+                                </div>
+                                {(100 - product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product_price_reduction}%</div>
+                                    <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product_price}</div>
+                                </>}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <div style={{ fontWeight: 'bold' }}>Quantity: </div>
                                 <div><InputNumber min={1} max={6} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
                             </div>
                         </div>
-                        <div className='CheckOutBtn'>Check Out: {price * quantity}</div>
+                        <div className='CheckOutBtn'>Add to cart</div>
                     </div>
                     <div className='blogComments'>
-                        <div style={{ fontSize: 16, fontWeight: 'bold' }}>Item reviews ({reviews.length})</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ fontSize: 16, fontWeight: 'bold' }}>Item reviews ({reviewsData.length})</div>
+                            <div
+                                onClick={() => handleAddReviewModalOpen()}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <PlusOutlined />
+                            </div>
+                        </div>
                         <List
                             className="demo-loadmore-list"
                             itemLayout="horizontal"
                             size='small'
-                            noDataText="No reviews"
-                            dataSource={reviews}
+                            dataSource={reviewsData}
                             renderItem={(item) => (
                                 <List.Item
-                                    actions={[<div className='btn' onClick={() => { }}><LikeFilled />&nbsp;{ }</div>, <div className='btn'><Popover content={<></>} trigger="click"><EllipsisOutlined onClick={() => { }} /></Popover></div>]}
+                                    actions={[
+                                        <div className='btn'>
+                                            {user_id === item.customer_id && <Dropdown Dropdown menu={{ items }} placement="top" arrow={{ pointAtCenter: true }}>
+                                                <EllipsisOutlined onClick={() => { }} />
+                                            </Dropdown>}
+                                        </div>
+                                    ]}
                                 >
                                     <Skeleton avatar loading={false} active>
                                         <List.Item.Meta
                                             // avatar={<Avatar size={49} src={noGender} />}
-                                            avatar={<Avatar size={49} />}
-                                            title={<a href="#">comment</a>}
-                                            description={"description"}
+                                            avatar={<Avatar size={36} />}
+                                            title={<a href="#">User</a>}
+                                            description={<div>
+                                                <Rate disabled defaultValue={Number(item.rating)} />
+                                                <div>{item.reviewcontent}</div>
+                                            </div>}
                                         />
                                     </Skeleton>
                                 </List.Item>
@@ -101,6 +219,13 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                     </div>
                 </div>
             </div >
-        </Modal>
+            <Modal title="Add Review" open={addReviewModalOpen} onOk={handleSubmitReview} onCancel={() => setAddReviewModalOpen(false)} confirmLoading={confirmLoading} okText="Submit">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, }}>
+                    <div>Rate: </div>
+                    <Rate tooltips={desc} style={{ fontSize: 20 }} defaultValue={rate} onChange={(rateValue) => setRate(rateValue)} />
+                </div>
+                <Input.TextArea variant="filled" defaultValue={review} placeholder='Pleaset enter your review here' onChange={({ target: { value } }) => setReview(value)} rows={4} />
+            </Modal>
+        </Modal >
     )
 }
