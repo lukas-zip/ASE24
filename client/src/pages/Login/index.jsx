@@ -64,7 +64,7 @@ export default function Login() {
             }
             await signUpForUser(reqData)
                 .then((res) => {
-                    if (res.status === true) {
+                    if (res.status) {
                         dispatch(setUser(res.value))
                         navigateTo('/')
                         message.success('Register Successfully! Have a nice trip!!!')

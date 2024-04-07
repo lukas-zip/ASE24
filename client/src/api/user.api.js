@@ -10,7 +10,7 @@ export const deleteUser = (userId) => request("user", 'delete', `/users/${userId
 
 // Shops API
 export const signUpForShop = (data) => request("user", 'post', '/shops', data);
-export const updateShop = (shopId, data) => request("user", 'put', `/shops/${shopId}`, data);
+export const updateShop = (shopId, data) => request("user", 'put', `/shops/${shopId}`, { ...data, action: "update" });
 export const getShopById = (shopId) => request("user", 'get', `/shops/${shopId}`);
 export const deleteShop = (shopId) => request("user", 'delete', `/shops/${shopId}`);
 
@@ -20,7 +20,8 @@ export const getProductById = (productId) => request("products", 'get', `/produc
 export const searchProducts = (data) => request("products", 'post', '/products/search', data);
 export const deleteProductFromCompany = (productId) => request("products", 'delete', `/products/delete`, { product_id: productId });
 export const updateProductForCompany = (productId, data) => request("products", 'put', `/products//product/update_product/${productId}`, data);
-export const addProductForCompany = (productId, companyId, data) => request("products", 'post', `/product/insert`, data);
+export const addProductForCompany = (data) => request("products", 'post', `/product/insert`, data);
+
 // Orders API
 export const getOrderById = (orderId) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);

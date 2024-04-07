@@ -4,18 +4,16 @@ import CardTitle from '../CardTitle';
 // import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 // import { storage } from '../../firebase'
 import { useRef, useState } from 'react';
-// import { createTutorial } from '../../api/tutorial.api'
 import CONSTANTS from '../../constants';
-
-const equipmentsOptions = [
-    { value: 'dumbbell', label: 'dumbbell' },
-    { value: '跳绳', label: '跳绳' },
-]
+import { addProductForCompany } from '../../api/user.api';
+import { useSelector } from 'react-redux';
 
 export default function UploadTutorialModal({ getData, removeTab }) {
+    const { user: { shop_id } } = useSelector(state => state.user)
     const [uploading, setUploading] = useState(false)
     const formRef = useRef(null);
     const [cover, setCover] = useState([])
+    const [imageFile, setImageFile] = useState()
     const propsCover = {
         onRemove: (file) => {
             const index = cover.indexOf(file);
@@ -26,6 +24,7 @@ export default function UploadTutorialModal({ getData, removeTab }) {
         beforeUpload: (file) => {
             const isImage = file.type?.startsWith('image')
             if (isImage) {
+                setImageFile(file)
                 setCover([{ ...file, name: file.name }])
             } else {
                 message.error('u only can upload picture here')
@@ -71,77 +70,33 @@ export default function UploadTutorialModal({ getData, removeTab }) {
         //     setUploading(false)
         // }
     }
-    const [video, setVideo] = useState([])
-    const propsVideo = {
-        onRemove: (file) => {
-            const index = video.indexOf(file);
-            const newFileList = video.slice();
-            newFileList.splice(index, 1);
-            setVideo(newFileList);
-        },
-        beforeUpload: (file) => {
-            console.log(file);
-            const isVideo = file.type?.startsWith('video')
-            if (isVideo) {
-                setVideo([{ ...file, name: file.name }])
-            } else {
-                message.error('u only can upload video here')
-                return false
-            }
-        },
-        fileList: video,
-    };
-    const submitVideoToFirebase = ({ file }) => {
-        // setUploading(true)
-        // if (file) {
-        //     const storageRef = ref(storage, `Tutorial-Video-${parseInt((new Date().getTime() / 1000).toString())}`);
-        //     const uploadTask = uploadBytesResumable(storageRef, file);
-        //     uploadTask.on('state_changed',
-        //         (snapshot) => {
-        //             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //             setVideo([{ ...file, status: 'uploading', percent: progress }])
-        //             switch (snapshot.state) {
-        //                 case 'paused':
-        //                     console.log('Upload is paused');
-        //                     break;
-        //                 case 'running':
-        //                     console.log('Upload is running');
-        //                     break;
-        //             }
-        //         },
-        //         (error) => {
-        //             message.err('Some error happens')
-        //             setVideo([{ ...file, status: 'error' }])
-        //             setUploading(false)
-        //         },
-        //         () => {
-        //             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        //                 setVideo([{ ...file, status: 'done', url: downloadURL, thumbUrl: downloadURL, name: file.name }])
-        //             });
-        //             setUploading(false)
-        //         }
-        //     );
-        // } else {
-        //     message.err('Some error happens')
-        //     setVideo([{ ...file, status: 'error' }])
-        //     setUploading(false)
-        // }
-    }
     const onFinish = async (items) => {
-        const handledItems = { ...items, cover: "" }
-        console.log('gaiguode', handledItems);
-        // try {
-        //     const res = await createTutorial(handledItems)
-        //     console.log(res);
-        //     console.log('Success:', handledItems);
-        //     getData()
-        //     removeTab('upload')
-        //     clear()
-        // } catch (error) {
-        //     console.log(error);
-        //     message.error('error')
-        // }
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('product_owner', shop_id);
+        formData.append('product_bom', [""]);
+
+        for (const key in items) {
+            formData.append(key, items[key]);
+        }
+        console.log('formData', formData);
+        // const handledItems = { ...items, image: formData }
+        // console.log('gaiguode', handledItems);
+
+        try {
+            await addProductForCompany(formData).then(res => {
+                if (res.status) {
+                    getData()
+                    removeTab('upload')
+                    clear()
+                } else {
+                    message.error(res.message)
+                }
+            })
+        } catch (error) {
+            console.log(error);
+            message.error('error')
+        }
     };
     const onFinishFailed = (errorInfo) => {
         console.log(errorInfo);
@@ -157,7 +112,6 @@ export default function UploadTutorialModal({ getData, removeTab }) {
     const clear = () => {
         formRef.current?.resetFields();
         setCover([])
-        setVideo([])
     };
 
     const addProduct = {
@@ -202,7 +156,7 @@ export default function UploadTutorialModal({ getData, removeTab }) {
                         <Radio value="Secondary"> Secondary </Radio>
                     </Radio.Group>
                 </Form.Item>
-                <Form.Item label="Sale" name="product_sale">
+                <Form.Item label="Sale" name="product_sale" valuePropName='checked'>
                     <Switch />
                 </Form.Item>
                 <Form.Item label="Search Attributes" name="product_search_attributes" rules={[{ required: true, message: 'Please select attributes!', }]}>
@@ -228,7 +182,7 @@ export default function UploadTutorialModal({ getData, removeTab }) {
                 <Form.Item label="Reduction(%)" name="product_price_reduction" rules={[{ required: true, message: 'Please input product_price_reduction!', }]}>
                     <InputNumber min={0} />
                 </Form.Item>
-                <Form.Item label="Cover" name="cover" rules={[{ required: false, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
+                <Form.Item label="Cover" name="cover" rules={[{ required: true, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
                     <Upload name="cover" listType="picture" customRequest={submitCoverToFirebase} maxCount={1} {...propsCover}>
                         <Button icon={<UploadOutlined />}>Click to upload</Button>
                     </Upload>

@@ -7,10 +7,6 @@ export default function CardVertical({ pic = "https://i.ytimg.com/vi/YmFuedpSldA
   const closeModal = () => {
     setDetailModelOpen(false)
   }
-
-  useEffect(() => {
-    console.log("detailModelOpen", detailModelOpen);
-  }, [detailModelOpen])
   return (
     <div onClick={() => {
       setDetailModelOpen(true)
@@ -25,6 +21,7 @@ export default function CardVertical({ pic = "https://i.ytimg.com/vi/YmFuedpSldA
       <div className='tutorialCardVertical-bottom'>
         <div className={`tutorialCardVertical-bottom-desc`}>
           <div className='tutorialCardVertical-bottom-desc-title'>NAMEdsfasdfsaddfasdfsadfasdfsadfasdfsadfffffffffff</div>
+          <div className='tutorialCardVertical-bottom-desc-title'>NAMEdsfasdfsaddfasdfsadfasdfsadfasdfsadfffffffffff</div>
         </div>
       </div>
       <div className='tutorialCardVertical-bottom-detail'>
@@ -33,8 +30,8 @@ export default function CardVertical({ pic = "https://i.ytimg.com/vi/YmFuedpSldA
           <div className='tutorialCardVertical-bottom-detail-level-price'>100</div>
         </div>
         <div className='tutorialCardVertical-bottom-detail-rate'>
-          <Rate disabled defaultValue={2} />
-          <span>(174)</span>
+          {/* <Rate disabled defaultValue={2} /> */}
+          {/* <span>(174)</span> */}
         </div>
       </div>
       <ProductDetailModal isOpen={detailModelOpen} setIsOpen={closeModal} item={{}} />

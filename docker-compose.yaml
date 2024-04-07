@@ -27,14 +27,14 @@ services:
   inventory_management:
     build: ./backend/inventory_management
     ports:
-      - "8002:8000"
+      - "8002:8002"
     # env_file:
     #   - .env.localstack
     volumes:
       - ./backend/inventory_management:/app
     depends_on:
       - localstack
-     
+
   orders:
     build: ./backend/orders
     ports:
@@ -50,9 +50,16 @@ services:
     build: client
     ports:
       - "3000:3000"
+    volumes:
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - user-service
       - inventory_management
+      - orders
+      - reviews
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"

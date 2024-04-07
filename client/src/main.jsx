@@ -4,7 +4,7 @@ import './index.less'
 import { store } from './store';
 import App from './App';
 import { Provider } from 'react-redux';
-import '@/mock/userService'
+// import '@/mock/userService'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

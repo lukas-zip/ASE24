@@ -9,6 +9,8 @@ import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import COLORS from '@/constants/COLORS';
 import CONSTANTS from '../../../../../constants';
+import { updateShop } from '../../../../../api/user.api';
+import { setUser } from '../../../../../store/user.store';
 const { TextArea } = Input;
 
 const normFile = (e) => {
@@ -17,10 +19,20 @@ const normFile = (e) => {
     }
     return e?.fileList;
 };
+const updateUser = {
+    address: "update 18, Bern",
+    description: "I´m selling update goods.",
+    email: "update@example.com",
+    phone: "324314332414",
+    profile_picture: "NONE",
+    shop_id: "2c1f74e3-33f0-47a2-97e5-ad4cc5953ed3",
+    shop_name: "update Hydro",
+    type: "Shop"
+}
 
 export default function ProfileCard() {
     const { user } = useSelector((state) => state.user)
-    const { profile_picture, phone, address } = user
+    const { profile_picture, phone, address, email } = user
     const username = user.type === CONSTANTS.USER_TYPE.USER ? user.username : user.shop_name
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const dispatch = useDispatch()
@@ -103,21 +115,25 @@ export default function ProfileCard() {
         // }
     }
     const onFinish = async (items) => {
-        // let handledItems = { ...items, avator: updatedAvator[0].url }
-        // let updateInfo = Object.keys(handledItems)
-        //     .filter((key) => handledItems[key] != null)
-        //     .reduce((a, key) => ({ ...a, [key]: handledItems[key] }), {});
-        // try {
-        //     await updateuserinfo(user._id, updateInfo)
-        //         .then((updatedUser) => {
-        //             dispatch(loginSuccess(updatedUser))
-        //             handleEditOk()
-        //             message.success(intl.formatMessage({ id: 'app.prf.updated' }))
-        //         })
-        // } catch (error) {
-        //     console.log(error);
-        //     message.error(intl.formatMessage({ id: 'error.default' }))
-        // }
+        let handledItems = { ...items, profile_picture: "" }
+        let updateInfo = Object.keys(handledItems)
+            .filter((key) => handledItems[key] != null)
+            .reduce((a, key) => ({ ...a, [key]: handledItems[key] }), {});
+        try {
+            await updateShop(user.shop_id, { ...user, ...updateInfo })
+                .then((res) => {
+                    if (res.status) {
+                        dispatch(setUser(res.value))
+                        handleEditOk()
+                        message.success("Update successfully")
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+        } catch (error) {
+            console.log(error);
+            message.error("Error")
+        }
     }
     const onFinishFailed = (errorInfo) => { message.error("Error: ", errorInfo) }
     return (
@@ -137,41 +153,20 @@ export default function ProfileCard() {
 
                 <Modal title={"Profile"} open={isEditModalOpen} onOk={handleEditOk} onCancel={handleCancel} okText="Update" cancelText="Cancel" footer={null} width={600}>
                     <Form labelCol={{ span: 6, }} wrapperCol={{ span: 14, }} layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                        {/* <Form.Item name="gender" label={intl.formatMessage({ id: 'app.prf.label.gender' })}>
-                        <Radio.Group defaultValue={gender}>
-                            <Radio value="Male"> {intl.formatMessage({ id: 'app.prf.edit.gender.Male' })} </Radio>
-                            <Radio value="Female"> {intl.formatMessage({ id: 'app.prf.edit.gender.Female' })} </Radio>
-                        </Radio.Group>
-                    </Form.Item> */}
-                        <Form.Item name="name" label={"User Name"}>
+                        <Form.Item name="shop_name" label={"Shop Name"}>
                             <Input defaultValue={username} />
                         </Form.Item>
-                        {/* <Form.Item name="age" label={intl.formatMessage({ id: 'app.prf.label.age' })} >
-                        <InputNumber defaultValue={age} />
-                    </Form.Item> */}
-                        {/* <Form.Item name="personalStatus" label={intl.formatMessage({ id: 'app.prf.label.bio' })}>
-                        <TextArea defaultValue={personalStatus} rows={2} />
-                    </Form.Item> */}
-                        {/* <Form.Item name="preferedTheme" label={intl.formatMessage({ id: 'app.prf.label.theme' })}>
-                        <Select defaultValue={preferedTheme}>
-                            <Select.Option value="dark">{intl.formatMessage({ id: 'app.prf.edit.theme.dark' })}</Select.Option>
-                            <Select.Option value="light">{intl.formatMessage({ id: 'app.prf.edit.theme.light' })}</Select.Option>
-                        </Select>
-                    </Form.Item> */}
-                        {/* <Form.Item name="preferedLanguage" label={intl.formatMessage({ id: 'app.prf.label.lang' })}> */}
-                        {/* <Select defaultValue={preferedLanguage}> */}
-                        {/* <Select.Option value="en_US">English</Select.Option> */}
-                        {/* <Select.Option value="zh_CN">中文</Select.Option> */}
-                        {/* </Select> */}
-                        {/* </Form.Item> */}
-                        <Form.Item name="hpNum" label={"Phone Number"}>
+                        <Form.Item name="phone" label={"Phone"}>
                             <Input defaultValue={phone} />
                         </Form.Item>
-                        {/* <Form.Item name="birthday" label={intl.formatMessage({ id: 'app.prf.label.birthday' })}> */}
-                        {/* {birthday ? <DatePicker defaultValue={dayjs(birthday, 'YYYY-MM-DD')} /> : <DatePicker />} */}
-                        {/* </Form.Item> */}
-                        <Form.Item label={"Avator"} valuePropName="fileList" getValueFromEvent={normFile}>
-                            <Upload name="image" listType="picture" customRequest={submitImageToFirebase} maxCount={1} {...propsImage}>
+                        <Form.Item name="address" label={'Address'}>
+                            <TextArea defaultValue={address} rows={2} />
+                        </Form.Item>
+                        <Form.Item name="description" label={'Description'}>
+                            <TextArea defaultValue={user.description} rows={2} />
+                        </Form.Item>
+                        <Form.Item label={"profile_picture"} valuePropName="fileList" getValueFromEvent={normFile}>
+                            <Upload name="profile_picture" listType="picture" customRequest={submitImageToFirebase} maxCount={1} {...propsImage}>
                                 <Button icon={<UploadOutlined />}>Upload Avatar</Button>
                             </Upload>
                         </Form.Item>
@@ -183,14 +178,20 @@ export default function ProfileCard() {
             </div >
             <div style={{ marginTop: 50, pointerEvents: "none" }}>
                 <Form labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item name="name" label={"User Name"}>
+                    <Form.Item name="name" label={"Username"}>
                         <Input defaultValue={username} />
                     </Form.Item>
-                    <Form.Item name="Address" label={'Address'}>
+                    <Form.Item name="address" label={'Address'}>
                         <TextArea defaultValue={address} rows={2} />
                     </Form.Item>
-                    <Form.Item name="hpNum" label={"Phone Number"}>
+                    <Form.Item name="description" label={'Description'}>
+                        <TextArea defaultValue={user.description} rows={2} />
+                    </Form.Item>
+                    <Form.Item name="phone" label={"Phone"}>
                         <Input defaultValue={phone} />
+                    </Form.Item>
+                    <Form.Item name="email" label={"email"}>
+                        <Input defaultValue={email} />
                     </Form.Item>
                     {/* <Form.Item name="birthday" label={intl.formatMessage({ id: 'app.prf.label.birthday' })}> */}
                     {/* {birthday ? <DatePicker defaultValue={dayjs(birthday, 'YYYY-MM-DD')} /> : <DatePicker />} */}

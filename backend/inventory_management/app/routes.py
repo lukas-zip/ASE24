@@ -53,7 +53,6 @@ def insert_product():
     product_sale = request.form.get('product_sale')
     product_category = request.form.getlist('product_category')  # Use getlist() for multiple values
     product_search_attributes = request.form.getlist('product_search_attributes')  # Use getlist() for multiple values
-    product_reviews = request.form.getlist('product_reviews')  # Use getlist() for multiple values
     product_bom = request.form.getlist('product_bom')
     product_assemblies = request.form.get('product_assemblies')
 
@@ -162,7 +161,7 @@ def get_products_to_sell_catalog(product_owner):
         if final_products:
             return jsonify({'value': final_products, 'status': True}), 200
         else:
-            return jsonify({'error': 'no items available for this product_owner', 'status': False}), 400
+            return jsonify({'value': final_products, 'status': True}), 200
     except ClientError as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
