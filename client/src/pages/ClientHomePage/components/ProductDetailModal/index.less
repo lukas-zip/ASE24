@@ -1,0 +1,208 @@
+@darkBlockBackgroundColor: #1d1d1d;
+@lightBlockBackgroundColor: #ffffff;
+@darkUsernameColor: #4d90f9;
+@lightUsernameColor: #4790ff;
+@darkTextColor: #e7e7e7;
+@darkTextColorforcomment: #747474;
+@lightTextColor: #313131;
+@darkHtmlBackgroundColor: #171717;
+@lightHtmlBackgroundColor: #ffffff;
+@lightDashboardBackgroundColor: #f3f3f3;
+@darkBackgroundColor: #0c0f0e;
+@lightBackgroundColor: #ffffff;
+@darkTextColor: #949494;
+@lightTextColor: #9b999b;
+@darkNavHoverColor: #383838;
+@lightNavHoverColor: #f0f0f0;
+
+.BlogModal {
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    .blogImg {
+        height: 100%;
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            object-fit: cover;
+        }
+    }
+
+    .blogMainPart {
+        height: 100%;
+        width: 50%;
+        padding: 20px;
+        position: relative;
+        overflow: scroll;
+        // display: flex;
+        // flex-direction: column;
+
+        .blogInfo {
+            // background-color: @darkNavHoverColor;
+            padding: 10px;
+            font-size: 16px;
+
+            .blogTitle {
+                .border {
+                    width: 10px;
+                    height: 10;
+                    border-radius: 4px;
+                    margin-right: 10px;
+                    background-color: @darkUsernameColor;
+                }
+            }
+
+            .tags {
+                margin-top: 10px;
+            }
+
+            .time {
+                color: @darkTextColorforcomment;
+                font-size: 12px;
+            }
+
+            .blogOperation {
+                margin-top: 10px;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .Info {
+                    display: flex;
+                    align-items: center;
+                    font-size: 12px;
+                    gap: 3px;
+                    cursor: pointer;
+
+                    &-sub {
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .Info-sub>div:first-child {
+                        margin-bottom: -5px;
+                        /* 调整这个值来减小距离 */
+                    }
+
+                    .Info-sub>div:nth-child(2) {
+                        color: '#306f83';
+                        margin-top: 0px;
+                        /* 确保第二个元素的顶部外边距为0，进一步减少间隔 */
+                    }
+                }
+
+                .operation {
+                    display: flex;
+                    width: 160px;
+                    justify-content: space-around;
+
+                    .Btn {
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .CheckOutBtn {
+                margin-top: 10px;
+                border-radius: 20px;
+                padding: 10px;
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #4790ff;
+                cursor: pointer;
+            }
+        }
+
+        .blogComments {
+            margin-top: 8px;
+            // height: 100%;
+            // border-radius: 20px;
+            overflow: auto;
+            padding: 10px;
+            // background-color: @darkNavHoverColor;
+
+            &::-webkit-scrollbar {
+                /*滚动条整体样式*/
+                width: 6px;
+                /*高宽分别对应横竖滚动条的尺寸*/
+                height: 1px;
+                background-color: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                /*滚动条里面小方块*/
+                border-radius: 10px;
+                -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+                background: rgba(157, 165, 183, 0.7);
+            }
+
+            &::-webkit-scrollbar-track {
+                /*滚动条里面轨道*/
+                -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                // background: #EDEDED;
+            }
+
+            &::-webkit-scrollbar-thumb:hover {
+                background: #888888;
+                /*鼠标移上滚动条样式*/
+            }
+        }
+
+        .myComment {
+            margin-top: 16px;
+            width: 100%;
+            display: flex;
+            height: 60px;
+            align-items: center;
+
+            .commentInput {
+                width: 100%;
+                margin-left: 10px;
+                height: 60px;
+                border-radius: 20px;
+                background-color: @darkNavHoverColor;
+            }
+        }
+
+    }
+
+    .blogMainPart-without {
+        width: 100% !important;
+    }
+
+}
+
+.BlogModal-light {
+    .blogInfo {
+        // background-color: @lightDashboardBackgroundColor !important;
+    }
+
+    .blogComments {
+        // background-color: @lightDashboardBackgroundColor !important;
+    }
+
+    .myComment {
+
+        .commentInput {
+            width: 100%;
+            margin-left: 10px;
+            height: 60px;
+            border-radius: 20px;
+            background-color: @lightDashboardBackgroundColor !important;
+        }
+    }
+}
+
+.btn {
+    cursor: pointer;
+}

@@ -1,0 +1,83 @@
+.layout-page {
+    height: 100%;
+
+    &-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px;
+        user-select: none;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+
+        &-right {
+            display: flex;
+            align-items: center;
+
+            #language-change {
+                margin-right: 20px;
+            }
+        }
+
+
+        .medal-logo {
+            font-size: 22px;
+            // color: white;
+            font-weight: 800;
+            // background-color: skyblue;
+        }
+
+        .MyHeader-Avatar {
+            user-select: none;
+            cursor: pointer;
+            background-color: #f56a00;
+            vertical-align: middle;
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    }
+
+    &-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+
+        > :nth-child(1) {
+            flex: auto;
+            overflow: auto;
+            box-sizing: border-box;
+            padding: 6px;
+
+            .innerText {
+                padding: 24px;
+                border-radius: 2px;
+                display: block;
+                line-height: 32px;
+                font-size: 16px;
+            }
+        }
+    }
+}
+
+.loginStatusDiv {
+    user-select: none;
+    cursor: pointer;
+}
+
+.content-mainbox {
+    margin-left: 8px;
+    background-color: #fff;
+}
+
+.ant-menu {
+    border: 0 !important;
+}
+
+.ant-popover-inner {
+    padding: 3 !important;
+}

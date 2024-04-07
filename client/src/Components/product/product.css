@@ -1,0 +1,36 @@
+.product {
+  margin-top: 10px;
+}
+
+.product .boxItems {
+  border-radius: 16px;
+  background-color: #fff;
+  transition: 0.5s;
+  display: flex;
+  align-items: center;
+}
+
+.product .boxItems:hover {
+  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+  cursor: pointer;
+  transform: translateY(-5px);
+}
+
+.product img {
+  width: 105px;
+  height: 105px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 15px;
+}
+
+.container {
+  max-width: 95%;
+  margin: auto;
+}
