@@ -1,0 +1,26 @@
+[
+  {
+    "email": "micro@example.com",
+    "password": "password11",
+    "shop_name": "John Micro",
+    "description": "My small handcraft shop.",
+    "address": "Hoferstrasse 19, Zuerich",
+    "phone": "1234567890"
+  },
+  {
+    "email": "hydro@example.com",
+    "password": "password22",
+    "shop_name": "Jane Hydro",
+    "description": "I´m selling self-made goods.",
+    "address": "Bernerstrasse 18, Bern",
+    "phone": "2395678901"
+  },
+  {
+    "email": "electro@example.com",
+    "password": "password33",
+    "shop_name": "Max Electro",
+    "description": "Join me on my sustainability journey",
+    "address": "Weinhofstrasse 123, Luzern",
+    "phone": "3456789012"
+  }
+]

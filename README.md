@@ -3,7 +3,7 @@ In a world in which consumers are more likely to want local suppliers and sustai
 
 ## Architecture
 
-The system comprises various microservices: `user-service`, `product-service`, `xxx`, ... each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named app, housing `__init__.py`, `dynamodb.py`, and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service.
+The system comprises various microservices: `user-service`, `product-service`, `xxx`, ... each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named app, housing `__init__.py`, `dynamodb.py`, `dummydata.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service.
 
 To coordinate the different services, a `docker-compose.yml` file in the ASE24 directory orchestrates their integration.
 
