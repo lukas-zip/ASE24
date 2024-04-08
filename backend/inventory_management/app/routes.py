@@ -162,7 +162,7 @@ def get_products_to_sell_catalog(product_owner):
         if final_products:
             return jsonify({'value': final_products, 'status': True}), 200
         else:
-            return jsonify({'error': 'no items available for this product_owner', 'status': False}), 400
+            return jsonify({'value': final_products, 'status': True}), 200
     except ClientError as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
