@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import pngurl1 from '@/assets/pic/monitorProcess.webp'
-import pngurl2 from '@/assets/pic/contact.webp'
-import pngurl3 from '@/assets/pic/tutorial.webp'
-import pngurl4 from '@/assets/pic/game.webp'
-import pngurl5 from '@/assets/pic/workoutPlan.jpg'
 import { useNavigate } from 'react-router-dom'
 import './index.less'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { message } from 'antd'
+import { Radio, message } from 'antd'
 import { setUser } from '../../store/user.store'
-import { signIn, signUp } from '../../api/user.api'
+import { signIn, signUpForUser, signUpForShop } from '../../api/user.api'
 import PROJECT_VARIABLE from '../../constants/ProjectNameVariable'
+import CONSTANTS from '../../constants'
 
 export default function Login() {
     const { user } = useSelector(state => state.user, shallowEqual)
@@ -31,13 +27,7 @@ export default function Login() {
     const activenameSup = focusednameSup ? 'active' : ''
     const activepasswordSup = focusedpasswordSup ? 'active' : ''
     const activeemail = focusedemail ? 'active' : ''
-
-    const [name, setName] = useState('')
     useEffect(() => {
-        // const token = localStorage.getItem('token');
-        // if (logged !== true) {
-        //     checkLogged(token)
-        // }
         const timer = window.setInterval(() => {
             setSelectedPic((prev) => {
                 return prev !== 5 ? prev + 1 : 1
@@ -54,26 +44,62 @@ export default function Login() {
     const UserSignIn = async () => {
         const res = await signIn(sigInInfo)
         if (res && res.status !== false) {
-            localStorage.setItem('user', res)
-            dispatch(setUser(res))
-            dispatch(setLogged(true))
+            localStorage.setItem('user', res.value)
+            dispatch(setUser(res.value))
             navigateTo('/')
         } else {
             message.error('Error happen, try again please')
         }
     }
-
+    const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
     const registerUser = async () => {
-        await signUp(sigUpInfo)
-            .then((res) => {
-                dispatch(setUser(res))
-                navigateTo('/')
-                message.success('Register Successfully! Have a nice trip!!!')
-            })
-            .catch((err) => {
-                console.log(err);
-                message.error('Registration Failure! Try again please')
-            })
+        const { name, email, password } = sigUpInfo
+        if (role === CONSTANTS.USER_TYPE.USER) {
+            const reqData = {
+                email,
+                password,
+                username: name,
+                address: "",
+                phone: ""
+            }
+            await signUpForUser(reqData)
+                .then((res) => {
+                    if (res.status) {
+                        dispatch(setUser(res.value))
+                        navigateTo('/')
+                        message.success('Register Successfully! Have a nice trip!!!')
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    message.error('Registration Failure! Try again please')
+                })
+        } else if (role === CONSTANTS.USER_TYPE.SHOP) {
+            const reqData = {
+                email,
+                password,
+                shop_name: name,
+                description: '',
+                address: "",
+                phone: ""
+            }
+            await signUpForShop(reqData)
+                .then((res) => {
+                    if (res.status === true) {
+                        dispatch(setUser(res.value))
+                        navigateTo('/')
+                        message.success('Register Successfully! Have a nice trip!!!')
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    message.error('Registration Failure! Try again please')
+                })
+        }
     }
 
     return (
@@ -149,6 +175,13 @@ export default function Login() {
                                 <h2>Start</h2>
                                 <h6>Already have account</h6>
                                 <a className='toggle' onClick={() => setSignup(false)}>&nbsp;Sign In</a>
+                            </div>
+                            <div>
+                                <label style={{ marginRight: 6 }}>Enrol as: </label>
+                                <Radio.Group defaultValue={role} onChange={({ target: { value } }) => setRole(value)}>
+                                    <Radio.Button value={CONSTANTS.USER_TYPE.USER}>User</Radio.Button>
+                                    <Radio.Button value={CONSTANTS.USER_TYPE.SHOP}>Shop</Radio.Button>
+                                </Radio.Group>
                             </div>
                             <div className='actual-form'>
                                 <div className='input-wrap'>

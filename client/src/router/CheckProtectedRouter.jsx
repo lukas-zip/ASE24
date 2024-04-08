@@ -4,18 +4,14 @@ import { Navigate } from 'react-router-dom'
 import CONSTANTS from '../constants'
 
 export default function CheckProtectedRouter({ children }) {
-    // const { user } = useSelector(state => state.user)
-    const user = {
-        type: "seller",
-        id: 1,
-    }
+    const { user } = useSelector(state => state.user)
     if (!user) {
         return <Navigate to={'/login'} />
     } else {
-        if (user.type === CONSTANTS.USER_TYPE.BUYER) {
-            return <Navigate to={'/buyer'} />
-        } else if (user.type === CONSTANTS.USER_TYPE.SELLER) {
-            return <Navigate to={'/seller'} />
+        if (user.type === CONSTANTS.USER_TYPE.SHOP) {
+            return <Navigate to={'/shop'} />
+        } else if (user.type === CONSTANTS.USER_TYPE.USER) {
+            return <Navigate to={'/user'} />
         }
     }
 }

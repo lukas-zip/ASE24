@@ -3,10 +3,7 @@ import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 
 export default function ProtectedRouter({ children }) {
-    let { user } = useSelector(state => state.user)
-    user = {
-        name: "张三",
-    }
+    const { user } = useSelector(state => state.user)
     if (!user) {
         return <Navigate to={'/login'} />
     } else {

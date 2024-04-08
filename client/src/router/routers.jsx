@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Dashboard from "../pages/Dashboard"
 import Login from '../pages/Login'
 import ErrorPage from '../pages/ErrorPage'
@@ -8,9 +8,16 @@ import { useSelector } from 'react-redux'
 import CheckProtectedRouter from './CheckProtectedRouter'
 import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
+import SettingPage from '../pages/ClientHomePage/pages/settingPage'
+import ShoppingCartPage from '../pages/ClientHomePage/pages/ShoppingCartPage'
+import StatisticPage from '../pages/ClientHomePage/pages/StatisticPage'
+import UserHomePage from '../pages/ClientHomePage/pages/HomePage'
+import OrderPage from '../pages/SellerPages/OrderPage'
+import ProfilePage from '../pages/SellerPages/ProfilePage'
+import StatisticPageForSeller from '../pages/SellerPages/Statistics'
 
 export default function MyRouter() {
-    // const { user } = useSelector(state => state.user)
+    const { user } = useSelector(state => state.user)
     const router = createBrowserRouter([
         {
             path: "/",
@@ -18,7 +25,7 @@ export default function MyRouter() {
             errorElement: <ErrorPage />,
         },
         {
-            path: "/seller",
+            path: "/shop",
             element: <ProtectedRouter><Dashboard /></ProtectedRouter>,
             errorElement: <ErrorPage />,
             children: [
@@ -27,23 +34,50 @@ export default function MyRouter() {
                     element: <ProtectedRouter><SellerHome /></ProtectedRouter>,
                     // loader: async () => await getStatistics()
                 },
+                {
+                    path: "order",
+                    element: <ProtectedRouter><OrderPage /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
+                {
+                    path: "statistic",
+                    element: <ProtectedRouter><StatisticPageForSeller /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
+                {
+                    path: "settings",
+                    element: <ProtectedRouter><ProfilePage /></ProtectedRouter>,
+                    // loader: async () => await getStatistics()
+                },
             ]
         },
         {
-            path: "/buyer",
-            element: <ClientHomePage />,
+            path: "/user",
+            element: <ProtectedRouter><ClientHomePage /></ProtectedRouter>,
             // element: <ProtectedRouter><ClientHomePage /></ProtectedRouter>,
             errorElement: <ErrorPage />,
-            // children: [
-            //     {
-            //         path: "products",
-            //         element: <ProtectedRouter><Home /></ProtectedRouter>,
-            //     },
-            //     {
-            //         path: "profile",
-            //         element: <ProtectedRouter><StatisticBoard /></ProtectedRouter>,
-            //     },
-            // ]
+            children: [
+                {
+                    path: "",
+                    element: <Navigate to="home" />,
+                },
+                {
+                    path: "home",
+                    element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
+                },
+                {
+                    path: "cart",
+                    element: <ProtectedRouter><ShoppingCartPage /></ProtectedRouter>,
+                },
+                {
+                    path: "statistics",
+                    element: <ProtectedRouter><StatisticPage /></ProtectedRouter>,
+                },
+                {
+                    path: "profile",
+                    element: <ProtectedRouter><SettingPage /></ProtectedRouter>,
+                },
+            ]
         },
         {
             path: "/info",
