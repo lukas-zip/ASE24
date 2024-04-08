@@ -112,7 +112,7 @@ def add_item(username,product_id, quantity, product_price, product_price_reducti
         print("Order added with UUID:", order_uuid)
         return get_order(order_uuid)
     except ClientError as e: 
-        print("Error adding user:", e)
+        return  {'status': False, 'value': f'error adding user {e} '}
 
 def get_order(order_uuid):
     try:
@@ -157,7 +157,7 @@ def update_order(order_id, product_id, quantity_change, product_price, discount)
         #check if product exists
         if product_id not in orders_arr: 
             if quantity_change < 0:
-                return 'product quantity cannot be less than 0 !'
+                return {'status': False, 'value': 'product quantity cannot be less than 0 !'}
 
             
             orders_arr.append(product_id)
@@ -174,7 +174,7 @@ def update_order(order_id, product_id, quantity_change, product_price, discount)
             #return an error if the quantitiy is less than zero after the subtraction
             total_quantity = current_quantity + quantity_change
             if total_quantity < 0 :
-                return 'product quantity cannot be less than 0 !'
+                return {'status': False, 'value': 'product quantity cannot be less than 0 !'}
 
 
             #if quantity is zero, remove product attributes from all arrays
@@ -227,13 +227,14 @@ def update_order(order_id, product_id, quantity_change, product_price, discount)
 def delete_order(order_id):
     try:
         # Perform the delete operation
-        db_order_management.delete_item(
+        response =  db_order_management.delete_item(
             TableName=TABLE_NAME,
             Key={
                 'order_id': {'S': order_id},
             }
         )
-        return {'status': True, 'value': f'order with id {order_id} deleted successfully'}
+        #return {'status': True, 'value': f'order with id {order_id} deleted successfully'}
+        return response
     except ClientError as e:
         print(f"Error deleting: {e}")
         return False

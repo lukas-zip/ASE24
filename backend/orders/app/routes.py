@@ -64,6 +64,13 @@ def update_order_req(order_id):
 @app.post("/orders")
 def add_order_req():
     data = request.json
+    
+    if data['quantity'] <= 0:
+        return jsonify({'error': 'order quantity should be at least 1', 'status': False}), 400
+
+    if data['product_price'] < 0:
+        return jsonify({'error': 'price cannot be negative', 'status': False}), 400
+
     res = dynamodb.add_item(data['username'],data['product_id'], data['quantity'],data['product_price'], data['product_price_reduction'])
     return jsonify(res), 201
 
