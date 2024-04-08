@@ -2,6 +2,17 @@ version: '3'
 
 services:
 
+  reviews:
+    build: ./backend/reviews
+    ports:
+      - "8003:8003"
+    # env_file:
+    #   - .env.localstack
+    volumes:
+      - ./backend/reviews:/app
+    depends_on:
+      - localstack
+
   user-service:
     build: ./backend/user-service
     ports:
@@ -13,12 +24,35 @@ services:
     depends_on:
       - localstack
 
+  inventory_management:
+    build: ./backend/inventory_management
+    ports:
+      - "8002:8000"
+    # env_file:
+    #   - .env.localstack
+    volumes:
+      - ./backend/inventory_management:/app
+    depends_on:
+      - localstack
+     
+  orders:
+    build: ./backend/orders
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/orders:/app
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - localstack
+
   client:
     build: client
     ports:
       - "3000:3000"
     depends_on:
       - user-service
+      - inventory_management
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
