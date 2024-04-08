@@ -1,6 +1,6 @@
 [
   {
-    "username":   "username1",
+    "username": "username1",
     "orders": [
         "12421",
         "124",
@@ -10,6 +10,11 @@
         "22",
         "11",
         "33"
+    ],
+    "quantities": [
+      "22",
+      "11",
+      "33"
     ],
     "total_price": "290",
     "status": "in progress",
@@ -27,6 +32,11 @@
         "11",
         "33"
     ],
+    "quantities": [
+      "22",
+      "11",
+      "33"
+    ],
     "total_price": "290",
     "status": "in progress",
     "execution_time": "2024-04-06 10:51:03.318659"
@@ -42,6 +52,11 @@
         "22",
         "11",
         "33"
+    ],
+    "quantities": [
+      "22",
+      "11",
+      "33"
     ],
     "total_price": "290",
     "status": "in progress",

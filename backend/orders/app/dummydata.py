@@ -6,5 +6,6 @@ def add_dummy_data():
         dummy_orders = json.load(f)
     for order in dummy_orders:
         dynamodb.add_order(username=order["username"], orders=order["orders"], prices=order["prices"], 
-                        total_price=order["total_price"], execution_time=order["execution_time"], status=order["status"])
+                        total_price=order["total_price"], execution_time=order["execution_time"], status=order["status"],
+                        quantities=order["quantities"])
 

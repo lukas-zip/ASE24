@@ -1,11 +1,25 @@
 import requests
 import json
+# from requests.adapters import HTTPAdapter
+# from urllib3.util.retry import Retry
+import urllib.request
 
-def get_total_cost(orders):
-    url = "https://localhost:8002/product/"
-    total_price =  0 
-    for product_id in order:
-        response = requests.post(url+product_id, json=data, headers=headers)
-        product = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-        total_price += product.price
-    return total_price
+def get_product_details(product_id):
+    url = "http://localhost:8002/product/"+product_id
+    url = "http://localstack:4566/product"
+    
+    response = requests.get(url)
+
+    # session = requests.Session()
+    # retry = Retry(connect=3, backoff_factor=0.5)
+    # adapter = HTTPAdapter(max_retries=retry)
+    # session.mount('http://', adapter)
+    # session.mount('https://', adapter)
+    # session.get(url, verify=False)
+
+   # product = urllib.request.urlopen(url).read()
+
+    return response.content
+
+def calc_discounted_price(price, discount):
+    return (price - (float(price) * float(discount) / 100))
