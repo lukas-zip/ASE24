@@ -8,10 +8,9 @@ from botocore.exceptions import ClientError
 from datetime import datetime, date
 from types import SimpleNamespace
 import json
+from app import utils 
 
 app.config["DEBUG"] = True
-
-
 
 # Test if endpoint is available
 @app.route('/', methods=['GET'])
@@ -28,7 +27,7 @@ def get_order_req(order_id):
     return jsonify(response), 201
 
 
-@app.get("/orders/")
+@app.get("/orders")
 def get_all_orders_req():
     response = dynamodb.get_all_orders()
     return jsonify(response), 201
@@ -42,28 +41,37 @@ def delete_order_req(order_id: int):
 
 #update order (remove/add product)
 # {
-#     "product": product_id1",
-#     "action": 'add' / 'remove',
+#      "product_id": "product_id1",
+#      "quantity": 6,
+#      "product_price": 33,
+#      "product_price_reduction": 5
 # }
 @app.put("/orders/<order_id>")
-def update_order_req(order_id: int):
+def update_order_req(order_id):
     data = request.json
-    data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-    print(order_id, data.product ,data.action)
-    res = dynamodb.update_order(order_id, data.product ,data.action)
+    res = dynamodb.update_order(order_id, data['product_id'], data['quantity'], data['product_price'], data['product_price_reduction'])
     return jsonify(res), 201
 
 
 # add new order
 # {
-#     "product": product_id1"
+#      "username": "username",
+#      "product_id": "product_id1",
+#      "quantity": 6,
+#      "product_price": 33,
+#      "product_price_reduction": 5
 # }
-@app.post("/orders/<order_id>")
-def add_order_req(order_id):
+@app.post("/orders")
+def add_order_req():
     data = request.json
-    data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-    print(order_id, data.product)
-    res = dynamodb.add_order(order_id, data.product)
+    
+    if data['quantity'] <= 0:
+        return jsonify({'error': 'order quantity should be at least 1', 'status': False}), 400
+
+    if data['product_price'] < 0:
+        return jsonify({'error': 'price cannot be negative', 'status': False}), 400
+
+    res = dynamodb.add_item(data['username'],data['product_id'], data['quantity'],data['product_price'], data['product_price_reduction'])
     return jsonify(res), 201
 
 # ----------------------------------------------------------------------------#
