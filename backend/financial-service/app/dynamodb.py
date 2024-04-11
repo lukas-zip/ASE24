@@ -1,8 +1,6 @@
 import boto3
 import uuid
 from botocore.exceptions import ClientError
-import bcrypt
-import decimal
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
