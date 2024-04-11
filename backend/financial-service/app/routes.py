@@ -81,17 +81,25 @@ def webhook():
     if event and event['type'] == 'payment_intent.succeeded':
         payment_intent = event['data']['object']  # contains a stripe.PaymentIntent
         order_id = payment_intent.metadata['order_id']
-        handle_payment_intent_succeeded(order_id)
+        order_data = get_order(order_id)
+        handle_payment_intent_succeeded(order_data)
         # Send confirmation mail
+        #
+        # Get mail from user from user-service
+        # possible through the user id in orders
+        # but currently username is saved there
+        # first neccessary to update that
+        # http://user-service:8001/users/<user_id>
+        #user_id=order_data['user_id']
+        #mail = get_user_mail(user_id)
         #send_order_confirmation("lukas.huber99@icloud.com", order_id)
         print('Payment for {} succeeded'.format(payment_intent['amount']))
     return jsonify(success=True)
 
 
 #@app.route('/payment/<order_id>', methods=['PUT'])
-def handle_payment_intent_succeeded(order_id):
+def handle_payment_intent_succeeded(order_data):
     # Calculate subtotals for each shop
-    order_data = get_order(order_id)
     shop_subtotals = {}
     for product_id, price, quantity in zip(order_data['orders'], order_data['prices'], order_data['quantities']):
         shop_id = get_shop_from_product(product_id)
@@ -122,6 +130,18 @@ def get_shop_from_product(product_id):
         # Return the JSON response from the external service
         data = response.json()
         return data['value']['product_owner']
+    else:
+        return None
+
+#@app.route('/mail/<user_id>', methods=['GET'])
+def get_user_mail(user_id):
+    response = requests.get(f'http://user-service:8001/users/{user_id}')
+    logging.info(response)
+    if response.status_code == 201:
+        # Return the JSON response from the external service
+        data = response.json()
+        logging.info(data)
+        return data['value']['email']
     else:
         return None
 

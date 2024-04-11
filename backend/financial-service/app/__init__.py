@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from app import dynamodb, dummydata
+from app import dynamodb
 from flask_cors import CORS
 
 
