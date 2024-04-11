@@ -5,8 +5,10 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY . /inventory_management/app
+COPY . /financial-service/app
 
-EXPOSE 8002
+ENV FLASK_ENV=development
+
+EXPOSE 8005
 
 CMD ["python3", "run.py", "--host=0.0.0.0"]

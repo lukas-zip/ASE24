@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 
 
 # Test if endpoint is available
-@app.route('/', methods=['GET'])
+@app.route('/test', methods=['GET'])
 def test():
     # Return success response
     # app.logger.info('Info level log')
