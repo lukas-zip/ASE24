@@ -46,14 +46,14 @@ def bucket_exists(bucket_name):
 
 def delete_object(object_key):
     bucket_name = 'productpictures'
-    modifiedobject_key = f'{object_key}.jpg'
+    #modifiedobject_key = f'{object_key}.jpg'
 
     try:
-        db_s3_product_pictures.delete_object(Bucket=bucket_name, Key=modifiedobject_key)
-        print(f"Object '{modifiedobject_key}' deleted successfully from bucket '{bucket_name}'.")
+        db_s3_product_pictures.delete_object(Bucket=bucket_name, Key=object_key)
+        print(f"Object '{object_key}' deleted successfully from bucket '{bucket_name}'.")
         return True
     except ClientError as e:
-        print(f"Error deleting object '{modifiedobject_key}' from bucket '{bucket_name}': {e}")
+        print(f"Error deleting object '{object_key}' from bucket '{bucket_name}': {e}")
         return False
     
 def retrieve_image(object_key):

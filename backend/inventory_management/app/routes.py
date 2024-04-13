@@ -5,7 +5,9 @@ from app import app, dynamodb, s3
 import uuid
 from botocore.exceptions import ClientError
 from io import BytesIO
+from urllib.parse import quote_plus
 import base64
+import os
 
 # ------------------------------------------
 # For destination check
@@ -38,45 +40,78 @@ def get_products_by_owner():
 # product insertion function
 @app.route('/product/insert', methods=['POST'])
 def insert_product():
-    # Check if the request contains form data
-    if 'image' not in request.files:
-        return 'No image file provided', 400
+    data = request.json
     
     # Get form data
-    product_owner = request.form.get('product_owner')
-    product_name = request.form.get('product_name')
-    product_description = request.form.get('product_description')
-    product_current_stock = request.form.get('product_current_stock')
-    product_should_stock = request.form.get('product_should_stock')
-    product_price = request.form.get('product_price')
-    product_price_reduction = request.form.get('product_price_reduction')
-    product_sale = request.form.get('product_sale')
-    product_category = request.form.getlist('product_category')  # Use getlist() for multiple values
-    product_search_attributes = request.form.getlist('product_search_attributes')  # Use getlist() for multiple values
-    product_reviews = request.form.getlist('product_reviews')  # Use getlist() for multiple values
-    product_bom = request.form.getlist('product_bom')
-    product_assemblies = request.form.get('product_assemblies')
+    product_owner = data.get('product_owner')
+    product_name = data.get('product_name')
+    product_description = data.get('product_description')
+    product_current_stock = data.get('product_current_stock')
+    product_should_stock = data.get('product_should_stock')
+    product_price = data.get('product_price')
+    product_picture = data.get('product_picture')
+    product_price_reduction = data.get('product_price_reduction')
+    product_sale = data.get('product_sale')
+    product_category = data.get('product_category')  # Use getlist() for multiple values
+    product_search_attributes = data.get('product_search_attributes')  # Use getlist() for multiple values
+    product_reviews = data.get('product_reviews')  # Use getlist() for multiple values
+    product_bom = data.get('product_bom')
+    product_assemblies = data.get('product_assemblies')
 
-    # Get the image file
-    image_file = request.files['image']
-    
     # Checking for required fields
-    if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
-        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
-
-    # Check if the image filename is empty
-    if image_file.filename == '':
-        return 'No selected file', 400
+    # if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
+    #     return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
 
     # Dont know if we want to ask for different other criteria
 
     # Add the product to the database
     try:
-        dynamodb.add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file)
+        dynamodb.add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, product_picture)
         return jsonify({'value': 'Product inserted successfully.', 'status': True}), 200
     except ClientError as e:
         print("Error adding product:", e)
         return jsonify({'error': 'Failed to insert product.', 'status': False}), 500
+
+@app.route('/product/upload/picture', methods = ['POST'])
+def upload_picture():
+
+    # introducing productpicture bucket
+    bucket_name = 'productpictures'
+    #allowed_types = ['.jpg', '.png', '.mp4']
+
+    # Check if the request contains form data
+    if 'image' not in request.files:
+        return 'No image file provided', 400
+
+    # Get the image file
+    image_file = request.files['image']
+
+    # Check if the image filename is empty
+    if image_file.filename == '':
+        return 'No selected file', 400
+
+    object_key = image_file.filename
+
+    #Convert bytes object to file-like object
+    image_stream = BytesIO(image_file.read())
+
+    #Construct the URL/path to the uploaded image
+    s3_base_url = f'http://localhost:4566/{bucket_name}/' # Der Link ist derzeit auf Local angepasst
+    image_url = s3_base_url + quote_plus(object_key)
+
+    try:
+        # Upload the image file to S3
+        s3response = s3.upload_fileobj(image_stream, bucket_name, object_key)
+        #print("Product picture added with UUID:", product_uuid)
+        if s3response:
+            return jsonify({'value': image_url, 'status': True}), 200
+        else:
+            return jsonify({'value': 'The image could unfortunately not be inserted', 'status': False}), 500
+    except ClientError as e:
+        print("Error uploading product picture to S3:", e)
+        return
+
+    #object_key = f'{product_uuid}.jpg'  # Use UUID as object key
 
 # product deletion
 @app.route('/product/delete', methods=['DELETE'])
@@ -88,6 +123,14 @@ def delete_product_haendler():
     try:
         if dynamodb.product_check(product_id):
             # Commit final deletion
+            product_data = dynamodb.get_product(product_id)
+            for picture_path in product_data.get('product_pictures', []):
+                s3_object_key = picture_path.split('/')[-1]  # Extract object key from the picture path
+                if s3.delete_object(s3_object_key):
+                    print(f"Product picture '{s3_object_key}' deleted successfully from S3.")
+                else:
+                    print(f"Error deleting product picture '{s3_object_key}' from S3.")
+
             response = dynamodb.delete_product(product_id)
             if response:
                 return jsonify({'value': 'The item got deleted from the database.', 'status': True}), 200
@@ -105,7 +148,7 @@ def delete_product_haendler():
 def product_sell(product_id):
     try:
         data = request.json
-    
+
         # Ensure product_id and product_owner are provided in the request body
         if 'product_owner' not in data:
             return jsonify({'error': 'product_owner is required in the request body', 'status': False}), 400
@@ -122,13 +165,8 @@ def product_sell(product_id):
 
 
 
-
-
 # production recommendations
 # update product
-
-
-
 
 
 
@@ -179,7 +217,7 @@ def get_products_to_build_catalog(product_owner):
         if final_products:
             return jsonify({'value': final_products, 'status': True}), 200
         else:
-            return jsonify({'error': 'no items available for this product_owner', 'status': False}), 400
+            return jsonify({'value': final_products, 'status': True}), 200
     except ClientError as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
@@ -245,7 +283,4 @@ def get_category():
 
     return jsonify({'value': formatted_results, 'status': True}), 200
 
-
-
-
-# we need a administrative view that states which attributes are available
+# making the production part
