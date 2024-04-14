@@ -58,9 +58,13 @@ def insert_product():
     product_bom = data.get('product_bom')
     product_assemblies = data.get('product_assemblies')
 
-    # Checking for required fields
-    # if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
-    #     return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
+    return_values = {}
+
+
+
+    #Checking for required fields
+    if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price]):
+        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
 
     # Dont know if we want to ask for different other criteria
 
@@ -249,21 +253,19 @@ def search():
     if not term:
         return jsonify({'error': 'Search term parameter is required', 'status': False}), 400
     
-    # Perform search by category and attributes
+    #Perform search by category and attributes
     print("Searching products by category for term:", term)
     products_by_category = dynamodb.search_products_by_category(term)
     print("Products by category:", products_by_category)
     
-
     print("Searching products by attributes for term:", term)
     products_by_attributes = dynamodb.search_products_by_attributes(term)
     print("Products by attributes:", products_by_attributes)
-    
- 
 
     # Combine and return the results
     combined_results = {**products_by_category, **products_by_attributes}
     
+    #implementation of what if products have search attribute and category matching
     formatted_results = [product_info for _, product_info in combined_results.items()]
 
     return jsonify({'value': formatted_results, 'status': True}), 200
@@ -333,3 +335,4 @@ def get_production_recommendations(product_owner):
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
+# products you might like 
