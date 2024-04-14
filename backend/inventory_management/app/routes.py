@@ -283,4 +283,53 @@ def get_category():
 
     return jsonify({'value': formatted_results, 'status': True}), 200
 
-# making the production part
+@app.route('/product/production/fullfilled/<product_id>', methods=['PUT'])
+def set_production(product_id):
+    
+    data = request.json
+
+    if not isinstance(data['amount'], int) or data['amount'] < 1:
+        return jsonify({'error': 'The product seems not to exist', 'status': False}), 400
+
+    try:
+        response = dynamodb.product_check(product_id)
+        if response:
+            item = dynamodb.get_product(product_id)
+            current_stock = item['product_current_stock']
+
+            new_stock = int(current_stock) + data['amount']
+
+            # setting new update dict
+            update_data = {'product_current_stock': new_stock}
+
+            #update
+            db_insertion = dynamodb.update_product(product_id, item['product_owner'], update_data)
+            if db_insertion:
+                return jsonify({'value': 'The production products have been inserted.', 'status': True}), 200
+            else:
+                return jsonify({'error': 'The production products, could not be inserted.', 'status': False}), 400
+        else:
+            return jsonify({'error': 'The product seems not to exist', 'status': False}), 400
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': False}), 500
+
+# this function aims to respond with all products by a product owner that should be restocked (case: current_stock <= should_stock)
+@app.route('/product/production/recommendations/<product_owner>', methods=['GET'])
+def get_production_recommendations(product_owner):
+    
+    try:
+        products = dynamodb.get_products_by_product_owner(str(product_owner))
+
+        production_products = [{
+            'product_id': product_id,
+            **product_info
+        } for product_id, product_info in products.items() if product_info.get('product_current_stock') <= product_info.get('product_should_stock')]
+
+        if production_products:
+            return jsonify({'value': production_products, 'status': True}), 200
+        else:
+            return jsonify({'value': production_products, 'status': True}), 200
+    except ClientError as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
+
