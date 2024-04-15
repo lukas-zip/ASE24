@@ -22,6 +22,8 @@ export const deleteProductFromCompany = (productId) => request("products", 'dele
 export const updateProductForCompany = (productId, data) => request("products", 'put', `/product/update_product/${productId}`, data);
 export const addProductForCompany = (data) => request("products", 'post', `/product/insert`, data);
 
+export const uploadProductPicture = (data) => request("products", 'post', `/product/upload/picture`, data);
+
 // Orders API
 export const getOrderById = (orderId) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);

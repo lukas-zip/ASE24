@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { VideoCameraTwoTone, HomeTwoTone, MessageTwoTone, CalendarTwoTone, IdcardTwoTone, SoundTwoTone, UserOutlined, FileTextTwoTone, ShoppingTwoTone } from '@ant-design/icons';
-import { Avatar, Popover, Switch, Button, message, Popconfirm, Segmented } from 'antd';
+import { HomeTwoTone, IdcardTwoTone, UserOutlined, FileTextTwoTone, ShoppingTwoTone } from '@ant-design/icons';
+import { Avatar, Popover, Button, message, Popconfirm } from 'antd';
 import './index.less'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom';
-// import noGenderPath from '../../../../Pic/noGender.jpg'
 import APPTHEME from '@/constants/COLORS/APPTHEME';
-// import ICON from '../../../../Pic/targetIcon.png'
-import PROJECT_VARIABLE from '../../../../constants/ProjectNameVariable';
+import LOGO from '@/assets/pic/swan_logo.png'
+import PROJECT_VARIABLE from '@/constants/ProjectNameVariable';
 import { setUser } from '../../../../store/user.store';
 
 export default function Sidebar() {
@@ -54,7 +53,7 @@ export default function Sidebar() {
             <div className='content'>
                 <div className='logo' style={{ cursor: 'pointer' }} onClick={() => navigateTo('/')}>
                     <div className='logoPic' style={{ marginBottom: 10, width: 40, height: 40 }}>
-                        {/* <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={ICON} /> */}
+                        <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={LOGO} />
                     </div>
                     {PROJECT_VARIABLE.PROJECT_NAME}
                 </div>

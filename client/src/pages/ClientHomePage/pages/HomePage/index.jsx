@@ -1,16 +1,15 @@
 import './index.less'
-import APPTHEME from '@/constants/COLORS/APPTHEME';
-import SIZE from '@/constants/SIZE';
 import { useSelector } from 'react-redux';
 import CardVertical from '../../../../Components/Card/CardVertical';
 import { Input, message } from 'antd';
-import { EnvironmentFilled, EnvironmentOutlined, EnvironmentTwoTone } from '@ant-design/icons';
+import { EnvironmentTwoTone } from '@ant-design/icons';
 import COLORS from '../../../../constants/COLORS';
 import { useEffect, useState } from 'react';
 import { getAllProductsByShopId } from '../../../../api/user.api';
+import CONSTANTS from '../../../../constants';
+import Product_Categories_PIC from '../../../../assets/pic/product-categories';
 const { Search } = Input
 export default function UserHomePage() {
-    const THEME = APPTHEME["light"]
     const { user } = useSelector(state => state.user)
     const onSearch = async () => {
 
@@ -45,12 +44,23 @@ export default function UserHomePage() {
                     </div>
                 </div>
             </div>
+            <div className='productPage-categories'>
+                <div className='productPage-categories-title'>
+                    <div>{"Categories".toUpperCase()}</div>
+                </div>
+                <div className='productPage-categories-box'>
+                    {CONSTANTS.CATEGORIES.map((item, key) =>
+                        <div className={`productPage-categories-box-item`} key={key}>
+                            <img style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover" }} src={Product_Categories_PIC[item]}></img>
+                            <div className='productPage-categories-box-item-title'>{item}</div>
+                        </div>)}
+                </div>
+            </div>
             <div className='productPage-container'>
                 <div className='productPage-container-box'>
                     {firstProducts.map((item, key) => <CardVertical product={item} key={key} />)}
                 </div>
             </div>
-            {/* </div> */}
         </div >
     )
 }

@@ -69,6 +69,7 @@ export default function Login() {
                         navigateTo('/')
                         message.success('Register Successfully! Have a nice trip!!!')
                     } else {
+                        console.log(res.message);
                         message.error(res.message)
                     }
                 })
@@ -92,12 +93,13 @@ export default function Login() {
                         navigateTo('/')
                         message.success('Register Successfully! Have a nice trip!!!')
                     } else {
+                        console.log(res.message);
                         message.error(res.message)
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    message.error('Registration Failure! Try again please')
+                    message.info('Registration Failure! Try again please')
                 })
         }
     }

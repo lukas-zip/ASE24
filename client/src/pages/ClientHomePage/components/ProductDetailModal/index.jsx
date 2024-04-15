@@ -124,7 +124,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen} onOk={handleOk} onCancel={handleCloseDetailModal}>
             <div className={`BlogModal BlogModal-light`} >
-                <div className='blogImg'><MyCarousel imgArr={[product_picture]} /></div>
+                <div className='blogImg'><MyCarousel imgArr={product_picture} /></div>
                 <div className={`blogMainPart`} >
                     <div className='blogInfo'>
                         <div className='blogTitle'>{product_name}</div>

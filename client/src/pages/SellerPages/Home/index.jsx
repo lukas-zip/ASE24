@@ -5,7 +5,7 @@ import Meta from 'antd/es/card/Meta'
 import { DeleteOutlined, EditOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons'
 import { deleteProductFromCompany, getAllProductsByShopId } from '../../../api/user.api'
 import { useSelector } from 'react-redux'
-import UploadTutorialModal from '../../../Components/uploadTutorial'
+import UploadProductModal from '../../../Components/uploadTutorial'
 import EditProductModal from '../../../Components/editTutorial'
 import Overview from './components/overview'
 
@@ -58,7 +58,7 @@ function index() {
             newPanes.push({
                 label: 'Add Product',
                 key: newActiveKey,
-                children: <UploadTutorialModal getData={getAllProducts} removeTab={remove} />
+                children: <UploadProductModal getData={getAllProducts} removeTab={remove} />
             });
             setItems(newPanes);
             setActiveKey(newActiveKey);
@@ -131,7 +131,7 @@ function index() {
                                 style={{ width: cardWidth }}
                                 cover={
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src={item.product_picture} />
+                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src={item.product_picture[0]} />
                                     </div>
                                 }
                                 actions={[

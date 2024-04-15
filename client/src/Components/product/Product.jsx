@@ -1,5 +1,5 @@
 import "./product.css"
-import CardHorizontal from "../Card/CardHorizontal"
+import CardHorizontal from "../Card/CardHorizontalForOrder"
 import CardVertical from "../Card/CardVertical"
 
 export const Product = () => {

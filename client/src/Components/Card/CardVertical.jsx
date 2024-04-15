@@ -13,7 +13,7 @@ export default function CardVertical({ product, pic = "https://i.ytimg.com/vi/Ym
       setDetailModelOpen(true)
     }} className={`tutorialCardVertical tutorialCardVertical-light`}>
       <div className='tutorialCardVertical-cover'>
-        <img style={{ maxWidth: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={product_picture} />
+        <img style={{ maxWidth: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={product_picture[0]} />
         <div className='tutorialCardVertical-cover-detail'>
           <div className='tutorialCardVertical-cover-detail-level'>Promote</div>
           <div className='tutorialCardVertical-cover-detail-duration'>100+ bought</div>
