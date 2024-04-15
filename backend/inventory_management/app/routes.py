@@ -60,11 +60,9 @@ def insert_product():
 
     return_values = {}
 
-
-
     #Checking for required fields
-    if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price]):
-        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
+    # if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price]):
+    #     return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
 
     # Dont know if we want to ask for different other criteria
 
@@ -128,9 +126,10 @@ def delete_product_haendler():
         if dynamodb.product_check(product_id):
             # Commit final deletion
             product_data = dynamodb.get_product(product_id)
-            for picture_path in product_data.get('product_pictures', []):
+            for picture_path in product_data.get('product_picture', []):
                 s3_object_key = picture_path.split('/')[-1]  # Extract object key from the picture path
-                if s3.delete_object(s3_object_key):
+                deletion_response = s3.delete_object(s3_object_key)
+                if deletion_response:
                     print(f"Product picture '{s3_object_key}' deleted successfully from S3.")
                 else:
                     print(f"Error deleting product picture '{s3_object_key}' from S3.")
@@ -166,14 +165,6 @@ def product_sell(product_id):
             return jsonify({'error': 'unsuccessful sell', 'status': False}), 400
     except ClientError as e:
         return jsonify({'error': str(e), 'status': False}), 500
-
-
-
-# production recommendations
-# update product
-
-
-
 
 # ------------------------------------------
 # Consumer functions
@@ -335,4 +326,9 @@ def get_production_recommendations(product_owner):
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
-# products you might like 
+# products you might like -> based on category, already implemented /product/category <term?=_____>
+
+# products that are in the same category -> already integrated
+# products that have the same product_search_attributes
+
+# random selection of products
