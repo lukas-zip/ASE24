@@ -22,7 +22,6 @@ def test():
 
 @app.get("/orders/<order_id>")
 def get_order_req(order_id):
-    print(order_id)
     response = dynamodb.get_order(order_id)
     return jsonify(response), 201
 
@@ -73,6 +72,19 @@ def add_order_req():
 
     res = dynamodb.add_item(data['username'],data['product_id'], data['quantity'],data['product_price'], data['product_price_reduction'])
     return jsonify(res), 201
+
+
+#update order status, as delivered
+@app.get("/orders/<order_id>/delivered")
+def update_status_delivered(order_id):
+    response = dynamodb.update_status(order_id,'delivered')
+    return jsonify(response), 201
+
+#update order status, as shipped
+@app.get("/orders/<order_id>/shipped")
+def update_status_shipped(order_id):
+    response = dynamodb.update_status(order_id,'shipped')
+    return jsonify(response), 201
 
 # ----------------------------------------------------------------------------#
 # Error Handling.
