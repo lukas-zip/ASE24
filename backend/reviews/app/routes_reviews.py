@@ -19,14 +19,12 @@ def route_add_review():
     customer_id = data.get('customer_id')
     reviewcontent = data.get('reviewcontent')
     rating = data.get('rating')
-    time_lastedit = data.get('time_lastedit')
-    time_created = data.get('time_created')
 
     if not product_id or not customer_id or not rating:
         return jsonify({'message': 'Product_ID, Customer_ID and rating are required!', "status": False}), 400
 
     try:
-        message, status = dynamodb_reviews.add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_created)
+        message, status = dynamodb_reviews.add_review(product_id,customer_id,reviewcontent,rating)
         if status == True:
             return jsonify({'value': message,'status': status}), 200
         else:
@@ -82,13 +80,11 @@ def route_edit_review():
     user_id = data.get('customer_id')
     reviewcontent = data.get('reviewcontent')
     rating = data.get('rating')
-    time_lastedit = data.get('time_lastedit')
-    time_created = data.get('time_created')
 
     #if not product_id or not review_id or not customer_id:
     #    return jsonify({'error': 'Product_ID,customer_id and review_ID are required!'}), 400
     try:
-        item, status = dynamodb_reviews.edit_review(review_id,product_id, user_id,reviewcontent,rating,time_lastedit,time_created)
+        item, status = dynamodb_reviews.edit_review(review_id,product_id, user_id,reviewcontent,rating)
         if status == True:
             return jsonify({'value': item,'status': status}), 200
         else:
