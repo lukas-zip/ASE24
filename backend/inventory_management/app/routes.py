@@ -40,7 +40,7 @@ def get_products_by_owner():
 def insert_product():
     # Check if the request contains form data
     if 'image' not in request.files:
-        return 'No image file provided', 400
+        return 'No image file provided', 401
     
     # Get form data
     product_owner = request.form.get('product_owner')
@@ -59,21 +59,21 @@ def insert_product():
 
     # Get the image file
     image_file = request.files['image']
-    
+
     # Checking for required fields
     if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_assemblies]):
-        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
+        return jsonify({'error': 'Product data is incomplete.', 'status': False}), 402
 
     # Check if the image filename is empty
     if image_file.filename == '':
-        return 'No selected file', 400
+        return 'No selected file', 403
 
     # Dont know if we want to ask for different other criteria
 
     # Add the product to the database
     try:
-        dynamodb.add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file)
-        return jsonify({'value': 'Product inserted successfully.', 'status': True}), 200
+        product_id = dynamodb.add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file)
+        return jsonify({'value': product_id, 'status': True}), 200
     except ClientError as e:
         print("Error adding product:", e)
         return jsonify({'error': 'Failed to insert product.', 'status': False}), 500

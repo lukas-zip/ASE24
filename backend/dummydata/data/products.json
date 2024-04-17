@@ -1,0 +1,74 @@
+[
+  {
+    "product_owner": "",
+    "product_name": "Super Widget",
+    "product_description": "A versatile widget for all your needs",
+    "product_current_stock": 100,
+    "product_should_stock": 200,
+    "product_price": 19.99,
+    "product_price_reduction": 1.99,
+    "product_sale": "Yes",
+    "product_category": ["Electronics", "Utilities"],
+    "product_search_attributes": ["ThisWouldBeASearchAttribute"],
+    "product_reviews": ["ThisWouldBeAReviewID"],
+    "product_bom": [
+      "1324a686-c8b1-4c84-bbd6-17325209d78c1",
+      "1324a686-c8b1-4c84-bbd6-17325209d78c2"
+    ],
+    "product_assemblies": "Final"
+  },
+  {
+    "product_owner": "",
+    "product_name": "Eco-Friendly Bamboo Toothbrush",
+    "product_description": "Biodegradable toothbrush made from sustainably harvested bamboo, designed to minimize waste and maximize oral hygiene.",
+    "product_current_stock": 150,
+    "product_should_stock": 300,
+    "product_price": 4.99,
+    "product_price_reduction": 0.50,
+    "product_sale": "No",
+    "product_category": ["Health", "Personal Care"],
+    "product_search_attributes": ["biodegradable", "eco-friendly", "bamboo"],
+    "product_reviews": ["e394a543-f7b1-4d7a-bf93-f2db44156a4c"],
+    "product_bom": [
+      "73c4e5d4-f8a1-4d7a-acee-99f2dbea1325",
+      "89da43b4-dfd1-45c6-aba4-79e5f6c0f947"
+    ],
+    "product_assemblies": "Package"
+  },
+  {
+    "product_owner": "",
+    "product_name": "Reusable Glass Water Bottle",
+    "product_description": "Elegant and sturdy glass water bottle with a silicone sleeve for grip and protection. Perfect for reducing single-use plastic waste.",
+    "product_current_stock": 200,
+    "product_should_stock": 400,
+    "product_price": 12.99,
+    "product_price_reduction": 2.00,
+    "product_sale": "Yes",
+    "product_category": ["Lifestyle", "Outdoor"],
+    "product_search_attributes": ["reusable", "glass", "water bottle"],
+    "product_reviews": ["af4422cd-4f6b-4aeb-b8e6-8cb567710b78"],
+    "product_bom": [
+      "b64f9732-7bfd-446b-8b69-58cabf640ade",
+      "cd5872b2-e37d-4171-ae2b-8cffe1900ec5"
+    ],
+    "product_assemblies": "Ready-to-Ship"
+  },
+  {
+    "product_owner": "",
+    "product_name": "Organic Cotton T-Shirt",
+    "product_description": "Comfortable and soft t-shirt made from 100% organic cotton. Ethically produced and certified eco-friendly.",
+    "product_current_stock": 180,
+    "product_should_stock": 360,
+    "product_price": 20.99,
+    "product_price_reduction": 1.50,
+    "product_sale": "No",
+    "product_category": ["Apparel", "Casual Wear"],
+    "product_search_attributes": ["organic", "cotton", "soft"],
+    "product_reviews": ["6a8076d7-d3b4-4c2b-83b7-5d6274cc6a2e"],
+    "product_bom": [
+      "0ab2f8b4-e717-4f9e-9e77-26500c76bffc",
+      "9cb76f34-4d7e-497d-afe7-063b5e0a2dae"
+    ],
+    "product_assemblies": "Final"
+  }
+]

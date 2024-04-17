@@ -19,6 +19,11 @@ services:
       - "8001:8001"
     volumes:
       - ./backend/user-service:/app
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - FLASK_ENV=development
     depends_on:
@@ -46,6 +51,12 @@ services:
       - FLASK_ENV=development
     depends_on:
       - localstack
+
+  dummydata:
+    build: ./backend/dummydata
+    depends_on:
+      user-service:
+        condition: service_healthy
 
   financial-service:
     build: ./backend/financial-service

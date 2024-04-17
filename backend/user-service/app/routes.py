@@ -6,14 +6,11 @@ import re
 from botocore.exceptions import ClientError
 
 
-# Test if endpoint is available
-@app.route('/test', methods=['GET'])
-def test():
-    # Return success response
-    # app.logger.info('Info level log')
-    print("Hello, world!")
-    return jsonify({'status': True, 'value': 'Test successful'}), 201
-
+@app.route('/')
+def health_check():
+    # Perform any necessary checks here
+    # For simplicity, just return a 200 OK response
+    return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 @app.route('/<entity>', methods=['POST'])
 def register_entity(entity):
@@ -243,7 +240,7 @@ def update_picture(file, entity_uuid):
         response = dynamodb.get_entity_json(entity_uuid)
         if not response:
             return jsonify({'status': False, 'message': 'No entity or failed to retrieve it'}), 400
-        return jsonify({'status': True, 'value': response}), 201
+        return jsonify({'status': True, 'value': response}), 200
     return jsonify({'status': False, 'message': 'File uploaded unsuccessfull'}), 401
 
 
@@ -259,7 +256,7 @@ def get_entity(entity, entity_uuid):
 
         if not response:
             return jsonify({'status': False, 'message': 'No entity or failed to retrieve it'}), 400
-        return jsonify({'status': True, 'value': response}), 201
+        return jsonify({'status': True, 'value': response}), 200
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return jsonify({'status': False, 'message': 'An error occurred while fetching the entity.'}), 500

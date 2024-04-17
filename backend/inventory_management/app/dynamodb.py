@@ -239,8 +239,7 @@ def add_product(product_owner, product_name, product_description, product_curren
         for existing_product_id, existing_product_info in existing_products.items():
             if existing_product_info['product_name'] == product_name:
                 print(f"A product with the same name already exists for {product_owner}.")
-                return 
-
+                return
         # if not isinstance(product_search_attributes, list):
         #     product_search_attributes = [product_search_attributes],
 
@@ -266,6 +265,7 @@ def add_product(product_owner, product_name, product_description, product_curren
             }
         )
         print("Product added with UUID:", product_uuid)
+        return product_uuid
     except ClientError as e:
         print("Error adding product:", e)
 

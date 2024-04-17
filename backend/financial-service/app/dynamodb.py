@@ -74,7 +74,7 @@ def add_shop_account(shop_id):
             }
         )
         print("Account added with UUID:", account_uuid)
-        return
+        return account_uuid
     except ClientError as e:
         print("Error adding user:", e)
 

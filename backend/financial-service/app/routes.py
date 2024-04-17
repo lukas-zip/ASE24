@@ -36,6 +36,7 @@ def add_account():
         print("Error adding user:", e)
         return jsonify({'status': False, 'message': 'Error'}), 500
 
+
 @app.route('/payment', methods=['POST'])
 def create_payment():
     try:
@@ -90,9 +91,9 @@ def webhook():
         # but currently username is saved there
         # first neccessary to update that
         # http://user-service:8001/users/<user_id>
-        #user_id=order_data['user_id']
-        #mail = get_user_mail(user_id)
-        #send_order_confirmation("lukas.huber99@icloud.com", order_id)
+        # user_id=order_data['user_id']
+        # mail = get_user_mail(user_id)
+        # send_order_confirmation("lukas.huber99@icloud.com", order_id)
         print('Payment for {} succeeded'.format(payment_intent['amount']))
     return jsonify(success=True)
 
@@ -110,7 +111,7 @@ def handle_payment_intent_succeeded(order_data):
     # Create a charge and specify how the funds should be split
     for shop_id, amount in shop_subtotals.items():
         dynamodb.update_balance(shop_id, amount)
-    return jsonify({'status': True, 'value': f"Transferred success"}), 201
+    return jsonify({'status': True, 'value': f"Transferred success"}), 200
 
 
 def send_order_confirmation(email, order_details):
@@ -136,8 +137,7 @@ def get_shop_from_product(product_id):
 #@app.route('/mail/<user_id>', methods=['GET'])
 def get_user_mail(user_id):
     response = requests.get(f'http://user-service:8001/users/{user_id}')
-    logging.info(response)
-    if response.status_code == 201:
+    if response.status_code == 200:
         # Return the JSON response from the external service
         data = response.json()
         logging.info(data)
@@ -145,40 +145,13 @@ def get_user_mail(user_id):
     else:
         return None
 
-#
-#
-# Not yet working
-# Had to use dummy data
-# Orders are not returned in correct format
-# Currently returned like in database format
-# Except that should work - delete response and remove comments
-#
+
 #@app.route('/test_order/<order_id>', methods=['GET'])
 def get_order(order_id):
     response = requests.get(f"http://orders:8004/orders/{order_id}")
-    response = {
-        "order_id":  "3a15ca5a-490a-4632-b52b-175b4aa01be5",
-        "username": "username1",
-        "orders": [
-            "61731345-a81d-4649-a1dd-fa4be67a17f1",
-            "61731345-a81d-4649-a1dd-fa4be67a17f1"
-        ],
-        "prices": [
-            "22",
-            "10"
-        ],
-        "quantities": [
-            "22",
-            "5"
-        ],
-        "total_price": "290",
-        "status": "in progress",
-        "execution_time": "2024-04-06 10:51:03.318659"
-    }
-    return response
-    #if response.status_code == 201:
+    if response.status_code == 201:
     # Return the JSON response from the external service
-    #return jsonify(response.json()), 200
-    #else:
-    #   return None
+        return jsonify(response.json()), 200
+    else:
+       return None
 
