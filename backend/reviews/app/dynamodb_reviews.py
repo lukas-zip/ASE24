@@ -98,7 +98,7 @@ def delete_review(review_uuid,product_id,user_id):
                         }
             )
             response_data, status = get_review(review_uuid,product_id)
-            if response_data == "No item found!":
+            if response_data == []:
                 return 'Successfully deleted Review!',True
             else:
                 return "Review not deleted successfully", False
@@ -175,7 +175,7 @@ def get_review(review_uuid,product_id):
         if len(response) > 1:
             return response['Item'], True
         else:
-            return "No item found!", False
+            return [], False
     except ClientError as e:
         print("Error getting review:", e)
         return "Error getting review!", e
@@ -207,7 +207,7 @@ def get_batch(product_id):
                 formatted_review.append(review)
             return formatted_review, True
         else:
-            return "No items found!", False
+            return [], False
     except ClientError as e:
         print("Error getting review:", e)
         return "Error getting review!", e
