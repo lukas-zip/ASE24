@@ -8,13 +8,12 @@ import CONSTANTS from '../../constants';
 import { addProductForCompany, uploadProductPicture } from '../../api/user.api';
 import { useSelector } from 'react-redux';
 
-export default function UploadTutorialModal({ getData, removeTab }) {
+export default function UploadProductModal({ getData, removeTab }) {
     const { user: { shop_id } } = useSelector(state => state.user)
     const [uploading, setUploading] = useState(false)
     const formRef = useRef(null);
     const [productImages, setProductImages] = useState([])
     const [blogImgs, setBlogImgs] = useState([])
-    const [imageFile, setImageFile] = useState()
     const propsCover = {
         onRemove: (file) => {
             const index = productImages.indexOf(file);
@@ -89,11 +88,10 @@ export default function UploadTutorialModal({ getData, removeTab }) {
             product_owner: shop_id,
             product_bom: [""],
             product_reviews: [""],
-            product_name: items.product_name
+            product_name: items.product_name,
+            product_sale: items.product_sale || true,
         }
         console.log('handledItems', handledItems);
-        // const handledItems = { ...items, image: formData }
-        // console.log('gaiguode', handledItems);
 
         try {
             await addProductForCompany(handledItems).then(res => {
@@ -169,7 +167,7 @@ export default function UploadTutorialModal({ getData, removeTab }) {
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label="Sale" name="product_sale" valuePropName='checked'>
-                    <Switch />
+                    <Switch defaultChecked />
                 </Form.Item>
                 <Form.Item label="Search Attributes" name="product_search_attributes" rules={[{ required: true, message: 'Please select attributes!', }]}>
                     <Select mode="tags" allowClear onChange={handleChange} options={options}>

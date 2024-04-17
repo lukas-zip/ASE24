@@ -5,6 +5,7 @@ import { UserOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutli
 import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
 import { createReview, getReviewByProductId, getShopById } from '../../../../api/user.api';
+import { formatNumber } from '@/utils/FormatNumber';
 
 const items = [
     {
@@ -29,6 +30,8 @@ const items = [
 ]
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
+    const { user: { user_id } } = useSelector((state) => state.user)
+
     const {
         product_assemblies,
         product_name,
@@ -42,54 +45,11 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
         product_id,
     } = item
 
-
-
-    const [reviewsData, setReviews] = useState([])
-    const [averageRating, setAverageRating] = useState(0)
-    useEffect(() => {
-        const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
-        isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
-    }, [reviewsData])
-
-
-    const { user: { user_id } } = useSelector((state) => state.user)
-    const [quantity, setQuantity] = useState(1)
-    const getReviews = async () => {
-        await getReviewByProductId(product_id).then((res) => {
-            if (res.status === true) {
-                console.log(res.value[1].customer_id);
-                setReviews(res.value)
-            }
-        }).catch((err) => {
-            message.error(err.message)
-        })
-    }
-    const getProductOwnerInfo = async () => {
-        await getShopById(product_owner).then((res) => {
-            if (res.status === true) {
-
-            }
-        })
-    }
-    useEffect(() => {
-        getReviews();
-        getProductOwnerInfo()
-    }, [])
-    const handleOk = () => {
-        setIsOpen(false);
-    };
-    const handleCloseDetailModal = (e) => {
-        e.stopPropagation();
-        setIsOpen(false);
-    };
-
-    const [addReviewModalOpen, setAddReviewModalOpen] = useState(false);
+    // review function
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [addReviewModalOpen, setAddReviewModalOpen] = useState(false);
     const [rate, setRate] = useState(0)
     const [review, setReview] = useState('')
-    const handleAddReviewModalOpen = () => {
-        setAddReviewModalOpen(true);
-    }
     const handleSubmitReview = async () => {
         if (review && rate) {
             const newReview = {
@@ -97,8 +57,6 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 customer_id: user_id,
                 reviewcontent: review,
                 rating: rate,
-                time_lastedit: "20.03.2024 - 11:50:00",
-                time_created: "20.03.2024 - 11:50:00"
             }
             setConfirmLoading(true);
             await createReview(newReview).then((msg) => {
@@ -116,13 +74,54 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 setReview('')
                 setConfirmLoading(false)
             })
-
         } else {
             message.error("Please complete all the content");
         }
     }
+    const [reviewsData, setReviews] = useState([])
+    const [averageRating, setAverageRating] = useState(0)
+    useEffect(() => {
+        const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
+        isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
+    }, [reviewsData])
+    const getReviews = async () => {
+        await getReviewByProductId(product_id).then((res) => {
+            console.log("resview", res);
+            if (res.status === true) {
+                console.log("zhe", res.value);
+                setReviews(res.value)
+            }
+        }).catch((err) => {
+            message.error(err.message)
+        })
+    }
+
+
+    // get Shop info
+    const [ShopInfo, setShopInfo] = useState({ shop_name: "", profile_picture: "", shop_description: "" })
+    const getProductOwnerInfo = async () => {
+        await getShopById(product_owner).then((res) => {
+            if (res.status === true) {
+                setShopInfo(res.value)
+            }
+        })
+    }
+    useEffect(() => {
+        getReviews();
+        getProductOwnerInfo()
+    }, [])
+
+    // order
+    const [quantity, setQuantity] = useState(1)
+
+
     return (
-        <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen} onOk={handleOk} onCancel={handleCloseDetailModal}>
+        <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen}
+            onOk={() => setIsOpen(false)}
+            onCancel={(e) => {
+                e.stopPropagation()
+                setIsOpen(false)
+            }}>
             <div className={`BlogModal BlogModal-light`} >
                 <div className='blogImg'><MyCarousel imgArr={product_picture} /></div>
                 <div className={`blogMainPart`} >
@@ -148,11 +147,11 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         </div>
                         <div className='blogOperation'>
                             <div className='Info buttonHover' onClick={() => {
-                                // navigateTo(`/chat/contacts/detail/${user._id}`)
+                                navigateTo(`/shop/${product_owner}`)
                             }}>
-                                <Avatar size={30} icon={<UserOutlined />} src={''} />
+                                <Avatar size={30} icon={<UserOutlined />} src={ShopInfo.profile_picture} />
                                 <div className='Info-sub'>
-                                    <div style={{ fontSize: 14, fontWeight: 'bold' }}>{"Store Name"}</div>
+                                    <div style={{ fontSize: 14, fontWeight: 'bold' }}>{ShopInfo.shop_name}</div>
                                     <div style={{ color: '#306f83' }}>{"Visit the Store"}</div>
                                 </div>
                             </div>
@@ -162,7 +161,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, gap: 2, fontWeight: 'bold', color: '#4790ff' }}>
                                     <div>CHF</div>
-                                    <div style={{ fontSize: 26 }}>{(product_price * (100 - product_price_reduction) / 100).toPrecision(2)}</div>
+                                    <div style={{ fontSize: 26 }}>{formatNumber(product_price * (100 - product_price_reduction) / 100)}</div>
                                 </div>
                                 {(100 - product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product_price_reduction}%</div>
                                     <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product_price}</div>
@@ -179,7 +178,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ fontSize: 16, fontWeight: 'bold' }}>Item reviews ({reviewsData.length})</div>
                             <div
-                                onClick={() => handleAddReviewModalOpen()}
+                                onClick={() => setAddReviewModalOpen(true)}
                                 style={{ cursor: 'pointer' }}
                             >
                                 <PlusOutlined />

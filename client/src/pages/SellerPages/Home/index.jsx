@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './index.less'
-import { Button, Card, Flex, Modal, Popconfirm, Space, Tabs, message } from 'antd'
+import { Button, Card, Divider, Empty, Flex, Modal, Popconfirm, Space, Tabs, message } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import { DeleteOutlined, EditOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons'
 import { deleteProductFromCompany, getAllProductsByShopId } from '../../../api/user.api'
@@ -117,13 +117,20 @@ function index() {
             {/* header */}
             {activeKey === "home" && <>
                 <Overview products={allProducts} />
+                <Divider />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", marginBottom: 10 }}>
                     <div>
                     </div>
-                    <Button type='primary' onClick={addUploadTab}><UploadOutlined />Add New Product</Button>
+                    {allProducts.length !== 0 && <Button type='primary' onClick={addUploadTab}><UploadOutlined />Add New Product</Button>}
                 </div>
                 <div>
+                    {allProducts.length === 0 && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 320 }}>
+                        <Empty description={"No product right now"} >
+                            <Button onClick={addUploadTab} type="primary"><UploadOutlined />Create Now</Button>
+                        </Empty>
+                    </div>}
                     <Space wrap size={'middle'}>
+
                         {allProducts.map((item, key) =>
                             <Card
                                 key={key}
@@ -153,8 +160,7 @@ function index() {
                             >
                                 <Meta title={item.product_name} description={item.product_description} />
                             </Card>
-                        )
-                        }
+                        )}
                     </Space>
                 </div>
             </>

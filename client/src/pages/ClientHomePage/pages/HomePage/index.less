@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 @darkBlockBackgroundColor: #1d1d1d;
 @lightBlockBackgroundColor: #ffffff;
 
@@ -13,6 +14,7 @@
 @lightTextColor: #9b999b;
 @darkNavHoverColor: #383838;
 @lightNavHoverColor: #f0f0f0;
+
 
 .shoppingCartBtn {
     position: absolute;
@@ -39,15 +41,13 @@
     margin-right: 10px;
     display: flex;
     flex-direction: column;
-    overflow: auto;
-    position: relative;
-
 
 
     &-header {
         height: 50px;
         display: flex;
         margin-bottom: 10px;
+
 
         &-searchBox {
             flex: 1;
@@ -61,19 +61,27 @@
         }
     }
 
+    &-mainContent {
+        overflow: auto;
+        position: relative;
+    }
+
     &-categories {
         background-color: #fff;
         border-radius: 10px;
         padding: 10px;
+        margin-bottom: 20px;
 
         &-title {
-            margin: 0 auto;
-            font-size: 22px;
-            font-weight: 600;
+            font-family: 'Luckiest Guy', cursive;
+            color: #3b79e0;
+            font-size: 36px;
+            font-weight: 300;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            text-shadow: 1px -1px #f0f0f0, -1px 1px #999, -2px 2px #80808080;
         }
 
         &-box {
@@ -148,5 +156,86 @@
                 gap: 12px;
             }
         }
+    }
+}
+
+
+.productPage-allCategoriesProducts {
+    &-item {
+        margin-bottom: 16px;
+
+        &-title {
+            user-select: none;
+            text-shadow: 2px -2px #fff, -1px 1px #999, -2px 2px #80808080;
+            font-family: 'Luckiest Guy', cursive;
+            color: #8f8f8f;
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 600px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 800px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px;
+            }
+        }
+
+        &-content-empty {
+            border-radius: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #8f8f8f;
+        }
+
+        // &-content {
+        //     display: flex;
+        //     overflow: hidden;
+        //     gap: 16px;
+        //     border-radius: 10px;
+        //     background-color: #f0f0f0;
+        // }
+
     }
 }

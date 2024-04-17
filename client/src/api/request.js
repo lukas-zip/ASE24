@@ -76,7 +76,7 @@ export const request = (serviceType, method, url, data, config) => {
         case 'get':
             return axiosInstance.get(url, { params: data, ...configWithParams });
         case 'delete':
-            return axiosInstance.delete(url, { params: data, ...configWithParams });
+            return axiosInstance.delete(url, { data: data, ...configWithParams });
         case 'put':
             return axiosInstance.put(url, data, configWithParams);
         default:

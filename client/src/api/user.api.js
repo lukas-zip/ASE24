@@ -18,12 +18,12 @@ export const deleteShop = (shopId) => request("user", 'delete', `/shops/${shopId
 export const getAllProductsByShopId = (shopId) => request("products", 'get', `/product/cataloguesell/${shopId}`);
 export const getProductById = (productId) => request("products", 'get', `/products/${productId}`);
 export const searchProducts = (data) => request("products", 'post', '/products/search', data);
-export const deleteProductFromCompany = (productId) => request("products", 'delete', `/products/delete`, { product_id: productId });
+export const deleteProductFromCompany = (productId) => request("products", 'delete', `/product/delete`, { product_id: productId });
 export const updateProductForCompany = (productId, data) => request("products", 'put', `/product/update_product/${productId}`, data);
 export const addProductForCompany = (data) => request("products", 'post', `/product/insert`, data);
-
 export const uploadProductPicture = (data) => request("products", 'post', `/product/upload/picture`, data);
 
+export const getProductByCategory = (category) => request("products", 'get', `/product/category?term=${category}`);
 // Orders API
 export const getOrderById = (orderId) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);

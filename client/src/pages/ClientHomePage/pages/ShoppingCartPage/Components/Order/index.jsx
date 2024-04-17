@@ -1,12 +1,13 @@
 import COLORS from '@/constants/COLORS'
 import './index.less'
-import { CalendarOutlined, DeleteOutlined, DeleteTwoTone, RightOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import { DeleteTwoTone, RightOutlined } from '@ant-design/icons'
 import { Avatar, InputNumber, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import checked from '@/assets/pic/checked.png'
 import unchecked from '@/assets/pic/unchecked.svg'
 import { useState } from 'react'
-export default function OrderCard({ img = "https://lh5.googleusercontent.com/p/AF1QipNK6p_2MugdId-dBh8mKuOQdnIm3iXmemRXWCbB=w540-h312-n-k-no" }) {
+
+export default function OrderCard({ }) {
     const navigateTo = useNavigate()
     const order = {
         order_id: 1,
@@ -27,7 +28,7 @@ export default function OrderCard({ img = "https://lh5.googleusercontent.com/p/A
         product_name,
         product_description,
         product_bom,
-        product_picture,
+        product_picture = ["https://cdn.corporatefinanceinstitute.com/assets/products-and-services.jpeg"],
         product_search_attributes,
         product_price,
         product_owner,
@@ -64,7 +65,7 @@ export default function OrderCard({ img = "https://lh5.googleusercontent.com/p/A
                     marginRight: 10
                 }}
             >
-                <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={img} />
+                <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={product_picture[0]} />
             </div>
             <div className='OrderItemCard-desc'>
                 <span className='OrderItemCard-desc-productName'>
