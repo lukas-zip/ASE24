@@ -4,30 +4,9 @@ import { useSelector } from 'react-redux'
 import { UserOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutlined, } from '@ant-design/icons';
 import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
-import { createReview, getReviewByProductId, getShopById } from '../../../../api/user.api';
+import { createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
 import { formatNumber } from '@/utils/FormatNumber';
 
-const items = [
-    {
-        key: '1',
-        danger: true,
-        icon: <DeleteOutlined />,
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                delete
-            </a>
-        ),
-    },
-    {
-        key: '2',
-        icon: <EditOutlined />,
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                edit
-            </a>
-        ),
-    }
-]
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const { user: { user_id } } = useSelector((state) => state.user)
@@ -39,6 +18,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
         product_bom,
         product_picture,
         product_search_attributes,
+        product_current_stock,
         product_price,
         product_owner,
         product_price_reduction,
@@ -48,6 +28,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     // review function
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [addReviewModalOpen, setAddReviewModalOpen] = useState(false);
+    const [updateReviewModalOpen, setUpdateReviewModalOpen] = useState(false);
     const [rate, setRate] = useState(0)
     const [review, setReview] = useState('')
     const handleSubmitReview = async () => {
@@ -56,13 +37,44 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 product_id,
                 customer_id: user_id,
                 reviewcontent: review,
-                rating: rate,
+                rating: rate.toString(),
             }
             setConfirmLoading(true);
             await createReview(newReview).then((msg) => {
                 if (msg.status === true) {
                     message.success("Add review successfully!")
                     setAddReviewModalOpen(false)
+                } else {
+                    message.error(msg.message)
+                }
+                setRate(0)
+                setReview('')
+                setConfirmLoading(false)
+                getReviews()
+            }).catch(err => {
+                setRate(0)
+                setReview('')
+                setConfirmLoading(false)
+            })
+        } else {
+            message.error("Please complete all the content");
+        }
+    }
+    const [selectedReview, setSelectedReview] = useState(null)
+    const handleUpdateReview = async () => {
+        if (review && rate && selectedReview?.review_id) {
+            const newReview = {
+                product_id,
+                review_id: selectedReview.review_id,
+                customer_id: user_id,
+                reviewcontent: review,
+                rating: rate.toString(),
+            }
+            setConfirmLoading(true);
+            await updateReview(newReview).then((msg) => {
+                if (msg.status === true) {
+                    message.success("Update review successfully!")
+                    setUpdateReviewModalOpen(false)
                 } else {
                     message.error(msg.message)
                 }
@@ -78,11 +90,29 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
             message.error("Please complete all the content");
         }
     }
+    const DeleteReview = async (reviewId) => {
+        const reqData = {
+            review_id: reviewId,
+            product_id,
+            customer_id: user_id,
+        }
+        await deleteReview(reqData).then((msg) => {
+            if (msg.status === true) {
+                message.success("Delete review successfully!")
+                getReviews()
+            } else {
+                message.error(msg.message)
+            }
+        }).catch(err => {
+            message.error(err.message)
+        })
+    }
     const [reviewsData, setReviews] = useState([])
     const [averageRating, setAverageRating] = useState(0)
     useEffect(() => {
         const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
-        isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
+        console.log("totalRating", totalRating);
+        !isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
     }, [reviewsData])
     const getReviews = async () => {
         await getReviewByProductId(product_id).then((res) => {
@@ -130,15 +160,15 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         <div className='blogDescri'>{product_description}</div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ fontSize: 14, color: 'rgb(170, 170, 170)' }}>{product_assemblies} Product</div>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {averageRating && !isNaN(averageRating) && <div style={{ display: 'flex', alignItems: 'center' }}>
                                 {/* <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span> */}
-                                <span style={{ fontSize: 14 }}>{"-"}&nbsp;</span>
+                                <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span>
                                 <Rate defaultValue={averageRating} disabled style={{ fontSize: 14 }} />
                                 <span style={{ cursor: 'pointer', marginLeft: 10, fontSize: 12, color: '#306f83' }}>
                                     <span>{reviewsData.length}&nbsp;</span>
                                     <span>ratings</span>
                                 </span>
-                            </div>
+                            </div>}
                         </div>
                         <div className='tags'>
                             {product_search_attributes.map((tag, index) => <Tag key={index} bordered={false} color="processing">
@@ -169,7 +199,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <div style={{ fontWeight: 'bold' }}>Quantity: </div>
-                                <div><InputNumber min={1} max={6} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
+                                <div><InputNumber min={1} max={product_current_stock} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
                             </div>
                         </div>
                         <div className='CheckOutBtn'>Add to cart</div>
@@ -193,7 +223,32 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                 <List.Item
                                     actions={[
                                         <div className='btn'>
-                                            {user_id === item.customer_id && <Dropdown Dropdown menu={{ items }} placement="top" arrow={{ pointAtCenter: true }}>
+                                            {user_id === item.customer_id && <Dropdown Dropdown menu={
+                                                {
+                                                    items: [
+                                                        {
+                                                            key: '1',
+                                                            danger: true,
+                                                            icon: <DeleteOutlined />,
+                                                            label: (<a>delete</a>),
+                                                        },
+                                                        {
+                                                            key: '2',
+                                                            icon: <EditOutlined />,
+                                                            label: (<a>edit</a>),
+                                                        }
+                                                    ],
+                                                    onClick: (e) => {
+                                                        if (e.key === '1') {
+                                                            DeleteReview(item.review_id)
+                                                        } else if (e.key === '2') {
+                                                            setSelectedReview(item)
+                                                            setReview(item.reviewcontent)
+                                                            setRate(item.rating)
+                                                            setUpdateReviewModalOpen(true)
+                                                        }
+                                                    }
+                                                }} placement="top" arrow={{ pointAtCenter: true }}>
                                                 <EllipsisOutlined onClick={() => { }} />
                                             </Dropdown>}
                                         </div>
@@ -202,7 +257,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                     <Skeleton avatar loading={false} active>
                                         <List.Item.Meta
                                             // avatar={<Avatar size={49} src={noGender} />}
-                                            avatar={<Avatar size={36} />}
+                                            avatar={<Avatar size={36} icon={<UserOutlined />} />}
                                             title={<a href="#">User</a>}
                                             description={<div>
                                                 <Rate disabled defaultValue={Number(item.rating)} />
@@ -217,6 +272,13 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 </div>
             </div >
             <Modal title="Add Review" open={addReviewModalOpen} onOk={handleSubmitReview} onCancel={() => setAddReviewModalOpen(false)} confirmLoading={confirmLoading} okText="Submit">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, }}>
+                    <div>Rate: </div>
+                    <Rate tooltips={desc} style={{ fontSize: 20 }} defaultValue={rate} onChange={(rateValue) => setRate(rateValue)} />
+                </div>
+                <Input.TextArea variant="filled" defaultValue={review} placeholder='Pleaset enter your review here' onChange={({ target: { value } }) => setReview(value)} rows={4} />
+            </Modal>
+            <Modal title="Update Review" open={updateReviewModalOpen} onOk={handleUpdateReview} onCancel={() => setUpdateReviewModalOpen(false)} confirmLoading={confirmLoading} okText="Submit">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, }}>
                     <div>Rate: </div>
                     <Rate tooltips={desc} style={{ fontSize: 20 }} defaultValue={rate} onChange={(rateValue) => setRate(rateValue)} />

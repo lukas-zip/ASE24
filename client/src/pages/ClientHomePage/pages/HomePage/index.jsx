@@ -5,14 +5,23 @@ import { Button, Empty, Input, message } from 'antd';
 import { EnvironmentTwoTone, RightOutlined } from '@ant-design/icons';
 import COLORS from '@/constants/COLORS';
 import { useEffect, useState } from 'react';
-import { getAllProductsByShopId, getProductByCategory } from '@/api/user.api';
+import { getAllProductsByShopId, getProductByCategory, searchProducts } from '@/api/user.api';
 import CONSTANTS from '@/constants';
 import Product_Categories_PIC from '@/assets/pic/product-categories';
+import { useNavigate } from 'react-router-dom';
 const { Search } = Input
 export default function UserHomePage() {
     const { user } = useSelector(state => state.user)
-    const onSearch = async () => {
-
+    const onSearch = async (searchTerm) => {
+        await searchProducts(searchTerm).then(res => {
+            if (res.status) {
+                navigateTo(`category/${searchTerm}`, { state: { allProducts: res.value } })
+            } else {
+                message.error(res.message)
+            }
+        }).catch(err => {
+            message.error("Error")
+        })
     }
     const [allCategoriesProducts, setAllCategoriesProducts] = useState(CONSTANTS.CATEGORIES.reduce((acc, cur) => {
         acc[cur] = []
@@ -39,6 +48,10 @@ export default function UserHomePage() {
         }
         requestProductsByCategory()
     }, [])
+
+
+    // navigate
+    const navigateTo = useNavigate()
     return (
         <div className={`productPage`} style={{}}>
             <div className={`productPage-header`}>
@@ -60,7 +73,7 @@ export default function UserHomePage() {
                     </div>
                     <div className='productPage-categories-box'>
                         {CONSTANTS.CATEGORIES.map((item, key) =>
-                            <div className={`productPage-categories-box-item`} key={key}>
+                            <div className={`productPage-categories-box-item`} onClick={() => navigateTo(`category/${item}`, { state: { allProducts: allCategoriesProducts[item] } })} key={key}>
                                 <img style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover" }} src={Product_Categories_PIC[item]}></img>
                                 <div className='productPage-categories-box-item-title'>{item}</div>
                             </div>)}
@@ -70,7 +83,7 @@ export default function UserHomePage() {
                     {Object.keys(allCategoriesProducts).map((item, key) => <div className={`productPage-allCategoriesProducts-item`} key={key}>
                         <div className='productPage-allCategoriesProducts-item-title'>
                             <div>{item}</div>
-                            {allCategoriesProducts[item].length !== 0 && <Button type='primary'>{allCategoriesProducts[item].length} products <RightOutlined /></Button>}
+                            {allCategoriesProducts[item].length !== 0 && <Button type='primary' onClick={() => navigateTo(`category/${item}`, { state: { allProducts: allCategoriesProducts[item] } })}>{allCategoriesProducts[item].length} products <RightOutlined /></Button>}
                         </div>
                         {allCategoriesProducts[item].length !== 0 && <div className='productPage-allCategoriesProducts-item-content' >
                             {allCategoriesProducts[item].slice(0, 5).map((item, key) => <CardVertical product={item} key={key} />)}

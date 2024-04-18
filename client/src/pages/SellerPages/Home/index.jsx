@@ -5,7 +5,7 @@ import Meta from 'antd/es/card/Meta'
 import { DeleteOutlined, EditOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons'
 import { deleteProductFromCompany, getAllProductsByShopId } from '../../../api/user.api'
 import { useSelector } from 'react-redux'
-import UploadProductModal from '../../../Components/uploadTutorial'
+import UploadProductModal from '../../../Components/uploadProduct'
 import EditProductModal from '../../../Components/editTutorial'
 import Overview from './components/overview'
 
