@@ -2,6 +2,7 @@ import boto3
 import uuid
 from botocore.exceptions import ClientError
 import bcrypt
+import requests
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -205,6 +206,12 @@ def add_shop(shop_name, email, password, address, phone, description, profile_pi
                 'phone': {'S': phone}
             }
         )
+
+        data = {
+            "shop_id": f"{shop_uuid}"
+        }
+        requests.post('http://financial-service:8005/account', json=data)
+
         print("Shop added with UUID:", shop_uuid)
         return get_shop_json(get_shop(shop_uuid))
     except ClientError as e:

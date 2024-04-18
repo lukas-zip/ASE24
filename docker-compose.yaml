@@ -23,11 +23,12 @@ services:
       - FLASK_ENV=development
     depends_on:
       - localstack
+      - financial-service
 
   inventory_management:
     build: ./backend/inventory_management
     ports:
-      - "8002:8000"
+      - "8002:8002"
     # env_file:
     #   - .env.localstack
     volumes:
@@ -45,6 +46,19 @@ services:
       - FLASK_ENV=development
     depends_on:
       - localstack
+
+  financial-service:
+    build: ./backend/financial-service
+    ports:
+      - "8005:8005"
+    # env_file:
+    #   - .env.localstack
+    volumes:
+      - ./backend/financial-service:/app
+    depends_on:
+      - localstack
+      - inventory_management
+      - orders
 
   client:
     build: client

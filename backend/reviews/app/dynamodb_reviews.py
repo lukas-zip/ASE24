@@ -3,6 +3,7 @@ import uuid
 from botocore.exceptions import ClientError
 from app import dummydata_reviews
 import json
+from datetime import datetime
 
 # Initialize dynamoDB 
 db_reviews = boto3.client(
@@ -46,7 +47,7 @@ def create_review_tables():
 
 
 # Function to add a review to the dynamodb
-def add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_created):
+def add_review(product_id,customer_id,reviewcontent,rating):
     try:
         value, status = check_review(customer_id,product_id)
         if status:
@@ -55,6 +56,10 @@ def add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_cr
             review_uuid = str(uuid.uuid4())
             #fix uuid for testing
             #review_uuid = "7a0d03e1-9648-47f6-b8c0-dc215176bc03"
+            time_lastedit = datetime.now()
+            time_lastedit = time_lastedit.strftime('%a %d %b %Y, %I:%M%p')
+            time_created = datetime.now()
+            time_created = time_created.strftime('%a %d %b %Y, %I:%M%p')
 
             # Put the new item into the table
             response = db_reviews.put_item(
@@ -64,7 +69,7 @@ def add_review(product_id,customer_id,reviewcontent,rating,time_lastedit,time_cr
                     'SK': {'S': product_id},
                     'customer_id': {'S': customer_id},
                     'reviewcontent': {'S': reviewcontent},
-                    'rating': {'S': rating},
+                    'rating': {'N': rating},
                     'time_lastedit': {'S': time_lastedit},
                     'time_created': {'S': time_created}
                 }
@@ -104,12 +109,14 @@ def delete_review(review_uuid,product_id,user_id):
         return "The review does not belong to this user", False
     
 ## finish editing review
-def edit_review(review_uuid,product_id, user_id,reviewcontent,rating,time_lastedit,time_created):
+def edit_review(review_uuid,product_id, user_id,reviewcontent,rating):
     # check if review belongs to the customer deleting it
     response_data, status = get_review(review_uuid,product_id)
     customer_id = response_data["customer_id"]["S"]
     if user_id == customer_id:
         try:
+            time_lastedit = datetime.now()
+            time_lastedit = time_lastedit.strftime('%a %d %b %Y, %I:%M%p')
             # Put the new item into the table
             response = db_reviews.update_item(
                 TableName='Reviews',
@@ -117,12 +124,11 @@ def edit_review(review_uuid,product_id, user_id,reviewcontent,rating,time_lasted
                     'PK': {'S':f'Review#{review_uuid}'},
                     'SK': {'S':product_id}
                     },
-                UpdateExpression='SET reviewcontent = :r, rating = :t, time_lastedit = :l,time_created = :c',
+                UpdateExpression='SET reviewcontent = :r, rating = :t, time_lastedit = :l',
                 ExpressionAttributeValues={
                     ':r': {'S': reviewcontent},
-                    ':t': {'S': rating},
-                    ':l': {'S': time_lastedit},
-                    ':c': {'S': time_created}
+                    ':t': {'N': rating},
+                    ':l': {'S': time_lastedit}
                 }
             )
             print("Review updated with UUID:", review_uuid)
@@ -194,7 +200,7 @@ def get_batch(product_id):
                     "product_id": product_id,
                     "customer_id": item.get('customer_id', {}).get('S'),
                     "reviewcontent": item.get('reviewcontent', {}).get('S'),
-                    "rating": item.get('rating', {}).get('S'),
+                    "rating": item.get('rating', {}).get('N'),
                     "time_lastedit": item.get('time_lastedit', {}).get('S'),
                     "time_created": item.get('time_created', {}).get('S'),
                 }

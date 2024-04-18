@@ -123,25 +123,6 @@ export default function UploadProductModal({ getData, removeTab }) {
         formRef.current?.resetFields();
         setProductImages([])
     };
-
-    const addProduct = {
-        // product_owner: "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-        // product_name: "exampleadditionProduct",
-        // product_description: "exampleDescription",
-        // product_current_stock: 0,
-        // product_should_stock: 0,
-        // product_price: 0.00,
-        // product_price_reduction: 0.00,
-        product_sale: false,
-        // product_category: ["accessories"],
-        // product_search_attributes: ["black", "curled"],
-        // product_reviews: [],
-        product_bom: [
-            "1324a686-c8b1-4c84-bbd6-17325209d78c1",
-            "1324a686-c8b1-4c84-bbd6-17325209d78c2"
-        ],
-        product_assemblies: "Final"
-    }
     const options = [];
     const handleChange = (value) => {
         console.log(value);
@@ -190,7 +171,7 @@ export default function UploadProductModal({ getData, removeTab }) {
                     <InputNumber min={0} step="0.01" />
                 </Form.Item>
                 <Form.Item label="Reduction(%)" name="product_price_reduction" rules={[{ required: true, message: 'Please input product_price_reduction!', }]}>
-                    <InputNumber min={0} />
+                    <InputNumber min={0} max={100} step="1" />
                 </Form.Item>
                 <Form.Item label="Cover" rules={[{ required: true, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
                     <Upload listType="picture" customRequest={submitCoverToFirebase} maxCount={9} {...propsCover}>

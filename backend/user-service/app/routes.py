@@ -9,7 +9,7 @@ from io import BytesIO
 from urllib.parse import quote_plus
 
 # Test if endpoint is available
-@app.route('/', methods=['GET'])
+@app.route('/test', methods=['GET'])
 def test():
     # Return success response
     # app.logger.info('Info level log')

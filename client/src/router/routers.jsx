@@ -15,6 +15,7 @@ import UserHomePage from '../pages/ClientHomePage/pages/HomePage'
 import OrderPage from '../pages/SellerPages/OrderPage'
 import ProfilePage from '../pages/SellerPages/ProfilePage'
 import StatisticPageForSeller from '../pages/SellerPages/Statistics'
+import SpecificCategoryProducts from '@/pages/ClientHomePage/pages/SpecificCategoryProducts'
 
 export default function MyRouter() {
     const { user } = useSelector(state => state.user)
@@ -63,7 +64,18 @@ export default function MyRouter() {
                 },
                 {
                     path: "home",
-                    element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
+                    children: [
+                        {
+                            path: "",
+                            element: <UserHomePage />,
+                        },
+
+                        {
+                            path: "category/:category",
+                            element: <SpecificCategoryProducts />
+                        }
+                    ],
+                    // element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
                 },
                 {
                     path: "cart",

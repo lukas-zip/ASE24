@@ -17,7 +17,7 @@ export const deleteShop = (shopId) => request("user", 'delete', `/shops/${shopId
 // Products API (Port 8002)
 export const getAllProductsByShopId = (shopId) => request("products", 'get', `/product/cataloguesell/${shopId}`);
 export const getProductById = (productId) => request("products", 'get', `/products/${productId}`);
-export const searchProducts = (data) => request("products", 'post', '/products/search', data);
+export const searchProducts = (searchTerm) => request("products", 'get', `/product/search?term=${searchTerm}`);
 export const deleteProductFromCompany = (productId) => request("products", 'delete', `/product/delete`, { product_id: productId });
 export const updateProductForCompany = (productId, data) => request("products", 'put', `/product/update_product/${productId}`, data);
 export const addProductForCompany = (data) => request("products", 'post', `/product/insert`, data);
@@ -32,7 +32,7 @@ export const createOrder = (data) => request("orders", 'post', '/orders', data);
 
 // Reviews API (Port 8003)
 export const createReview = (data) => request("reviews", 'post', `/review`, data);
-export const deleteReview = (reviewId) => request("reviews", 'delete', `/review/${reviewId}`);
+export const deleteReview = (data) => request("reviews", 'delete', `/review`, data);
 export const getReviewByProductId = (productId) => request("reviews", 'get', `/review/${productId}`);
-export const updateReview = (reviewId, data) => request("reviews", 'put', `/review/${reviewId}`, data);
+export const updateReview = (data) => request("reviews", 'put', `/review`, data);
 export const getBatchReviews = () => request("reviews", 'get', '/review/getbatch');
