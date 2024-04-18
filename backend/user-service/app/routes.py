@@ -39,6 +39,7 @@ def register_user(data):
     username = data.get('username')
     address = data.get('address')
     phone = data.get('phone')
+    profile_picture = data.get('profile_picture')
 
     if not email or not password or not username:
         return jsonify({'status': False, 'message': 'Email, username and password are required!'}), 400
@@ -48,7 +49,7 @@ def register_user(data):
         return jsonify({'status': False, 'message': 'Invalid email format!'}), 400
 
     try:
-        new_user = dynamodb.add_user(email, password, username, address, phone)
+        new_user = dynamodb.add_user(email, password, username, address, phone, profile_picture)
         if new_user is None:
             return jsonify({'status': False, 'message': 'Unable to register the user. E-Mail address may already be in use.'}), 400
         return jsonify({'status': True, 'value': new_user}), 200
@@ -65,6 +66,8 @@ def register_shop(data):
     password = data.get('password')
     address = data.get('address')
     phone = data.get('phone')
+    profile_picture = data.get('profile_picture')
+    shop_pictures = data.get('shop_pictures')
 
     if not email or not shop_name or not password:
         return jsonify({'status': False, 'message': 'Email, shop name, address and password are required!'}), 400
@@ -74,7 +77,7 @@ def register_shop(data):
         return jsonify({'status': False, 'message': 'Invalid email format!'}), 400
 
     try:
-        new_shop = dynamodb.add_shop(shop_name, email, password, address, phone, description)
+        new_shop = dynamodb.add_shop(shop_name, email, password, address, phone, description, profile_picture, shop_pictures)
         if new_shop is None:
             return jsonify({'status': False, 'message': 'Unable to register the shop. E-Mail address may already be in use.'}), 400
         return jsonify({'status': True, 'value': new_shop}), 200

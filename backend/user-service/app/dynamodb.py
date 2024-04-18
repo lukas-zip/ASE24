@@ -188,8 +188,7 @@ def add_shop(shop_name, email, password, address, phone, description, profile_pi
         phone = phone if phone is not None else ''
         description = description if description is not None else ''
         profile_picture = profile_picture if profile_picture is not None else ''
-        shop_pictures = shop_pictures if shop_pictures is not None else ''
-
+        shop_pictures = shop_pictures if shop_pictures is not None else ['']
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
