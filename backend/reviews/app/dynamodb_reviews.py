@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 from app import dummydata_reviews
 import json
 from datetime import datetime
+import requests
 
 # Initialize dynamoDB 
 db_reviews = boto3.client(
@@ -65,7 +66,7 @@ def add_review(product_id,customer_id,reviewcontent,rating):
             response = db_reviews.put_item(
                 TableName='Reviews',
                 Item={
-                    'PK': {'S': f'Review#{review_uuid}'},
+                    'PK': {'S': review_uuid},
                     'SK': {'S': product_id},
                     'customer_id': {'S': customer_id},
                     'reviewcontent': {'S': reviewcontent},
@@ -93,7 +94,7 @@ def delete_review(review_uuid,product_id,user_id):
             response = db_reviews.delete_item(
                     TableName='Reviews',
                     Key={
-                        'PK': {'S':f'Review#{review_uuid}'},
+                        'PK': {'S':review_uuid},
                         'SK': {'S':product_id}
                         }
             )
@@ -121,7 +122,7 @@ def edit_review(review_uuid,product_id, user_id,reviewcontent,rating):
             response = db_reviews.update_item(
                 TableName='Reviews',
                 Key={
-                    'PK': {'S':f'Review#{review_uuid}'},
+                    'PK': {'S':review_uuid},
                     'SK': {'S':product_id}
                     },
                 UpdateExpression='SET reviewcontent = :r, rating = :t, time_lastedit = :l',
@@ -168,7 +169,7 @@ def get_review(review_uuid,product_id):
         response = db_reviews.get_item(
             TableName='Reviews',
             Key={
-                'PK': {'S':f'Review#{review_uuid}'},
+                'PK': {'S':review_uuid},
                 'SK': {'S':product_id}
             }
         )
@@ -195,6 +196,9 @@ def get_batch(product_id):
             items = response.get('Items', [])
             formatted_review = []
             for item in items:
+                user_id = item.get('customer_id', {}).get('S')
+                response_json= requests.get(f'http://user-service:8001/users/{user_id}')
+                response_user = response_json.json()
                 review = {
                     "review_id": item.get('PK', {}).get('S'),
                     "product_id": product_id,
@@ -203,6 +207,7 @@ def get_batch(product_id):
                     "rating": item.get('rating', {}).get('N'),
                     "time_lastedit": item.get('time_lastedit', {}).get('S'),
                     "time_created": item.get('time_created', {}).get('S'),
+                    "customer": response_user['value']
                 }
                 formatted_review.append(review)
             return formatted_review, True
