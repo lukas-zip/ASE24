@@ -6,6 +6,7 @@ import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
 import { createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
 import { formatNumber } from '@/utils/FormatNumber';
+import { useNavigate } from 'react-router-dom';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
@@ -144,7 +145,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     // order
     const [quantity, setQuantity] = useState(1)
 
-
+    const navigateTo = useNavigate()
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen}
             onOk={() => setIsOpen(false)}
@@ -177,7 +178,8 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         </div>
                         <div className='blogOperation'>
                             <div className='Info buttonHover' onClick={() => {
-                                navigateTo(`/shop/${product_owner}`)
+                                console.log("daozhele");
+                                navigateTo(`shop/${product_owner}`)
                             }}>
                                 <Avatar size={30} icon={<UserOutlined />} src={ShopInfo.profile_picture} />
                                 <div className='Info-sub'>

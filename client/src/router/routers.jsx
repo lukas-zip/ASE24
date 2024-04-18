@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from 'react-router-dom'
 import Dashboard from "../pages/Dashboard"
 import Login from '../pages/Login'
 import ErrorPage from '../pages/ErrorPage'
@@ -16,6 +16,9 @@ import OrderPage from '../pages/SellerPages/OrderPage'
 import ProfilePage from '../pages/SellerPages/ProfilePage'
 import StatisticPageForSeller from '../pages/SellerPages/Statistics'
 import SpecificCategoryProducts from '@/pages/ClientHomePage/pages/SpecificCategoryProducts'
+import ShopDetailPage from '../pages/ClientHomePage/pages/ShopDetailPage'
+import { getShopById } from '@/api/user.api'
+import { message } from 'antd'
 
 export default function MyRouter() {
     const { user } = useSelector(state => state.user)
@@ -73,6 +76,16 @@ export default function MyRouter() {
                         {
                             path: "category/:category",
                             element: <SpecificCategoryProducts />
+                        },
+                        {
+                            path: "shop/:shopID",
+                            element: <ShopDetailPage />,
+                            loader: async ({ params }) => {
+                                const res = await getShopById(params.shopID)
+                                if (res.status) {
+                                    return res.value
+                                }
+                            }
                         }
                     ],
                     // element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
