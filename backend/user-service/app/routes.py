@@ -3,8 +3,10 @@ from app import app, dynamodb
 from werkzeug.utils import secure_filename
 import os
 import re
+from app import s3
 from botocore.exceptions import ClientError
-
+from io import BytesIO
+from urllib.parse import quote_plus
 
 # Test if endpoint is available
 @app.route('/test', methods=['GET'])
@@ -106,9 +108,9 @@ def login():
 @app.route('/<entity>/<entity_uuid>', methods=['PUT'])
 def update_entity(entity, entity_uuid):
     try:
-        if 'file' in request.files:
-            file = request.files['file']
-            return update_picture(file, entity_uuid)
+        #if 'file' in request.files:
+        #    file = request.files['file']
+        #    return update_picture(file, entity_uuid)
         data = request.json
         action = data.get('action')
         if entity == 'users' and action == 'update':
@@ -132,6 +134,8 @@ def update_shop(data, entity_uuid):
     email = data.get('email')
     address = data.get('address')
     phone = data.get('phone')
+    profile_picture = data.get('profile_picture')
+    shop_pictures = data.get('shop_pictures')
 
     if not email or not shop_name:
         return jsonify({'status': False, 'message': 'Email and shop name cannot be empty!'}), 400
@@ -148,7 +152,9 @@ def update_shop(data, entity_uuid):
         'shop_name': shop_name,
         'description': description,
         'address': address,
-        'phone': phone
+        'phone': phone,
+        'profile_picture': profile_picture,
+        'shop_pictures': shop_pictures
     }
 
     try:
@@ -168,6 +174,7 @@ def update_user(data, entity_uuid):
     username = data.get('username')
     address = data.get('address')
     phone = data.get('phone')
+    profile_picture = data.get('profile_picture')
 
     if not email or not username:
         return jsonify({'status': False, 'message': 'Email and username cannot be empty!'}), 400
@@ -182,7 +189,8 @@ def update_user(data, entity_uuid):
         'email': email,
         'username': username,
         'address': address,
-        'phone': phone
+        'phone': phone,
+        'profile_picture': profile_picture
     }
 
     try:
@@ -268,9 +276,12 @@ def get_entity(entity, entity_uuid):
 @app.route('/<entity>/<entity_uuid>', methods=['DELETE'])
 def delete_entity(entity, entity_uuid):
     try:
+        data = dynamodb.get_entity_json(entity_uuid)
         if entity == 'users':
+            delete_s3_pictures(data, entity)
             response = dynamodb.delete_user(entity_uuid)
         elif entity == 'shops':
+            delete_s3_pictures(data, entity)
             response = dynamodb.delete_shop(entity_uuid)
         else:
             return jsonify({'status': False, 'message': 'Invalid entity'}), 400
@@ -282,3 +293,52 @@ def delete_entity(entity, entity_uuid):
     except ClientError as e:
         print(f"Error deleting {entity_uuid}: {e}")
         return jsonify({'status': False, 'message': f'An error occurred while deleting the {entity_uuid}'}), 500
+
+def delete_s3_pictures(data, entity):
+    if entity == 'shops':
+        for picture_path in data.get('shop_pictures', []):
+            s3_object_key = picture_path.split('/')[-1]  # Extract object key from the picture path
+            s3.delete_object(s3_object_key)
+    picture_path = data.get('profile_picture', '')
+    if picture_path:
+        s3_object_key_profile = picture_path.split('/')[-1]  # Extract object key from the picture path
+        s3.delete_object(s3_object_key_profile)
+
+@app.route('/picture/<action>', methods = ['POST'])
+def upload_picture(action):
+    #allowed_types = ['.jpg', '.png', '.mp4']
+    if action == 'profile':
+        bucket_name = 'profilepictures'
+    elif action == 'shop':
+        bucket_name = 'shoppictures'
+
+    # Check if the request contains form data
+    if 'image' not in request.files:
+        return 'No image file provided', 400
+
+    # Get the image file
+    image_file = request.files['image']
+
+    # Check if the image filename is empty
+    if image_file.filename == '':
+        return 'No selected file', 400
+
+    object_key = image_file.filename
+
+    #Convert bytes object to file-like object
+    image_stream = BytesIO(image_file.read())
+
+    #Construct the URL/path to the uploaded image
+    s3_base_url = f'http://localhost:4566/{bucket_name}/' # Der Link ist derzeit auf Local angepasst
+    image_url = s3_base_url + quote_plus(object_key)
+
+    try:
+        # Upload the image file to S3
+        s3response = s3.upload_fileobj(image_stream, bucket_name, object_key)
+        if s3response:
+            return jsonify({'value': image_url, 'status': True}), 200
+        else:
+            return jsonify({'value': 'The image could unfortunately not be inserted', 'status': False}), 500
+    except ClientError as e:
+        print("Error uploading product picture to S3:", e)
+        return
