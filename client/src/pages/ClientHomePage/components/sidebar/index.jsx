@@ -13,7 +13,6 @@ export default function Sidebar() {
     const THEME = APPTHEME["light"]
     const { user } = useSelector((state) => state.user)
     const dispatch = useDispatch()
-    // const avator = () => currentUser.avator ? currentUser.avator : noGenderPath
     const [clicked, setClicked] = useState(false);
     const [navShrink, setNavShrink] = useState()
     const navigateTo = useNavigate()
@@ -82,7 +81,7 @@ export default function Sidebar() {
                         onOpenChange={handleClickChange}
                     >
                         <Avatar
-                            // src={avator()}
+                            src={user.profile_picture}
                             size={{
                                 xs: 36,
                                 sm: 36,

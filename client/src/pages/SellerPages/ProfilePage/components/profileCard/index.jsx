@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import COLORS from '@/constants/COLORS';
 import CONSTANTS from '../../../../../constants';
-import { updateShop } from '../../../../../api/user.api';
+import { postPictureForUserService_profile, updateShop } from '../../../../../api/user.api';
 import { setUser } from '../../../../../store/user.store';
 const { TextArea } = Input;
 
@@ -40,7 +40,7 @@ export default function ProfileCard() {
     const showEditModal = () => { setIsEditModalOpen(true); };
     const handleEditOk = () => { setIsEditModalOpen(false); };
     const handleCancel = () => { setIsEditModalOpen(false); };
-    const [updatedAvator, setUpdatedAvator] = useState([{ uid: 0, name: 'avatar', status: 'done', url: profile_picture, thumbUrl: profile_picture }])
+    const [updatedAvator, setUpdatedAvator] = useState(profile_picture ? [{ uid: 0, name: 'avatar', status: 'done', url: profile_picture, thumbUrl: profile_picture }] : [])
     const propsImage = {
         onRemove: (file) => {
             const index = updatedAvator.indexOf(file);
@@ -60,63 +60,26 @@ export default function ProfileCard() {
         },
         fileList: updatedAvator,
     };
-    const submitImageToFirebase = ({ file }) => {
-        // if (file) {
-        //     const storageRef = ref(storage, `${name}-avator-${parseInt((new Date().getTime() / 1000).toString())}`);
-        //     const uploadTask = uploadBytesResumable(storageRef, file);
-        //     uploadTask.on('state_changed', (snapshot) => {
-        //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //         const handledBlogImgs = updatedAvator.map(item => {
-        //             if (item.uid === file.uid) {
-        //                 return { ...file, status: 'uploading', percent: progress }
-        //             }
-        //             return item
-        //         })
-        //         setUpdatedAvator(handledBlogImgs)
-        //         switch (snapshot.state) {
-        //             case 'paused':
-        //                 console.log('Upload is paused');
-        //                 break;
-        //             case 'running':
-        //                 console.log('Upload is running', progress);
-        //                 break;
-        //         }
-        //     },
-        //         (error) => {
-        //             message.err(intl.formatMessage({ id: 'error.errorHappens' }))
-        //             updatedAvator.map(item => {
-        //                 if (item.uid === file.uid) {
-        //                     return { ...file, status: 'error' }
-        //                 }
-        //                 return item
-        //             })
-        //             setUpdatedAvator(updatedAvator)
-        //         },
-        //         () => {
-        //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        //                 const handledBlogImgs = updatedAvator.map(item => {
-        //                     if (item.uid === file.uid) {
-        //                         return { ...file, status: 'done', url: downloadURL, thumbUrl: downloadURL, name: file.name }
-        //                     }
-        //                     return item
-        //                 })
-        //                 setUpdatedAvator(handledBlogImgs)
-        //             });
-        //         }
-        //     );
-        // } else {
-        //     message.err(intl.formatMessage({ id: 'error.errorHappens' }))
-        //     updatedAvator.map(item => {
-        //         if (item.uid === file.uid) {
-        //             return item = { ...file, status: 'error' }
-        //         }
-        //         return item
-        //     })
-        //     setUpdatedAvator(updatedAvator)
-        // }
+    const submitImageToFirebase = async ({ file }) => {
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            await postPictureForUserService_profile(formData).then(res => {
+                if (res.status) {
+                    message.success('Uploaded successfully')
+                    setUpdatedAvator([{ ...file, status: 'done', url: res.value, thumbUrl: res.value, name: file.name }])
+                } else {
+                    message.error('Upload failure')
+                    setUpdatedAvator([{ ...file, status: 'error' }])
+                }
+            })
+        } else {
+            message.error('Some error happens')
+            setUpdatedAvator([{ ...file, status: 'error' }])
+        }
     }
     const onFinish = async (items) => {
-        let handledItems = { ...items, profile_picture: "" }
+        let handledItems = { ...items, profile_picture: updatedAvator[0]?.url }
         let updateInfo = Object.keys(handledItems)
             .filter((key) => handledItems[key] != null)
             .reduce((a, key) => ({ ...a, [key]: handledItems[key] }), {});
@@ -144,7 +107,7 @@ export default function ProfileCard() {
             <div style={{ marginTop: 60 }} className='profileCard'>
                 <div style={{ display: 'flex' }}>
                     <div className='Card-Avatar'>
-                        <Avatar size={80} icon={<UserOutlined />} src={user?.avator ? user.avator : ''} />
+                        <Avatar size={80} icon={<UserOutlined />} src={user?.profile_picture ? user.profile_picture : ''} />
                     </div>
                     <div className='Card-UserInfo'>
                         <div className='Card-Username'><h1 style={{ color: COLORS.primary }}>{username}</h1></div>

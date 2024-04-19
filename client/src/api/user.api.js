@@ -7,6 +7,8 @@ export const signUpForUser = (data) => request("user", 'post', '/users', data);
 export const updateUser = (userId, data) => request("user", 'put', `/users/${userId}`, data);
 export const getUserById = (userId) => request("user", 'get', `/users/${userId}`);
 export const deleteUser = (userId) => request("user", 'delete', `/users/${userId}`);
+export const postPictureForUserService_profile = (data) => request("user", 'post', `/picture/profile`, data);
+export const postPictureForUserService_shoppictures = (data) => request("user", 'post', `/picture/shop`, data);
 
 // Shops API
 export const signUpForShop = (data) => request("user", 'post', '/shops', data);
