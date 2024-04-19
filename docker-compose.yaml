@@ -2,39 +2,39 @@ version: '3'
 
 services:
 
-  reviews:
-    build: ./backend/reviews
-    ports:
-      - "8003:8003"
+  #reviews:
+  #  build: ./backend/reviews
+  #  ports:
+  #    - "8003:8003"
     # env_file:
     #   - .env.localstack
-    volumes:
-      - ./backend/reviews:/app
-    depends_on:
-      - localstack
+  #  volumes:
+  #    - ./backend/reviews:/app
+  #  depends_on:
+  #    - localstack
 
-  user-service:
-    build: ./backend/user-service
-    ports:
-      - "8001:8001"
-    volumes:
-      - ./backend/user-service:/app
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - localstack
-      - financial-service
+  #user-service:
+  #  build: ./backend/user-service
+  #  ports:
+  #    - "8001:8001"
+  #  volumes:
+  #    - ./backend/user-service:/app
+  #  environment:
+  #    - FLASK_ENV=development
+  #  depends_on:
+  #    - localstack
+  #    - financial-service
 
-  inventory_management:
-    build: ./backend/inventory_management
-    ports:
-      - "8002:8002"
+  #inventory_management:
+  #  build: ./backend/inventory_management
+  #  ports:
+  #    - "8002:8002"
     # env_file:
     #   - .env.localstack
-    volumes:
-      - ./backend/inventory_management:/app
-    depends_on:
-      - localstack
+  #  volumes:
+  #    - ./backend/inventory_management:/app
+  #  depends_on:
+  #    - localstack
 
   orders:
     build: ./backend/orders
@@ -47,18 +47,18 @@ services:
     depends_on:
       - localstack
 
-  financial-service:
-    build: ./backend/financial-service
-    ports:
-      - "8005:8005"
+  #financial-service:
+  #  build: ./backend/financial-service
+  #  ports:
+  #    - "8005:8005"
     # env_file:
     #   - .env.localstack
-    volumes:
-      - ./backend/financial-service:/app
-    depends_on:
-      - localstack
-      - inventory_management
-      - orders
+  #  volumes:
+  #    - ./backend/financial-service:/app
+  #  depends_on:
+  #    - localstack
+  #    - inventory_management
+  #    - orders
 
   client:
     build: client
@@ -70,10 +70,10 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - user-service
-      - inventory_management
+  #    - user-service
+  #    - inventory_management
       - orders
-      - reviews
+  #    - reviews
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
