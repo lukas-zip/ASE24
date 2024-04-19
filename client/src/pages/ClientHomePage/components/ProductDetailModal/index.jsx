@@ -177,8 +177,8 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         </div>
                         <div className='blogOperation'>
                             <div className='Info buttonHover' onClick={() => {
-                                console.log("daozhele");
-                                navigateTo(`shop/${product_owner}`)
+                                console.log("daozhelsdfasdfe");
+                                navigateTo(`/user/home/shop/${product_owner}`)
                             }}>
                                 <Avatar size={30} icon={<UserOutlined />} src={ShopInfo.profile_picture} />
                                 <div className='Info-sub'>
