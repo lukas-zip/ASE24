@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from app import app, dynamodb
+from app import app, dynamodb, invoice
 from werkzeug.utils import secure_filename
 import os
 import re
@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 from datetime import datetime, date
 from types import SimpleNamespace
 import json
-from app import utils 
+from app import utils
 
 app.config["DEBUG"] = True
 
@@ -74,6 +74,38 @@ def add_order_req():
     return jsonify(res), 201
 
 
+# Create a invoice pdf out of the order details for one order
+@app.route('/invoice/<order_id>', methods=['POST'])
+def route_create_invoice(order_id):
+    if not order_id:
+        return jsonify({'error': 'ID is required!'}), 400
+    try:
+        message, status = invoice.create_pdf(order_id)
+        if status == True:
+            return jsonify({'value': message,'status': status}), 200
+        else:
+            return jsonify({'message': message,'status': status}), 200
+    except ClientError as e:
+        print("Error adding review:", e)
+
+## Download the invoice for a specific order
+@app.route('/invoice/<order_id>',methods=['GET'])
+def route_get_invoice(order_id):
+
+    if not order_id:
+        return jsonify({'error': 'ID is required!'}), 400
+    try:
+        items, status = invoice.get_invoice(order_id)
+        if status == True:
+            return jsonify({'value': items,'status': status}), 200
+        else:
+            return jsonify({'message': items,'status': status}), 200
+    except ClientError as e:
+        print("Error adding review:", e)
+        return jsonify({'error': 'Failed to get review'}), 500
+
+
+
 #update order status, as delivered
 @app.get("/orders/<order_id>/delivered")
 def update_status_delivered(order_id):
@@ -85,6 +117,7 @@ def update_status_delivered(order_id):
 def update_status_shipped(order_id):
     response = dynamodb.update_status(order_id,'shipped')
     return jsonify(response), 201
+
 
 # ----------------------------------------------------------------------------#
 # Error Handling.
