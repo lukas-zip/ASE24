@@ -1,10 +1,9 @@
-import { createBrowserRouter, Navigate, RouterProvider, useNavigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Dashboard from "../pages/Dashboard"
 import Login from '../pages/Login'
 import ErrorPage from '../pages/ErrorPage'
 import ProtectedRouter from './protectedRouter'
 import SellerHome from '../pages/SellerPages/Home'
-import { useSelector } from 'react-redux'
 import CheckProtectedRouter from './CheckProtectedRouter'
 import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
@@ -18,10 +17,8 @@ import StatisticPageForSeller from '../pages/SellerPages/Statistics'
 import SpecificCategoryProducts from '@/pages/ClientHomePage/pages/SpecificCategoryProducts'
 import ShopDetailPage from '../pages/ClientHomePage/pages/ShopDetailPage'
 import { getShopById } from '@/api/user.api'
-import { message } from 'antd'
 
 export default function MyRouter() {
-    const { user } = useSelector(state => state.user)
     const router = createBrowserRouter([
         {
             path: "/",
@@ -88,7 +85,6 @@ export default function MyRouter() {
                             }
                         }
                     ],
-                    // element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
                 },
                 {
                     path: "cart",

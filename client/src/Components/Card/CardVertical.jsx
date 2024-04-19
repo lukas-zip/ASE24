@@ -38,10 +38,6 @@ export default function CardVertical({ product, pic = "https://i.ytimg.com/vi/Ym
             </>}
           </div>
         </div>
-        <div className='tutorialCardVertical-bottom-detail-rate'>
-          <Rate disabled defaultValue={2} />
-          <span>(174)</span>
-        </div>
       </div>
       <ProductDetailModal isOpen={detailModelOpen} setIsOpen={closeModal} item={product} />
     </div>

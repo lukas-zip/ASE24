@@ -10,13 +10,12 @@ import { useNavigate } from 'react-router-dom';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
+    const navigateTo = useNavigate()
     const { user: { user_id } } = useSelector((state) => state.user)
-
     const {
         product_assemblies,
         product_name,
         product_description,
-        product_bom,
         product_picture,
         product_search_attributes,
         product_current_stock,
@@ -145,7 +144,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     // order
     const [quantity, setQuantity] = useState(1)
 
-    const navigateTo = useNavigate()
+
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen}
             onOk={() => setIsOpen(false)}
@@ -161,7 +160,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                         <div className='blogDescri'>{product_description}</div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ fontSize: 14, color: 'rgb(170, 170, 170)' }}>{product_assemblies} Product</div>
-                            {averageRating && !isNaN(averageRating) && <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {(averageRating && averageRating !== 0) ? !isNaN(averageRating) && <div style={{ display: 'flex', alignItems: 'center' }}>
                                 {/* <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span> */}
                                 <span style={{ fontSize: 14 }}>{averageRating}&nbsp;</span>
                                 <Rate defaultValue={averageRating} disabled style={{ fontSize: 14 }} />
@@ -169,7 +168,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                     <span>{reviewsData.length}&nbsp;</span>
                                     <span>ratings</span>
                                 </span>
-                            </div>}
+                            </div> : <div></div>}
                         </div>
                         <div className='tags'>
                             {product_search_attributes.map((tag, index) => <Tag key={index} bordered={false} color="processing">

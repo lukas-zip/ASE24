@@ -80,7 +80,6 @@ export default function ShopDetailPage() {
                             {allProducts.length !== 0 && <div style={{ color: COLORS.commentText, marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                                 --No more products--
                             </div>}
-
                         </div>}
                         {allProducts.length === 0 && <div className='ShopDetailPage-allProducts-item-content-empty' >
                             <Empty description={"No products"} />
