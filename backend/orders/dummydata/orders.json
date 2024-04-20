@@ -1,65 +1,23 @@
 [
   {
-    "username": "username1",
-    "orders": [
-        "12421",
-        "124",
-        "1244"
-    ],
-    "prices": [
-        "22",
-        "11",
-        "33"
-    ],
-    "quantities": [
-      "22",
-      "11",
-      "33"
-    ],
+    "user_id": "username1",
+    "product_owner_id": "product_owner_id1",
     "total_price": "290",
-    "status": "in progress",
+    "order_status": "in progress",
     "execution_time": "2024-04-06 10:51:03.318659"
   },
   {
-    "username":   "username1",
-    "orders": [
-        "12421",
-        "124",
-        "1244"
-    ],
-    "prices": [
-        "22",
-        "11",
-        "33"
-    ],
-    "quantities": [
-      "22",
-      "11",
-      "33"
-    ],
+    "user_id":   "username1",
+    "product_owner_id": "product_owner_id1",
     "total_price": "290",
-    "status": "in progress",
+    "order_status": "in progress",
     "execution_time": "2024-04-06 10:51:03.318659"
   },
   {
-    "username":   "username1",
-    "orders": [
-        "12421",
-        "124",
-        "1244"
-    ],
-    "prices": [
-        "22",
-        "11",
-        "33"
-    ],
-    "quantities": [
-      "22",
-      "11",
-      "33"
-    ],
+    "user_id":   "username1",
+    "product_owner_id": "product_owner_id2",
     "total_price": "290",
-    "status": "in progress",
+    "order_status": "in progress",
     "execution_time": "2024-04-06 10:51:03.318659"
   }
 ]

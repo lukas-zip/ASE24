@@ -48,13 +48,13 @@ def delete_order_req(order_id: int):
 @app.put("/orders/<order_id>")
 def update_order_req(order_id):
     data = request.json
-    res = dynamodb.update_order(order_id, data['product_id'], data['quantity'], data['product_price'], data['product_price_reduction'])
+    res = dynamodb.update_order(order_id, data['product_id'], data['quantity'])
     return jsonify(res), 201
 
 
 # add new order
 # {
-#      "username": "username",
+#      "user_id": "user_id",
 #      "product_id": "product_id1",
 #      "quantity": 6,
 #      "product_price": 33,
@@ -66,11 +66,7 @@ def add_order_req():
     
     if data['quantity'] <= 0:
         return jsonify({'error': 'order quantity should be at least 1', 'status': False}), 400
-
-    if data['product_price'] < 0:
-        return jsonify({'error': 'price cannot be negative', 'status': False}), 400
-
-    res = dynamodb.add_item(data['username'],data['product_id'], data['quantity'],data['product_price'], data['product_price_reduction'])
+    res = dynamodb.add_item(data['user_id'],data['product_id'], data['quantity'])
     return jsonify(res), 201
 
 
@@ -85,6 +81,18 @@ def update_status_delivered(order_id):
 def update_status_shipped(order_id):
     response = dynamodb.update_status(order_id,'shipped')
     return jsonify(response), 201
+
+
+@app.post("/orders/search")
+def search_orders():
+    data = request.json
+    res = dynamodb.search_orders(data)
+    return jsonify(res), 201
+
+@app.get("/orders/test/<product_id>")
+def test_orders(product_id):
+    res = utils.get_product_details(product_id)
+    return res, 201
 
 # ----------------------------------------------------------------------------#
 # Error Handling.

@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import bcrypt
 import logging
 from app import utils
+from datetime import datetime
 
 TABLE_NAME = 'OrdersManagement'
 
@@ -53,7 +54,7 @@ def create_orders_table():
 
 
 # add order to the dynamodb
-def add_order(username,orders,prices,total_price,execution_time,status,quantities):
+def add_order(user_id,orders,total_price,execution_time,order_status):
     try:
         # Generate UUID for the new user
         order_uuid = str(uuid.uuid4())
@@ -63,13 +64,12 @@ def add_order(username,orders,prices,total_price,execution_time,status,quantitie
             TableName=TABLE_NAME,
             Item={
                 'order_id': {'S': f'{order_uuid}'},
-                'username': {'S': username},
-                'orders': {'SS':  orders}, # product ids
-                'quantities': {'NS':  quantities}, 
+                'user_id': {'S': user_id},
+                'orders': {'M':  {"product_id1": {"N": "2"}, "product_id2": {"N": "2"}}}, # product ids
                 'total_price': {'N': total_price},
                 'execution_time': {'S': execution_time},
-                'status': {'S': status}
-            }
+                'order_status': {'S': order_status},
+                'product_owner': {'S': str(uuid.uuid4())}}
         )
         print("Order added with UUID:", order_uuid)
         return get_order(order_uuid)
@@ -78,35 +78,37 @@ def add_order(username,orders,prices,total_price,execution_time,status,quantitie
 
 
 # add item to the dynamodb
-def add_item(username,product_id, quantity, product_price, product_price_reduction):
+def add_item(user_id,product_id, quantity):
     try:
         # Generate UUID for the new user
         order_uuid = str(uuid.uuid4())
 
         #get product details from product service
-        #product_details = utils.get_product_details(product_id)
+        product_details = utils.get_product_details(product_id)
+        product_price_reduction = float(product_details['product_price_reduction'])
+        product_price = float(product_details['product_price'])
+        product_owner = product_details['product_owner']
 
-        orders = []
-        quantities = []
-
-        orders.append(product_id)
         discounted_price = utils.calc_discounted_price(product_price, product_price_reduction)
-        quantities.append(str(quantity))
-        
         total_price = discounted_price*quantity
         status = 'Processed'
+
+
+        if quantity <= 0:
+                return {'status': False, 'value': 'product quantity has to be at least 1!'}
+
 
         # Put the new item into the table
         db_order_management.put_item(
             TableName=TABLE_NAME,
             Item={
                 'order_id': {'S': f'{order_uuid}'},
-                'username': {'S': username},
-                'orders': {'SS':  orders}, # product ids
-                'quantities': {'NS':  quantities}, 
+                'user_id': {'S': user_id},
+                'orders': {'M':  {product_id: {"N": str(quantity)}}}, # product ids
                 'total_price': {'N': str(total_price)},
                 'execution_time': {'S': ''},
-                'status': {'S': status}
+                'order_status': {'S': status},
+                'product_owner': {'S': product_owner},
             }
         )
         print("Order added with UUID:", order_uuid)
@@ -116,14 +118,15 @@ def add_item(username,product_id, quantity, product_price, product_price_reducti
 
 def get_order(order_uuid):
     try:
+        #TODO: handle no order id found case
         response = db_order_management.get_item(
             TableName=TABLE_NAME,
             Key={
                 'order_id': {'S': f'{str(order_uuid)}'},
             }
         )
-        
-        order_info = utils.reformat_reponse(response)
+        item = response.get('Item')
+        order_info = utils.reformat_reponse(item)
         return order_info
 
     except ClientError as e:
@@ -134,75 +137,71 @@ def get_order(order_uuid):
 def get_all_orders():
     try:
         response = db_order_management.scan(TableName=TABLE_NAME)
-        return response
+        items = response.get('Items')
+        final_res = []
+        for item in items:
+            final_res.append(utils.reformat_reponse(item))
+
+        return  {"Count":response.get('Count'), "Items":final_res}
+       
     except ClientError as e:
         print("Error getting order:", e)
 
 
 
-def update_order(order_id, product_id, quantity_change, product_price, discount):
+def update_order(order_id, product_id, quantity_change):
     try:
         #get current order values
         order = get_order(order_id)
-
-        orders_arr = order['Item']['orders']['SS']
-
-        quantities_arr = (order['Item']['quantities']['NS'])
-        quantities_arr = list(map(int, quantities_arr))
-
-        total_price = float(order['Item']['total_price']['N'])
+        orders_dict = order['orders']
+        total_price = float(order['total_price'])
 
        #get product details
-        # product_details = utils.get_product_details(orders)
-        # discount = product_details.product_price_reduction
-        # product_price = product_details.product_price
+        product_details = utils.get_product_details(product_id)
+        product_price_reduction = float(product_details['product_price_reduction'])
+        product_price = float(product_details['product_price'])
 
         #check if product exists
-        if product_id not in orders_arr: 
+        if product_id not in orders_dict:
             if quantity_change < 0:
                 return {'status': False, 'value': 'product quantity cannot be less than 0 !'}
 
-            
-            orders_arr.append(product_id)
-            quantities_arr.append(quantity_change)
-
+            orders_dict[product_id] = quantity_change
         else: 
-            #get product id index
-            product_index = orders_arr.index(product_id)
 
             #modify quantity
-            current_quantity = quantities_arr[product_index]
-            
+            current_quantity = float(orders_dict[product_id])
             #quantity_change is negative if the user removes items from the cart
             #return an error if the quantitiy is less than zero after the subtraction
             total_quantity = current_quantity + quantity_change
+
             if total_quantity < 0 :
                 return {'status': False, 'value': 'product quantity cannot be less than 0 !'}
 
 
             #if quantity is zero, remove product attributes from all arrays
             if total_quantity == 0:
-                del orders_arr[product_index]
-                del quantities_arr[product_index] 
+                del orders_dict[product_id]
             else:
                 #update quantiy
-                quantities_arr[product_index] = str(total_quantity)
+                orders_dict[product_id] = float(orders_dict[product_id]) + float(quantity_change)
 
         #modify total price  
-        total_price += (utils.calc_discounted_price(product_price, discount)*quantity_change)
-
-        #convert lists back to string lists
-        quantities_arr = list(map(str, quantities_arr))
+        total_price += (utils.calc_discounted_price(product_price, product_price_reduction)*quantity_change)
 
         # Dynamically build the update expression based on provided attributes
         # Prepare UpdateExpression and ExpressionAttributeValues
         update_expression = "set "
         expression_attribute_values = {}
-        update_expression += f"{'orders'} = :{'orders'},"
-        expression_attribute_values[f":{'orders'}"] = {'SS': orders_arr}
 
-        update_expression += f"{'quantities'} = :{'quantities'},"
-        expression_attribute_values[f":{'quantities'}"] = {'NS': quantities_arr}
+       #{"product_id1": 2, "product_id2":  2} --> {"product_id1": {"N": "2"}, "product_id2": {"N": "2"}}
+        orders_exp = {}
+        for key, value in orders_dict.items():
+            orders_exp[key] = {"N": str(value)}
+
+        update_expression += f"{'orders'} = :{'orders'},"
+        expression_attribute_values[f":{'orders'}"] = {'M': orders_exp}
+
 
         update_expression += f"{'total_price'} = :{'total_price'},"
         expression_attribute_values[f":{'total_price'}"] = {'N': str(total_price)}
@@ -227,18 +226,17 @@ def update_order(order_id, product_id, quantity_change, product_price, discount)
         print(f"Error updating: {e}")
         raise e
 
-
 def update_status(order_id,status):
     try:
-        current_time = datetime.now()
+        current_time = str(datetime.now())
         # Prepare UpdateExpression and ExpressionAttributeValues
         update_expression = "set "
         expression_attribute_values = {}
         update_expression += f"{'execution_time'} = :{'execution_time'},"
         expression_attribute_values[f":{'execution_time'}"] = {'S': current_time}
 
-        update_expression += f"{'status'} = :{'status'},"
-        expression_attribute_values[f":{'status'}"] = {'S': status}
+        update_expression += f"{'order_status'} = :{'order_status'},"
+        expression_attribute_values[f":{'order_status'}"] = {'S':status}
 
         # Remove the trailing comma and space from the update expression
         update_expression = update_expression.rstrip(", ")
@@ -275,3 +273,54 @@ def delete_order(order_id):
     except ClientError as e:
         print(f"Error deleting: {e}")
         return False
+
+def search_orders(terms):
+    try:
+        #terms can include: user_id, product_id, status  #TODO add time
+        search_expression = ""
+        expression_attribute_values = {}
+        start_flag = True
+ 
+        for key, value in terms.items(): 
+            if not start_flag:
+                search_expression += ' AND '
+            else:
+                start_flag = False  
+
+            search_expression += f"{key} = :{key},"
+            expression_attribute_values[f":{key}"] = {'S': value}
+            
+            # Remove the trailing comma and space from expression
+            search_expression = search_expression.rstrip(", ")
+
+
+            # if key == 'user_id':
+            #     search_expression += f"{'user_id'} = :{'user_id'},"
+            #     expression_attribute_values[f":{'user_id'}"] = {'S': terms[key]}
+            #     start_flag = False   
+
+            # elif key == 'status':
+               
+            #     search_expression += f"{'status'} = :{'status'},"
+            #     expression_attribute_values[f":{'status'}"] = {'S': terms[key]}
+
+            # elif key == 'product_owner_id':
+            #     if not start_flag:
+            #         search_expression += 'AND'
+            #     search_expression += f"{'product_owner_id'} = :{'product_owner_id'},"
+            #     expression_attribute_values[f":{'product_owner_id'}"] = {'S': terms[key]}
+            # else:
+            #     return 'Invalid Search Term'
+        #return f":search_expression: {search_expression} \n,expression_attribute_values:   {expression_attribute_values}"
+        response = db_order_management.query(
+                    TableName=TABLE_NAME,
+                    KeyConditionExpression=search_expression,
+                    ExpressionAttributeValues=expression_attribute_values
+                )
+        return response
+
+    except ClientError as e:
+        print(f"Error deleting: {e}")
+        return False
+
+
