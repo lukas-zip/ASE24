@@ -6,10 +6,11 @@ import { Avatar, Divider, Empty, message, } from 'antd';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getAllProductsByShopId } from '@/api/user.api';
+import MyCarouselDisplay from '@/Components/MyCarouselCard';
 export default function ShopDetailPage() {
     const navigateTo = useNavigate()
     const shop = useLoaderData()
-    const { profile_picture, phone, address, description, email, shop_name } = shop
+    const { profile_picture, phone, shop_pictures, description, email, shop_name } = shop
     const { shopID } = useParams()
     const [allProducts, setAllProducts] = useState([])
 
@@ -69,6 +70,7 @@ export default function ShopDetailPage() {
                     <div className='ShopDetailPage-shopInfo-description'>
                         "{description}"
                     </div>
+                    {shop_pictures.length !== 0 && <MyCarouselDisplay pictures={shop_pictures} />}
                 </div>
                 <Divider />
                 <div className='ShopDetailPage-categories'>
