@@ -330,12 +330,3 @@ def get_production_recommendations(product_owner):
     except ClientError as e:
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
-
-# products you might like -> based on category, already implemented /product/category <term?=_____>
-
-# products that are in the same category -> already integrated
-# products that have the same product_search_attributes
-
-# random selection of products
-# @app.route('/product/discover/', methods=['GET'])
-# def get_random_selection():
