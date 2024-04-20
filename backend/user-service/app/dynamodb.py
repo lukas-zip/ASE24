@@ -453,12 +453,17 @@ def get_shop(shop_uuid):
 # Function to get a user by UUID
 def get_shop_json(shop):
     try:
+        pictures = shop.get('Item', {}).get('shop_pictures', {}).get('SS', None)
+        if pictures == ['']:
+            shop_pictures = []
+        else:
+            shop_pictures = pictures
         shop_dict = {
             'shop_id': shop.get('Item', {}).get('PK', {}).get('S', None)[5:]
                 if shop.get('Item', {}).get('PK', {}).get('S', None) else None,
             'type': shop.get('Item', {}).get('type', {}).get('S', None),
             'profile_picture': shop.get('Item', {}).get('profile_picture', {}).get('S', None),
-            'shop_pictures': shop.get('Item', {}).get('shop_pictures', {}).get('SS', None),
+            'shop_pictures': shop_pictures,
             'email': shop.get('Item', {}).get('email', {}).get('S', None),
             'shop_name': shop.get('Item', {}).get('shop_name', {}).get('S', None),
             'description': shop.get('Item', {}).get('description', {}).get('S', None),
