@@ -96,3 +96,10 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  # stripe-cli:
+  #   container_name: stripe-cli
+  #   image: stripe/stripe-cli
+  #   command: "listen --api-key ${STRIPE_API_KEY:rk_test_somelongkey***************} --device-name ${STRIPE_DEVICE_NAME:Name} --forward-to web:8000/payment/webhook/"
+  #   # env_file:
+  #   #   - stripe_cli.env
