@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 @app.route('/', methods=['GET'])
 def test():
-    response = requests.get('http://user-service:8001/test')
+    response = requests.get('http://user-service:8001/')
     print("Hello, world!")
     return response.json()
 
@@ -35,6 +35,18 @@ def add_account():
     except ClientError as e:
         print("Error adding user:", e)
         return jsonify({'status': False, 'message': 'Error'}), 500
+
+@app.route('/account/<shop_id>', methods=['GET'])
+# Function to get an account by UUID
+def get_account(shop_id):
+    try:
+        account = dynamodb.get_account_json(shop_id)
+        if account is None:
+            return jsonify({'status': False, 'message': 'Unable to retrieve account.'}), 400
+        return jsonify({'status': True, 'value': account}), 200
+    except ClientError as e:
+        print("Error getting user:", e)
+
 
 @app.route('/payment', methods=['POST'])
 def create_payment():

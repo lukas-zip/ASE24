@@ -91,15 +91,11 @@ def route_create_invoice(order_id):
 ## Download the invoice for a specific order
 @app.route('/invoice/<order_id>',methods=['GET'])
 def route_get_invoice(order_id):
-
     if not order_id:
         return jsonify({'error': 'ID is required!'}), 400
     try:
-        items, status = invoice.get_invoice(order_id)
-        if status == True:
-            return jsonify({'value': items,'status': status}), 200
-        else:
-            return jsonify({'message': items,'status': status}), 200
+        item, status = invoice.get_invoice(order_id)
+        return jsonify({'value': item,'status': status}), 200     
     except ClientError as e:
         print("Error adding review:", e)
         return jsonify({'error': 'Failed to get review'}), 500

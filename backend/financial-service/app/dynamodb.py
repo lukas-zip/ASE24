@@ -74,7 +74,7 @@ def add_shop_account(shop_id):
             }
         )
         print("Account added with UUID:", account_uuid)
-        return
+        return account_uuid
     except ClientError as e:
         print("Error adding user:", e)
 
@@ -95,7 +95,6 @@ def update_balance(shop_id, amount_to_add):
             },
             ReturnValues="UPDATED_NEW"
         )
-        logging.info("Test")
         print(f"Balance updated for shop {shop_id}. New balance: {response['Attributes']['balance']}")
         return response
     except ClientError as e:
@@ -103,8 +102,11 @@ def update_balance(shop_id, amount_to_add):
 
 
 # Function to get an account by UUID
-def get_account_json(account):
+def get_account_json(shop_id):
     try:
+        account = shop_in_db(shop_id)
+        if account is None:
+            return None
         account_dict = {
             'account_id': account.get('Item', {}).get('account_id', {}).get('S', ''),
             'shop_id': account.get('Item', {}).get('shop_id', {}).get('S', ''),
