@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @darkBlockBackgroundColor: #1d1d1d;
 @lightBlockBackgroundColor: #ffffff;
 
@@ -34,7 +35,7 @@
     }
 }
 
-.productPage {
+.ShopDetailPage {
     flex: 1;
     height: 98%;
     margin-left: 10px;
@@ -66,11 +67,67 @@
         position: relative;
     }
 
-    &-categories {
+
+    &-shopInfo {
+        padding: 10px;
         background-color: #fff;
+        border-radius: 10px;
+
+        &-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        &-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        &-details {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+
+            &-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+
+                &-title {
+                    font-size: 14px;
+                }
+
+                &-number {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        &-description {
+            font-family: "Open Sans", sans-serif;
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        &-address {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+
+    &-categories {
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 20px;
+
 
         &-title {
             font-family: 'Luckiest Guy', cursive;
@@ -160,7 +217,7 @@
 }
 
 
-.productPage-allCategoriesProducts {
+.ShopDetailPage-allProducts {
     &-item {
         margin-bottom: 16px;
 

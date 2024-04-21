@@ -40,11 +40,6 @@ def get_products_by_owner():
 # product insertion function
 @app.route('/product/insert', methods=['POST'])
 def insert_product():
-    # if request is None:
-    #     data = request.json
-    # else:
-    #     data = request.json
-
     data = request.json
     
     # Get form data
