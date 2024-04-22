@@ -12,7 +12,7 @@ def test():
     # Return success response
     # app.logger.info('Info level log')
     print("Hello, world!")
-    return jsonify({'status': True, 'value': 'Test successful'}), 201
+    return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 
 @app.route('/<entity>', methods=['POST'])
