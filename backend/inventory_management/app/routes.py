@@ -316,7 +316,7 @@ def get_production_recommendations(product_owner):
         production_products = [{
             'product_id': product_id,
             **product_info
-        } for product_id, product_info in products.items() if product_info.get('product_current_stock') <= product_info.get('product_should_stock')]
+        } for product_id, product_info in products.items() if int(product_info.get('product_current_stock')) <= int(product_info.get('product_should_stock'))]
 
         if production_products:
             return jsonify({'value': production_products, 'status': True}), 200
