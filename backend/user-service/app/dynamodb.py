@@ -144,7 +144,6 @@ def change_password(entity_uuid, old_password, new_password):
 def add_user(email, password, username, address, phone):
     try:
         if user_in_db(email) is not None:
-            logging.info("Test...")
             return None
 
         # Generate UUID for the new user
