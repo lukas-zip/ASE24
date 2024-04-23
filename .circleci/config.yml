@@ -1,23 +1,11 @@
-version: 2.1
-
-orbs:
-  python: circleci/python@2.1.1
-
-workflows:
-  sample:
-    jobs:
-      - build-and-test
-
+version: 2
 jobs:
-  build-and-test:
+  build:
     docker:
-      - image: cimg/python:3.10.5
+      - image: cimg/base:2022.09
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          app-dir: ~/backend/user-service/
-          # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
       - run:
           name: Run tests
-          command: pytest
+          command: |
+            docker-compose -f ./docker-compose.test.yml up
