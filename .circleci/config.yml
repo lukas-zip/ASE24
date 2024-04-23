@@ -27,11 +27,10 @@ jobs:
           name: List files in the user-service container
           command: |
             docker-compose -f docker-compose.test.yml exec user-service ls -al /app
-            docker-compose -f docker-compose.test.yml exec user-service ls -al /app/tests
       - run:
           name: Run pytest
           command: |
-            docker-compose -f docker-compose.test.yml exec user-service pytest /app/tests
+            docker-compose -f docker-compose.test.yml exec user-service pytest
       - run:
           name: Cleanup
           command: |
