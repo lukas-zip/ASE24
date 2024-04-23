@@ -2,8 +2,9 @@ version: 2.1
 
 jobs:
   build-and-test:
-    docker:
-      - image: circleci/python:3.8
+    machine:
+      enabled: true
+      image: ubuntu-2004:202010-01
 
     working_directory: ~/repo
 
@@ -15,7 +16,7 @@ jobs:
           name: Install Docker and Docker Compose
           command: |
             sudo apt-get update
-            sudo apt-get install docker-compose
+            sudo apt-get install -y docker.io docker-compose
             sudo systemctl start docker
 
       # Copy your Docker Compose YAML file into CircleCI's environment
