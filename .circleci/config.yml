@@ -3,19 +3,20 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: circleci/python:3.8  # Use an image that suits your project needs
+      - image: circleci/python:3.8
 
     working_directory: ~/repo
 
     steps:
       - checkout
 
-      # Install Docker Compose
+      # Ensure Docker is installed and running
       - run:
-          name: Install Docker Compose
+          name: Install Docker and Docker Compose
           command: |
-            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            sudo apt-get update
+            sudo apt-get install docker-compose
+            sudo systemctl start docker
 
       # Copy your Docker Compose YAML file into CircleCI's environment
       - run:
