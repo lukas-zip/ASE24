@@ -22,8 +22,6 @@ jobs:
             chmod +x ~/docker-compose
             mv ~/docker-compose ~/.docker/cli-plugins/docker-compose
 
-      - setup_remote_docker
-
       # Copy your Docker Compose YAML file into CircleCI's environment
       - run:
           name: Set up Docker Compose
