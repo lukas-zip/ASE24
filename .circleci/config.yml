@@ -2,11 +2,13 @@ version: 2.1
 
 jobs:
   build-and-test:
-    machine:
-      enabled: true
-      image: ubuntu-2004:202010-01
+    docker:
+      - image: circleci/cci-demo-docker-primary:0.0.2
 
     working_directory: ~/repo
+
+    environment:
+      TEST_RESULTS: /tmp/test-results
 
     steps:
       - checkout
