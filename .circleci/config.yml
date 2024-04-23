@@ -49,12 +49,6 @@ jobs:
             echo '    volumes:' >> docker-compose.test.yml
             echo '      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"' >> docker-compose.test.yml
 
-      # Run Docker Compose Up
-      - run:
-          name: Start services
-          command: |
-            docker-compose up -d
-
       # Execute tests
       - run:
           name: Run tests
