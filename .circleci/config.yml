@@ -1,11 +1,28 @@
-version: 2
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.6.0
+
 jobs:
-  build:
+  build-and-test:
     docker:
-      - image: cimg/base:2022.09
+      - image: cimg/base:stable
     steps:
       - checkout
+      - setup_remote_docker
       - run:
-          name: Run tests
+          name: Install Docker Compose
           command: |
-            docker-compose -f ./docker-compose.test.yml up
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Build and run tests
+          command: |
+            docker-compose -f docker-compose.test.yml up --build -d
+            docker-compose -f docker-compose.test.yml run user-service pytest
+            docker-compose -f docker-compose.test.yml down
+
+workflows:
+  build-and-test-workflow:
+    jobs:
+      - build-and-test
