@@ -1,61 +1,74 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:client,deps:python:backend/inventory_management,package_manager:yarn:
 version: 2.1
-orbs:
-  node: circleci/node@5
-  python: circleci/python@2
+
 jobs:
-  build-node:
-    # Build node project
-    executor: node/default
-    working_directory: ~/project/client
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: yarn
-      - run:
-          command: yarn run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  test-python:
-    # Install dependencies and run tests
+  build-and-test:
     docker:
-      - image: cimg/python:3.8-node
-    working_directory: ~/project/backend/inventory_management
+      - image: circleci/python:3.8  # Use an image that suits your project needs
+
+    working_directory: ~/repo
+
     steps:
-      - checkout:
-          path: ~/project
-      - python/install-packages
+      - checkout
+
+      # Install Docker Compose
+      - run:
+          name: Install Docker Compose
+          command: |
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
+      # Copy your Docker Compose YAML file into CircleCI's environment
+      - run:
+          name: Set up Docker Compose
+          command: |
+            mkdir -p ./backend/user-service
+            echo 'version: "3"' > docker-compose.yml
+            echo 'services:' >> docker-compose.yml
+            echo '  user-service:' >> docker-compose.yml
+            echo '    build: ./backend/user-service' >> docker-compose.yml
+            echo '    ports:' >> docker-compose.yml
+            echo '      - "8001:8001"' >> docker-compose.yml
+            echo '    command: pytest' >> docker-compose.yml
+            echo '    volumes:' >> docker-compose.yml
+            echo '      - ./backend/user-service:/app' >> docker-compose.yml
+            echo '    environment:' >> docker-compose.yml
+            echo '      - FLASK_ENV=testing' >> docker-compose.yml
+            echo '  localstack:' >> docker-compose.yml
+            echo '    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"' >> docker-compose.yml
+            echo '    image: localstack/localstack' >> docker-compose.yml
+            echo '    environment:' >> docker-compose.yml
+            echo '      - services=s3,iam,dynamodb' >> docker-compose.yml
+            echo '      - DEBUG=1' >> docker-compose.yml
+            echo '      - HOSTNAME_EXTERNAL=localhost' >> docker-compose.yml
+            echo '      - DATA_DIR=/tmp/localstack/data' >> docker-compose.yml
+            echo '      - services=s3:4566' >> docker-compose.yml
+            echo '      - lambda_executor=${lambda_executor-}' >> docker-compose.yml
+            echo '      - aws_region=us-east-1' >> docker-compose.yml
+            echo '      - aws_access_key_id=test' >> docker-compose.yml
+            echo '      - aws_secret_access_key=test' >> docker-compose.yml
+            echo '    volumes:' >> docker-compose.yml
+            echo '      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"' >> docker-compose.yml
+
+      # Run Docker Compose Up
+      - run:
+          name: Start services
+          command: |
+            docker-compose up -d
+
+      # Execute tests
       - run:
           name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      - store_test_results:
-          path: junit.xml
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
+          command: |
+            docker-compose exec user-service pytest
+
+      # Stop and remove containers
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Cleanup
+          command: |
+            docker-compose down
+
 workflows:
-  build-and-test:
+  version: 2
+  build:
     jobs:
-      - build-node:
-          requires:
-            - test-python
-      - test-python
-    # - deploy:
-    #     requires:
-    #       - build-node
+      - build-and-test
