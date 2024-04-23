@@ -24,7 +24,7 @@ jobs:
 
       - setup_remote_docker
 
-
+      # Copy your Docker Compose YAML file into CircleCI's environment
       - run:
           name: Set up Docker Compose
           command: |
