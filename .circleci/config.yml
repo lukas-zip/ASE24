@@ -20,6 +20,10 @@ jobs:
           command: |
             docker-compose -f docker-compose.test.yml up --build -d
       - run:
+          name: Check user-service logs
+          command: |
+            docker-compose -f docker-compose.test.yml logs user-service
+      - run:
           name: List files in the user-service container
           command: |
             docker-compose -f docker-compose.test.yml exec user-service ls -al /app
