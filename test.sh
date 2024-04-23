@@ -24,15 +24,3 @@ docker-compose down
 #done
 #echo "All tests completed."
 
-
-
-
-# Run tests for each service, except main service
-#pytest /backend/user-service/tests/
-#pytest services/service_2/
-
-# Run tests for main service
-#docker build -t main-service -f ./services/main_service/docker-compose.test.yml ./services/main_service
-#docker build -t service-1 -f ./services/service_1/docker-compose.test.yml ./services/service_1
-#docker build -t service-2 -f ./services/service_2/docker-compose.test.yml ./services/service_2
-
