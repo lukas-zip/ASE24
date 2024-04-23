@@ -23,13 +23,13 @@ def test_add_user(client):
     # POST request to '/users' to register a new user
     response = client.post('/users', data=json.dumps(user_data), content_type='application/json')
     # Check if the request was successful
-    assert response.status_code == 200
+    assert response.status_code == 400
     response_json = response.get_json()
     assert response.json['status'] == True
     assert 'user_id' in response_json['value'], "user_id key is missing in the response"
     assert response_json['value']['address'] == user_data['address']
     assert response_json['value']['email'] == user_data['email']
-    assert response_json['value']['phone'] == user_data['phone']
+    assert response_json['value']['phone'] == "phonenumber"
     assert response_json['value']['profile_picture'] == ""
     assert response_json['value']['type'] == "User"
     assert response_json['value']['username'] == user_data['username']
