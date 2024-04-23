@@ -16,15 +16,21 @@ jobs:
             sudo curl -L "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
       - run:
-          name: Build and run tests
+          name: Build and start containers
           command: |
-            echo "Listing the contents of /app"
-            ls -al /app
-            echo "Listing the contents of /app/tests"
-            ls -al /app/tests
-            echo "Running pytest"
             docker-compose -f docker-compose.test.yml up --build -d
-            docker-compose -f docker-compose.test.yml run user-service pytest
+      - run:
+          name: List files in the user-service container
+          command: |
+            docker-compose -f docker-compose.test.yml exec user-service ls -al /app
+            docker-compose -f docker-compose.test.yml exec user-service ls -al /app/tests
+      - run:
+          name: Run pytest
+          command: |
+            docker-compose -f docker-compose.test.yml exec user-service pytest /app/tests
+      - run:
+          name: Cleanup
+          command: |
             docker-compose -f docker-compose.test.yml down
 
 workflows:
