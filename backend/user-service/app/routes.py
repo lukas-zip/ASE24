@@ -1,13 +1,17 @@
+import logging
+
 from flask import jsonify, request
-from app import app, dynamodb
+from app import dynamodb
 from werkzeug.utils import secure_filename
 import os
 import re
 from botocore.exceptions import ClientError
+from flask import Blueprint
 
+route_blueprint = Blueprint('', __name__,)
 
 # Test if endpoint is available
-@app.route('/', methods=['GET'])
+@route_blueprint.route('/', methods=['GET'])
 def test():
     # Return success response
     # app.logger.info('Info level log')
@@ -15,10 +19,11 @@ def test():
     return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 
-@app.route('/<entity>', methods=['POST'])
+@route_blueprint.route('/<entity>', methods=['POST'])
 def register_entity(entity):
     try:
         data = request.json
+        logging.info(entity)
         if entity == 'users':
             return register_user(data)
         elif entity == 'shops':
@@ -83,7 +88,7 @@ def register_shop(data):
 
 
 # Check if user already  exists and provide login to platform
-@app.route('/login', methods=['POST'])
+@route_blueprint.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
@@ -103,7 +108,7 @@ def login():
         return jsonify({'status': False, 'message': str(e)}), 500
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['PUT'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['PUT'])
 def update_entity(entity, entity_uuid):
     try:
         if 'file' in request.files:
@@ -247,7 +252,7 @@ def update_picture(file, entity_uuid):
     return jsonify({'status': False, 'message': 'File uploaded unsuccessfull'}), 401
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['GET'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['GET'])
 def get_entity(entity, entity_uuid):
     try:
         if entity == 'users':
@@ -265,7 +270,7 @@ def get_entity(entity, entity_uuid):
         return jsonify({'status': False, 'message': 'An error occurred while fetching the entity.'}), 500
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['DELETE'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['DELETE'])
 def delete_entity(entity, entity_uuid):
     try:
         if entity == 'users':

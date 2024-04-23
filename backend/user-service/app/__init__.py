@@ -1,14 +1,23 @@
-from flask import Flask, jsonify, request
-from app import dynamodb, dummydata
+from flask import Flask
 from flask_cors import CORS
+from app import dynamodb, dummydata
+import logging
+from app.routes import route_blueprint
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def create_app():
     app = Flask(__name__)
-    dynamodb.create_user_management_tables()
-    dummydata.add_dummy_data()
-    dynamodb.create_s3_bucket()
+    app.register_blueprint(route_blueprint)
     CORS(app)
     return app
 
 app = create_app()
+
+from app import routes
+
+with app.app_context():
+    dynamodb.create_user_management_tables()
+    dummydata.add_dummy_data()
+    dynamodb.create_s3_bucket()
