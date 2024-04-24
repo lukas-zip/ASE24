@@ -219,7 +219,7 @@ def add_shop(shop_name, email, password, address, phone, description, profile_pi
         data = {
             "shop_id": f"{shop_uuid}"
         }
-        requests.post('http://financial-service:8005/account', json=data)
+        #requests.post('http://financial-service:8005/account', json=data)
 
         print("Shop added with UUID:", shop_uuid)
         return get_shop_json(get_shop(shop_uuid))

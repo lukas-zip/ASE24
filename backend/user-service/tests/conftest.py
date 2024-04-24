@@ -5,14 +5,13 @@ from app.dynamodb import get_dynamodb_resource, create_user_management_tables, d
 
 @pytest.fixture()
 def client():
-    app = create_app()
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        with app.app_context():
+    test_app = create_app()
+    test_app.config['TESTING'] = True
+    with test_app.test_client() as client:
+        with test_app.app_context():
             setup_dynamodb()  # Setup your DynamoDB tables here
         yield client
         teardown_dynamodb()
-
 
 def setup_dynamodb():
     # Create table for testing

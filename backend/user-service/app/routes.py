@@ -313,7 +313,7 @@ def delete_s3_pictures(data, entity):
         s3_object_key_profile = picture_path.split('/')[-1]  # Extract object key from the picture path
         s3.delete_object(s3_object_key_profile)
 
-@app.route('/picture/<action>', methods = ['POST'])
+@route_blueprint.route('/picture/<action>', methods = ['POST'])
 def upload_picture(action):
     #allowed_types = ['.jpg', '.png', '.mp4']
     if action == 'profile':
