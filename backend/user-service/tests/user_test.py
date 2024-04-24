@@ -35,7 +35,7 @@ def test_add_user(client):
     assert response_json['value']['username'] == user_data['username']
 
 
-def test_login(client):
+def test_register(client):
     # Setup: Create a table and add an item
     user_data = {
         "email": "jane.doe@example.com",
