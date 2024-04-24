@@ -5,88 +5,96 @@ import CardTitle from '../CardTitle';
 // import { storage } from '../../firebase'
 import { useRef, useState } from 'react';
 import CONSTANTS from '../../constants';
-import { addProductForCompany } from '../../api/user.api';
+import { addProductForCompany, uploadProductPicture } from '../../api/user.api';
 import { useSelector } from 'react-redux';
 
-export default function UploadTutorialModal({ getData, removeTab }) {
+export default function UploadProductModal({ getData, removeTab }) {
     const { user: { shop_id } } = useSelector(state => state.user)
     const [uploading, setUploading] = useState(false)
     const formRef = useRef(null);
-    const [cover, setCover] = useState([])
-    const [imageFile, setImageFile] = useState()
+    const [productImages, setProductImages] = useState([])
+    const [blogImgs, setBlogImgs] = useState([])
     const propsCover = {
         onRemove: (file) => {
-            const index = cover.indexOf(file);
-            const newFileList = cover.slice();
+            const index = productImages.indexOf(file);
+            const newFileList = productImages.slice();
             newFileList.splice(index, 1);
-            setCover(newFileList);
+            setProductImages(newFileList);
         },
         beforeUpload: (file) => {
             const isImage = file.type?.startsWith('image')
             if (isImage) {
-                setImageFile(file)
-                setCover([{ ...file, name: file.name }])
+                const isSupportedImageType = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type);
+                if (!isSupportedImageType) {
+                    message.error('Unsupported file format. Please upload a JPEG, PNG, GIF, or WEBP image.');
+                    return false; // 阻止上传
+                } else {
+                    productImages.push({ ...file, name: file.name })
+                    setProductImages(productImages)
+                }
             } else {
                 message.error('u only can upload picture here')
                 return false
             }
         },
-        fileList: cover,
+        fileList: productImages,
     };
-    const submitCoverToFirebase = ({ file }) => {
-        // setUploading(true)
-        // if (file) {
-        //     const storageRef = ref(storage, `Tutorial-Cover-${parseInt((new Date().getTime() / 1000).toString())}`);
-        //     const uploadTask = uploadBytesResumable(storageRef, file);
-        //     uploadTask.on('state_changed',
-        //         (snapshot) => {
-        //             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //             setCover([{ ...file, status: 'uploading', percent: progress }])
-        //             switch (snapshot.state) {
-        //                 case 'paused':
-        //                     console.log('Upload is paused');
-        //                     break;
-        //                 case 'running':
-        //                     console.log('Upload is running');
-        //                     break;
-        //             }
-        //         },
-        //         (error) => {
-        //             message.err('Some error happens')
-        //             setCover([{ ...file, status: 'error' }])
-        //             setUploading(false)
-        //         },
-        //         () => {
-        //             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        //                 setCover([{ ...file, status: 'done', url: downloadURL, thumbUrl: downloadURL, name: file.name }])
-        //             });
-        //             setUploading(false)
-        //         }
-        //     );
-        // } else {
-        //     message.err('Some error happens')
-        //     setCover([{ ...file, status: 'error' }])
-        //     setUploading(false)
-        // }
+    const submitCoverToFirebase = async ({ file }) => {
+        setUploading(true)
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            await uploadProductPicture(formData).then(res => {
+                if (res.status) {
+                    message.success('Uploaded successfully')
+                    const handledProductImages = productImages.map(item => {
+                        if (item.uid === file.uid) {
+                            return { ...file, status: 'done', url: res.value, thumbUrl: res.value, name: file.name }
+                        }
+                        return item
+                    })
+                    console.log(productImages);
+                    setProductImages(handledProductImages)
+                    setUploading(false)
+                } else {
+                    message.err('Upload failure')
+                    const handledProductImages = productImages.map(item => {
+                        if (item.uid === file.uid) {
+                            return { ...file, status: 'error' }
+                        }
+                        return item
+                    })
+                    setProductImages(handledProductImages)
+                    setUploading(false)
+                }
+            })
+        } else {
+            message.err('Some error happens')
+            const handledProductImages = productImages.map(item => {
+                if (item.uid === file.uid) {
+                    return { ...file, status: 'error' }
+                }
+                return item
+            })
+            setProductImages(handledProductImages)
+            setUploading(false)
+        }
     }
     const onFinish = async (items) => {
-        const formData = new FormData();
-        formData.append('image', imageFile);
-        formData.append('product_owner', shop_id);
-        formData.append('product_bom', new Array());
-        formData.append('product_reviews', new Array());
-        formData.append('product_name', items.product_name);
-
-        for (const key in items) {
-            formData.append(key, items[key]);
+        const imgUrl = productImages.map(item => item.url)
+        const handledItems = {
+            ...items,
+            product_picture: imgUrl,
+            product_owner: shop_id,
+            product_bom: [""],
+            product_reviews: [""],
+            product_name: items.product_name,
+            product_sale: items.product_sale || true,
         }
-        console.log('formData', formData);
-        // const handledItems = { ...items, image: formData }
-        // console.log('gaiguode', handledItems);
+        console.log('handledItems', handledItems);
 
         try {
-            await addProductForCompany(formData).then(res => {
+            await addProductForCompany(handledItems).then(res => {
                 if (res.status) {
                     getData()
                     removeTab('upload')
@@ -113,27 +121,8 @@ export default function UploadTutorialModal({ getData, removeTab }) {
     };
     const clear = () => {
         formRef.current?.resetFields();
-        setCover([])
+        setProductImages([])
     };
-
-    const addProduct = {
-        // product_owner: "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-        // product_name: "exampleadditionProduct",
-        // product_description: "exampleDescription",
-        // product_current_stock: 0,
-        // product_should_stock: 0,
-        // product_price: 0.00,
-        // product_price_reduction: 0.00,
-        product_sale: false,
-        // product_category: ["accessories"],
-        // product_search_attributes: ["black", "curled"],
-        // product_reviews: [],
-        product_bom: [
-            "1324a686-c8b1-4c84-bbd6-17325209d78c1",
-            "1324a686-c8b1-4c84-bbd6-17325209d78c2"
-        ],
-        product_assemblies: "Final"
-    }
     const options = [];
     const handleChange = (value) => {
         console.log(value);
@@ -159,7 +148,7 @@ export default function UploadTutorialModal({ getData, removeTab }) {
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label="Sale" name="product_sale" valuePropName='checked'>
-                    <Switch />
+                    <Switch defaultChecked />
                 </Form.Item>
                 <Form.Item label="Search Attributes" name="product_search_attributes" rules={[{ required: true, message: 'Please select attributes!', }]}>
                     <Select mode="tags" allowClear onChange={handleChange} options={options}>
@@ -182,10 +171,10 @@ export default function UploadTutorialModal({ getData, removeTab }) {
                     <InputNumber min={0} step="0.01" />
                 </Form.Item>
                 <Form.Item label="Reduction(%)" name="product_price_reduction" rules={[{ required: true, message: 'Please input product_price_reduction!', }]}>
-                    <InputNumber min={0} />
+                    <InputNumber min={0} max={100} step="1" />
                 </Form.Item>
-                <Form.Item label="Cover" name="cover" rules={[{ required: true, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
-                    <Upload name="cover" listType="picture" customRequest={submitCoverToFirebase} maxCount={1} {...propsCover}>
+                <Form.Item label="Cover" rules={[{ required: true, message: 'Please input cover!', }]} getValueFromEvent={normFile}>
+                    <Upload listType="picture" customRequest={submitCoverToFirebase} maxCount={9} {...propsCover}>
                         <Button icon={<UploadOutlined />}>Click to upload</Button>
                     </Upload>
                 </Form.Item>

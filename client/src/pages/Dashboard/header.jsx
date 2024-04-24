@@ -11,10 +11,7 @@ import { useRef, useState } from 'react';
 import PROJECT_VARIABLE from '../../constants/ProjectNameVariable';
 
 export default function MyLayoutHeader() {
-    // const { user: { id, name, email } } = useSelector(state => state.user)
-    const id = 1
-    const name = "leon"
-    const email = "leon@qq.com"
+    const { user: { shop_id, shop_name, email, profile_picture } } = useSelector(state => state.user)
     const dispatch = useDispatch()
     const navigateTo = useNavigate()
     const loginStatusDiv = (
@@ -60,7 +57,10 @@ export default function MyLayoutHeader() {
             </div>
             <div className='layout-page-header-right'>
                 <Popover placement="bottom" content={loginStatusDiv} trigger="click">
-                    <Avatar className='MyHeader-Avatar' size="large">{name}</Avatar>
+                    <Avatar className='MyHeader-Avatar' size="large" src={profile_picture} />
+                    <span style={{ marginLeft: 6, fontWeight: 500 }}>
+                        {shop_name}
+                    </span>
                 </Popover>
             </div>
             <Modal

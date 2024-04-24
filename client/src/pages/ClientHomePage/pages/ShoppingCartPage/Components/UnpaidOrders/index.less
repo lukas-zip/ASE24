@@ -1,0 +1,95 @@
+.UnpaidContainer {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+
+    &-left {
+        flex: 1;
+        height: 100%;
+        padding: 0 10px;
+        overflow: auto;
+
+        &-content {
+            margin-top: 10px;
+        }
+
+        &-empty {
+            height: 100%;
+            display: flex;
+            padding-top: 60px;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+
+            .emptyContent {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                &-textContainer {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+            }
+
+            .startShopping {
+                user-select: none;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                color: #4d90f9;
+                border: 2px solid #4d90f9;
+                border-radius: 800px;
+                border-radius: 800px;
+                padding: 10px 26px;
+            }
+        }
+    }
+
+    &-right {
+        flex-basis: 360px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0 20px;
+
+        &-header {
+            font-size: 22px;
+            font-weight: bolder;
+        }
+
+        &-body {
+            margin-top: 16px;
+
+            &-item {
+                margin-top: 8px;
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+
+        &-footer {
+            font-weight: bold;
+
+            &-price {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            &-button {
+                margin-top: 16px;
+                background-color: #4d90f9;
+                color: #ffffff;
+                border-radius: 800px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px 16px;
+                font-size: 18px;
+                cursor: pointer;
+            }
+        }
+    }
+}

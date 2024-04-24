@@ -94,7 +94,7 @@ def add_item(username,product_id, quantity, product_price, product_price_reducti
         quantities.append(str(quantity))
         
         total_price = discounted_price*quantity
-        status = 'In Progress'
+        status = 'Processed'
 
         # Put the new item into the table
         db_order_management.put_item(
@@ -122,7 +122,10 @@ def get_order(order_uuid):
                 'order_id': {'S': f'{str(order_uuid)}'},
             }
         )
-        return response
+        
+        order_info = utils.reformat_reponse(response)
+        return order_info
+
     except ClientError as e:
         print("Error getting order:", e)
    
@@ -223,6 +226,40 @@ def update_order(order_id, product_id, quantity_change, product_price, discount)
     except ClientError as e:
         print(f"Error updating: {e}")
         raise e
+
+
+def update_status(order_id,status):
+    try:
+        current_time = datetime.now()
+        # Prepare UpdateExpression and ExpressionAttributeValues
+        update_expression = "set "
+        expression_attribute_values = {}
+        update_expression += f"{'execution_time'} = :{'execution_time'},"
+        expression_attribute_values[f":{'execution_time'}"] = {'S': current_time}
+
+        update_expression += f"{'status'} = :{'status'},"
+        expression_attribute_values[f":{'status'}"] = {'S': status}
+
+        # Remove the trailing comma and space from the update expression
+        update_expression = update_expression.rstrip(", ")
+
+        # Execute the update operation
+        db_order_management.update_item(
+            TableName=TABLE_NAME,
+            Key={
+                'order_id': {'S': order_id},
+            },
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ReturnValues="UPDATED_NEW"
+        )
+        print(f"order {order_id} updated successfully.")
+        return get_order(order_id)
+
+    except ClientError as e:
+        print(f"Error updating: {e}")
+        raise e
+
 
 def delete_order(order_id):
     try:

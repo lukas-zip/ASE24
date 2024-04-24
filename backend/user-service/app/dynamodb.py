@@ -2,6 +2,7 @@ import boto3
 import uuid
 from botocore.exceptions import ClientError
 import bcrypt
+import requests
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -141,7 +142,7 @@ def change_password(entity_uuid, old_password, new_password):
 
 
 # Function to add a user to the dynamodb
-def add_user(email, password, username, address, phone):
+def add_user(email, password, username, address, phone, profile_picture):
     try:
         if user_in_db(email) is not None:
             return None
@@ -155,6 +156,7 @@ def add_user(email, password, username, address, phone):
         # Replace None with an empty string for optional fields
         address = address if address is not None else ''
         phone = phone if phone is not None else ''
+        profile_picture = profile_picture if profile_picture is not None else ''
 
         # Put the new item into the table
         db_user_management.put_item(
@@ -163,7 +165,7 @@ def add_user(email, password, username, address, phone):
                 'PK': {'S': f'USER#{user_uuid}'},
                 'SK': {'S': f'PROFILE#{user_uuid}'},
                 'type': {'S': 'User'},
-                'profile_picture': {'S': ''},
+                'profile_picture': {'S': profile_picture},
                 'email': {'S': email},
                 'username': {'S': username},
                 'password': {'S': hashed_password.decode('utf-8')},
@@ -178,7 +180,7 @@ def add_user(email, password, username, address, phone):
 
 
 # Function to add a shop to the dynamodb
-def add_shop(shop_name, email, password, address, phone, description):
+def add_shop(shop_name, email, password, address, phone, description, profile_picture, shop_pictures):
     try:
         # Check if the user already exists
         if user_in_db(email) is not None:
@@ -194,7 +196,8 @@ def add_shop(shop_name, email, password, address, phone, description):
         address = address if address is not None else ''
         phone = phone if phone is not None else ''
         description = description if description is not None else ''
-
+        profile_picture = profile_picture if profile_picture is not None else ''
+        shop_pictures = shop_pictures if shop_pictures is not None else ['']
         # Put the new item into the table
         db_user_management.put_item(
             TableName='UserManagement',
@@ -202,7 +205,8 @@ def add_shop(shop_name, email, password, address, phone, description):
                 'PK': {'S': f'SHOP#{shop_uuid}'},
                 'SK': {'S': f'DETAILS#{shop_uuid}'},
                 'type': {'S': 'Shop'},
-                'profile_picture': {'S': ''},
+                'profile_picture': {'S': profile_picture},
+                'shop_pictures': {'SS': shop_pictures},
                 'email': {'S': email},
                 'shop_name': {'S': shop_name},
                 'description': {'S': description},
@@ -211,6 +215,12 @@ def add_shop(shop_name, email, password, address, phone, description):
                 'phone': {'S': phone}
             }
         )
+
+        data = {
+            "shop_id": f"{shop_uuid}"
+        }
+        requests.post('http://financial-service:8005/account', json=data)
+
         print("Shop added with UUID:", shop_uuid)
         return get_shop_json(get_shop(shop_uuid))
     except ClientError as e:
@@ -244,7 +254,10 @@ def update_entity(entity_uuid, attributes):
         # Dynamically build the update expression based on provided attributes
         for key, value in attributes.items():
             update_expression += f"{key} = :{key}, "
-            expression_attribute_values[f":{key}"] = {'S': value}
+            if key in ['shop_pictures']:
+                expression_attribute_values[f":{key}"] = {'SS': value}
+            else:
+                expression_attribute_values[f":{key}"] = {'S': value}
 
         # Remove the trailing comma and space from the update expression
         update_expression = update_expression.rstrip(", ")
@@ -450,11 +463,17 @@ def get_shop(shop_uuid):
 # Function to get a user by UUID
 def get_shop_json(shop):
     try:
+        pictures = shop.get('Item', {}).get('shop_pictures', {}).get('SS', None)
+        if pictures == ['']:
+            shop_pictures = []
+        else:
+            shop_pictures = pictures
         shop_dict = {
             'shop_id': shop.get('Item', {}).get('PK', {}).get('S', None)[5:]
                 if shop.get('Item', {}).get('PK', {}).get('S', None) else None,
             'type': shop.get('Item', {}).get('type', {}).get('S', None),
             'profile_picture': shop.get('Item', {}).get('profile_picture', {}).get('S', None),
+            'shop_pictures': shop_pictures,
             'email': shop.get('Item', {}).get('email', {}).get('S', None),
             'shop_name': shop.get('Item', {}).get('shop_name', {}).get('S', None),
             'description': shop.get('Item', {}).get('description', {}).get('S', None),
