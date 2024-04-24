@@ -70,7 +70,7 @@ def test_login_success(client):
     client.post('/users', data=json.dumps(user_data), content_type='application/json')
     response = client.post('/login', json={'email': 'jane.doe@example.com', 'password': 'password2'})
     assert response.status_code == 200
-    assert response['status'] == True
+    assert response.json['status'] == True
 
 def test_login_fail(client):
     user_data = {
@@ -83,5 +83,5 @@ def test_login_fail(client):
     client.post('/users', data=json.dumps(user_data), content_type='application/json')
     response = client.post('/login', json={'email': 'jane.doe@example.com', 'password': 'false_password'})
     assert response.status_code == 401
-    assert response['status'] == False
-    assert response['message'] == "Invalid login credentials"
+    assert response.json['status'] == False
+    assert response.json['message'] == "Invalid login credentials"
