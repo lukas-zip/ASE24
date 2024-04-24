@@ -21,7 +21,7 @@ jobs:
           command: touch .env
       - run:
           name: Build Containers
-          command: docker-compose docker-compose.test.yml build
+          command: docker-compose -f docker-compose.test.yml build
       - run:
           name: Run Postgres
           command: docker-compose -f docker-compose.test.yml up -d
