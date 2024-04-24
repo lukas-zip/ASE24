@@ -15,8 +15,6 @@ def create_app():
 
 app = create_app()
 
-from app import routes
-
 with app.app_context():
     dynamodb.create_user_management_tables()
     dummydata.add_dummy_data()
