@@ -6,9 +6,7 @@ services:
     build: ./backend/user-service
     ports:
       - "8001:8001"
-    command: |
-      ls -al /app
-      pytest
+    command: pytest
     volumes:
       - ./backend/user-service:/app
     environment:

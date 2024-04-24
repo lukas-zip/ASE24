@@ -22,6 +22,18 @@ jobs:
             docker-compose -f docker-compose.test.yml up -d
             docker-compose logs --tail=1000 -f user-service
             docker-compose down
+            - run:
+          name: Create .env file
+          command: touch .env
+      - run:
+          name: Build Containers
+          command: docker-compose docker-compose.test.yml build
+      - run:
+          name: Run Postgres
+          command: docker-compose -f docker-compose.test.yml up -d
+      - run:
+          name: Run Tests
+          command: docker-compose -f docker-compose.test.yml run api pytest tests/
 
 workflows:
   version: 2
