@@ -23,7 +23,6 @@ def test():
 def register_entity(entity):
     try:
         data = request.json
-        logging.info(entity)
         if entity == 'users':
             return register_user(data)
         elif entity == 'shops':

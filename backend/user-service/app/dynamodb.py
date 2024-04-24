@@ -172,7 +172,6 @@ def add_user(email, password, username, address, phone):
             }
         )
         print("User added with UUID:", user_uuid)
-        logging.info("Test...")
         return get_user_json(get_user(user_uuid))
     except ClientError as e:
         print("Error adding user:", e)
