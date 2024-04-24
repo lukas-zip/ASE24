@@ -78,7 +78,6 @@ def add_shop_account(shop_id):
     except ClientError as e:
         print("Error adding user:", e)
 
-
 def update_balance(shop_id, amount_to_add):
     try:
         # Update the balance for the given shop_id
