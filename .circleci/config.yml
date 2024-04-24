@@ -17,12 +17,6 @@ jobs:
             sudo curl -L "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
       - run:
-          name: Run Docker Compose
-          command: |
-            docker-compose -f docker-compose.test.yml up -d
-            docker-compose logs --tail=1000 -f user-service
-            docker-compose down
-            - run:
           name: Create .env file
           command: touch .env
       - run:
