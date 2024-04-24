@@ -1,10 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from app import dynamodb, dummydata
-import logging
 from app.routes import route_blueprint
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def create_app():
