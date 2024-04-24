@@ -7,20 +7,26 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-db_user_management = boto3.client(
-    "dynamodb",
-    aws_access_key_id="test",  # Dummy Access Key for LocalStack
-    aws_secret_access_key="test",  # Dummy Secret Key for LocalStack
-    region_name="us-east-1",  # or your LocalStack configuration's region
-    endpoint_url="http://localstack:4566"  # URL for LocalStack
-)
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id="test",
-    aws_secret_access_key="test",
-    region_name="us-east-1",
-    endpoint_url="http://localstack:4566"
-)
+def get_dynamodb_resource():
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+        region_name="us-east-1",
+        endpoint_url="http://localstack:4566"
+    )
+    dynamodb = boto3.client(
+        "dynamodb",
+        aws_access_key_id="test",  # Dummy Access Key for LocalStack
+        aws_secret_access_key="test",  # Dummy Secret Key for LocalStack
+        region_name="us-east-1",  # or your LocalStack configuration's region
+        endpoint_url="http://localstack:4566"  # URL for LocalStack
+    )
+    return dynamodb, s3_client
+
+
+db_user_management, s3_client = get_dynamodb_resource()
+
 
 # Create S3 bucket on LocalStack
 def create_s3_bucket():
@@ -33,9 +39,9 @@ def create_s3_bucket():
 
 
 # Function to create the profiles table
-def create_user_management_tables():
+def create_user_management_tables(dynamodb=db_user_management):
     try:
-        response = db_user_management.create_table(
+        response = dynamodb.create_table(
             TableName='UserManagement',
             KeySchema=[
                 {'AttributeName': 'PK', 'KeyType': 'HASH'},
@@ -60,9 +66,12 @@ def create_user_management_tables():
             ]
         )
         print("UserManagement table created:", response)
+        return response
     except ClientError as e:
         print("Error creating UserManagement table:", e)
 
+def delete_user_management_tables():
+    db_user_management.delete_table(TableName='UserManagement')
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -210,7 +219,7 @@ def add_shop(shop_name, email, password, address, phone, description, profile_pi
         data = {
             "shop_id": f"{shop_uuid}"
         }
-        requests.post('http://financial-service:8005/account', json=data)
+        #requests.post('http://financial-service:8005/account', json=data)
 
         print("Shop added with UUID:", shop_uuid)
         return get_shop_json(get_shop(shop_uuid))
@@ -369,6 +378,7 @@ def delete_user(user_uuid):
     except ClientError as e:
         print(f"Error deleting: {e}")
         return False
+
 
 def delete_shop(shop_uuid):
     try:

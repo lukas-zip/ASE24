@@ -1,5 +1,7 @@
+import logging
+
 from flask import jsonify, request
-from app import app, dynamodb
+from app import dynamodb
 from werkzeug.utils import secure_filename
 import os
 import re
@@ -7,17 +9,21 @@ from app import s3
 from botocore.exceptions import ClientError
 from io import BytesIO
 from urllib.parse import quote_plus
+from flask import Blueprint
+
+
+route_blueprint = Blueprint('', __name__,)
 
 # Test if endpoint is available
-@app.route('/test', methods=['GET'])
+@route_blueprint.route('/', methods=['GET'])
 def test():
     # Return success response
     # app.logger.info('Info level log')
     print("Hello, world!")
-    return jsonify({'status': True, 'value': 'Test successful'}), 201
+    return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 
-@app.route('/<entity>', methods=['POST'])
+@route_blueprint.route('/<entity>', methods=['POST'])
 def register_entity(entity):
     try:
         data = request.json
@@ -88,7 +94,7 @@ def register_shop(data):
 
 
 # Check if user already  exists and provide login to platform
-@app.route('/login', methods=['POST'])
+@route_blueprint.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
@@ -108,7 +114,7 @@ def login():
         return jsonify({'status': False, 'message': str(e)}), 500
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['PUT'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['PUT'])
 def update_entity(entity, entity_uuid):
     try:
         #if 'file' in request.files:
@@ -258,7 +264,7 @@ def update_picture(file, entity_uuid):
     return jsonify({'status': False, 'message': 'File uploaded unsuccessfull'}), 401
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['GET'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['GET'])
 def get_entity(entity, entity_uuid):
     try:
         if entity == 'users':
@@ -276,7 +282,7 @@ def get_entity(entity, entity_uuid):
         return jsonify({'status': False, 'message': 'An error occurred while fetching the entity.'}), 500
 
 
-@app.route('/<entity>/<entity_uuid>', methods=['DELETE'])
+@route_blueprint.route('/<entity>/<entity_uuid>', methods=['DELETE'])
 def delete_entity(entity, entity_uuid):
     try:
         data = dynamodb.get_entity_json(entity_uuid)
@@ -307,7 +313,7 @@ def delete_s3_pictures(data, entity):
         s3_object_key_profile = picture_path.split('/')[-1]  # Extract object key from the picture path
         s3.delete_object(s3_object_key_profile)
 
-@app.route('/picture/<action>', methods = ['POST'])
+@route_blueprint.route('/picture/<action>', methods = ['POST'])
 def upload_picture(action):
     #allowed_types = ['.jpg', '.png', '.mp4']
     if action == 'profile':

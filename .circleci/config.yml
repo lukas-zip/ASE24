@@ -1,0 +1,30 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.6.0
+
+jobs:
+  build-and-test:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Build Containers
+          command: docker-compose -f docker-compose.test.yml build
+      - run:
+          name: Run Container
+          command: docker-compose -f docker-compose.test.yml up -d
+      - run:
+          name: Run Tests
+          command: docker-compose -f docker-compose.test.yml run user-service pytest tests/
+
+workflows:
+  version: 2
+  build-and-test-workflow:
+    jobs:
+      - build-and-test
