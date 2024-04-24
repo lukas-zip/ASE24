@@ -9,7 +9,7 @@ To coordinate the different services, a `docker-compose.yml` file in the ASE24 d
 
 ## Tests
 
-Tests are executable locally by entering `sh test.sh` to the console (ASE24 directory). Furthermore the tests are executed automatically by the CI/CD pipeline (CircleCi) when new commits are pushed to github.
+Tests are executable locally by entering `sh test.sh` to the console (ASE24 directory). This action triggers the `docker-compose.test.yml` file, launching the specified tests. Furthermore the tests are executed automatically by the CI/CD pipeline (CircleCi) when new commits are pushed to github.
 
 
 ## Usage
