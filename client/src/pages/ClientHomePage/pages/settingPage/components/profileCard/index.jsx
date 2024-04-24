@@ -1,13 +1,12 @@
-import { Avatar, Button, Modal, DatePicker, Form, Input, InputNumber, Radio, Select, message, Upload } from 'antd'
+import { Avatar, Button, Modal, Form, Input, message, Upload } from 'antd'
 import { UserOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import './index.less'
-// import { storage } from '../../../../firebase'
-// import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-// import { loginSuccess } from '../../../../redux/userSlice'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import COLORS from '@/constants/COLORS';
+import { postPictureForUserService_profile, updateUser } from '@/api/user.api';
+import { setUser } from '@/store/user.store';
 const { TextArea } = Input;
 
 const normFile = (e) => {
@@ -18,14 +17,13 @@ const normFile = (e) => {
 };
 
 export default function ProfileCard() {
+    const formref = useRef(null);
     const { user } = useSelector((state) => state.user)
-    const { username, profile_picture, phone, address } = user
+    const { user_id, username, profile_picture, phone, address } = user
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const dispatch = useDispatch()
-    const showEditModal = () => { setIsEditModalOpen(true); };
-    const handleEditOk = () => { setIsEditModalOpen(false); };
-    const handleCancel = () => { setIsEditModalOpen(false); };
-    const [updatedAvator, setUpdatedAvator] = useState([{ uid: 0, name: 'avatar', status: 'done', url: profile_picture, thumbUrl: profile_picture }])
+    const [updatedAvator, setUpdatedAvator] = useState(profile_picture ? [{ uid: 0, name: 'avatar', status: 'done', url: profile_picture, thumbUrl: profile_picture }] : [])
+    // const [updatedAvator, setUpdatedAvator] = useState([])
     const propsImage = {
         onRemove: (file) => {
             const index = updatedAvator.indexOf(file);
@@ -45,77 +43,45 @@ export default function ProfileCard() {
         },
         fileList: updatedAvator,
     };
-    const submitImageToFirebase = ({ file }) => {
-        // if (file) {
-        //     const storageRef = ref(storage, `${name}-avator-${parseInt((new Date().getTime() / 1000).toString())}`);
-        //     const uploadTask = uploadBytesResumable(storageRef, file);
-        //     uploadTask.on('state_changed', (snapshot) => {
-        //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //         const handledBlogImgs = updatedAvator.map(item => {
-        //             if (item.uid === file.uid) {
-        //                 return { ...file, status: 'uploading', percent: progress }
-        //             }
-        //             return item
-        //         })
-        //         setUpdatedAvator(handledBlogImgs)
-        //         switch (snapshot.state) {
-        //             case 'paused':
-        //                 console.log('Upload is paused');
-        //                 break;
-        //             case 'running':
-        //                 console.log('Upload is running', progress);
-        //                 break;
-        //         }
-        //     },
-        //         (error) => {
-        //             message.err(intl.formatMessage({ id: 'error.errorHappens' }))
-        //             updatedAvator.map(item => {
-        //                 if (item.uid === file.uid) {
-        //                     return { ...file, status: 'error' }
-        //                 }
-        //                 return item
-        //             })
-        //             setUpdatedAvator(updatedAvator)
-        //         },
-        //         () => {
-        //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        //                 const handledBlogImgs = updatedAvator.map(item => {
-        //                     if (item.uid === file.uid) {
-        //                         return { ...file, status: 'done', url: downloadURL, thumbUrl: downloadURL, name: file.name }
-        //                     }
-        //                     return item
-        //                 })
-        //                 setUpdatedAvator(handledBlogImgs)
-        //             });
-        //         }
-        //     );
-        // } else {
-        //     message.err(intl.formatMessage({ id: 'error.errorHappens' }))
-        //     updatedAvator.map(item => {
-        //         if (item.uid === file.uid) {
-        //             return item = { ...file, status: 'error' }
-        //         }
-        //         return item
-        //     })
-        //     setUpdatedAvator(updatedAvator)
-        // }
+    const submitImageToFirebase = async ({ file }) => {
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            await postPictureForUserService_profile(formData).then(res => {
+                if (res.status) {
+                    message.success('Uploaded successfully')
+                    setUpdatedAvator([{ ...file, status: 'done', url: res.value, thumbUrl: res.value, name: file.name }])
+                } else {
+                    message.error('Upload failure')
+                    setUpdatedAvator([{ ...file, status: 'error' }])
+                }
+            })
+        } else {
+            message.error('Some error happens')
+            setUpdatedAvator([{ ...file, status: 'error' }])
+        }
     }
     const onFinish = async (items) => {
-        // let handledItems = { ...items, avator: updatedAvator[0].url }
-        // let updateInfo = Object.keys(handledItems)
-        //     .filter((key) => handledItems[key] != null)
-        //     .reduce((a, key) => ({ ...a, [key]: handledItems[key] }), {});
-        // try {
-        //     await updateuserinfo(user._id, updateInfo)
-        //         .then((updatedUser) => {
-        //             dispatch(loginSuccess(updatedUser))
-        //             handleEditOk()
-        //             message.success(intl.formatMessage({ id: 'app.prf.updated' }))
-        //         })
-        // } catch (error) {
-        //     console.log(error);
-        //     message.error(intl.formatMessage({ id: 'error.default' }))
-        // }
+        let handledItems = { ...items, profile_picture: updatedAvator[0]?.url, action: 'update' }
+        let updateInfo = Object.keys(handledItems)
+            .filter((key) => handledItems[key] != null)
+            .reduce((a, key) => ({ ...a, [key]: handledItems[key] }), {});
+        try {
+            await updateUser(user_id, { ...user, ...updateInfo })
+                .then((res) => {
+                    if (res.status) {
+                        dispatch(setUser(res.value))
+                        formref.current.setFieldsValue(res.value);
+                        setIsEditModalOpen(false)
+                        message.success("Update successfully")
+                    } else {
+                        message.error(res.message)
+                    }
+                })
+        } catch (error) {
+            console.log(error);
+            message.error("Error")
+        }
     }
     const onFinishFailed = (errorInfo) => { message.error("Error: ", errorInfo) }
     return (
@@ -123,53 +89,29 @@ export default function ProfileCard() {
             <div style={{ marginTop: 60 }} className='profileCard'>
                 <div style={{ display: 'flex' }}>
                     <div className='Card-Avatar'>
-                        <Avatar size={80} icon={<UserOutlined />} src={user?.avator ? user.avator : ''} />
+                        <Avatar size={80} icon={<UserOutlined />} src={user?.profile_picture ? user.profile_picture : ''} />
                     </div>
                     <div className='Card-UserInfo'>
                         <div className='Card-Username'><h1 style={{ color: COLORS.primary }}>{username}</h1></div>
                     </div>
                 </div>
                 <div className='Card-Edit'>
-                    <Button onClick={showEditModal}><EditOutlined />&nbsp;&nbsp;{"Edit Profile"}</Button>
+                    <Button onClick={() => setIsEditModalOpen(true)}><EditOutlined />&nbsp;&nbsp;{"Edit Profile"}</Button>
                 </div>
 
-                <Modal title={"Profile"} open={isEditModalOpen} onOk={handleEditOk} onCancel={handleCancel} okText="Update" cancelText="Cancel" footer={null} width={600}>
+                <Modal title={"Profile"} open={isEditModalOpen} onOk={() => setIsEditModalOpen(false)} onCancel={() => setIsEditModalOpen(false)} okText="Update" cancelText="Cancel" footer={null} width={600}>
                     <Form labelCol={{ span: 6, }} wrapperCol={{ span: 14, }} layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                        {/* <Form.Item name="gender" label={intl.formatMessage({ id: 'app.prf.label.gender' })}>
-                        <Radio.Group defaultValue={gender}>
-                            <Radio value="Male"> {intl.formatMessage({ id: 'app.prf.edit.gender.Male' })} </Radio>
-                            <Radio value="Female"> {intl.formatMessage({ id: 'app.prf.edit.gender.Female' })} </Radio>
-                        </Radio.Group>
-                    </Form.Item> */}
-                        <Form.Item name="name" label={"User Name"}>
+                        <Form.Item name="username" label={"User Name"}>
                             <Input defaultValue={username} />
                         </Form.Item>
-                        {/* <Form.Item name="age" label={intl.formatMessage({ id: 'app.prf.label.age' })} >
-                        <InputNumber defaultValue={age} />
-                    </Form.Item> */}
-                        {/* <Form.Item name="personalStatus" label={intl.formatMessage({ id: 'app.prf.label.bio' })}>
-                        <TextArea defaultValue={personalStatus} rows={2} />
-                    </Form.Item> */}
-                        {/* <Form.Item name="preferedTheme" label={intl.formatMessage({ id: 'app.prf.label.theme' })}>
-                        <Select defaultValue={preferedTheme}>
-                            <Select.Option value="dark">{intl.formatMessage({ id: 'app.prf.edit.theme.dark' })}</Select.Option>
-                            <Select.Option value="light">{intl.formatMessage({ id: 'app.prf.edit.theme.light' })}</Select.Option>
-                        </Select>
-                    </Form.Item> */}
-                        {/* <Form.Item name="preferedLanguage" label={intl.formatMessage({ id: 'app.prf.label.lang' })}> */}
-                        {/* <Select defaultValue={preferedLanguage}> */}
-                        {/* <Select.Option value="en_US">English</Select.Option> */}
-                        {/* <Select.Option value="zh_CN">中文</Select.Option> */}
-                        {/* </Select> */}
-                        {/* </Form.Item> */}
-                        <Form.Item name="hpNum" label={"Phone Number"}>
+                        <Form.Item name="phone" label={"Phone Number"}>
                             <Input defaultValue={phone} />
                         </Form.Item>
-                        {/* <Form.Item name="birthday" label={intl.formatMessage({ id: 'app.prf.label.birthday' })}> */}
-                        {/* {birthday ? <DatePicker defaultValue={dayjs(birthday, 'YYYY-MM-DD')} /> : <DatePicker />} */}
-                        {/* </Form.Item> */}
+                        <Form.Item name="address" label={'Address'}>
+                            <TextArea defaultValue={address} rows={2} />
+                        </Form.Item>
                         <Form.Item label={"Avator"} valuePropName="fileList" getValueFromEvent={normFile}>
-                            <Upload name="image" listType="picture" customRequest={submitImageToFirebase} maxCount={1} {...propsImage}>
+                            <Upload listType="picture" customRequest={submitImageToFirebase} maxCount={1} {...propsImage}>
                                 <Button icon={<UploadOutlined />}>Upload Avatar</Button>
                             </Upload>
                         </Form.Item>
@@ -180,24 +122,16 @@ export default function ProfileCard() {
                 </Modal>
             </div >
             <div style={{ marginTop: 50, pointerEvents: "none" }}>
-                <Form labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item name="name" label={"User Name"}>
+                <Form ref={formref} labelCol={{ span: 10, }} wrapperCol={{ offset: 2, span: 14, }} variant="filled" layout="horizontal" style={{ width: 600 }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                    <Form.Item name="username" label={"User Name"}>
                         <Input defaultValue={username} />
                     </Form.Item>
-                    <Form.Item name="Address" label={'Address'}>
+                    <Form.Item name="address" label={'Address'}>
                         <TextArea defaultValue={address} rows={2} />
                     </Form.Item>
-                    <Form.Item name="hpNum" label={"Phone Number"}>
+                    <Form.Item name="phone" label={"Phone Number"}>
                         <Input defaultValue={phone} />
                     </Form.Item>
-                    {/* <Form.Item name="birthday" label={intl.formatMessage({ id: 'app.prf.label.birthday' })}> */}
-                    {/* {birthday ? <DatePicker defaultValue={dayjs(birthday, 'YYYY-MM-DD')} /> : <DatePicker />} */}
-                    {/* </Form.Item> */}
-                    {/* <Form.Item label={"Avator"} valuePropName="fileList" getValueFromEvent={normFile}>
-                        <Upload name="image" listType="picture" customRequest={submitImageToFirebase} maxCount={1} {...propsImage}>
-                            <Button icon={<UploadOutlined />}>Upload Avatar</Button>
-                        </Upload>
-                    </Form.Item> */}
                 </Form>
             </div>
         </>

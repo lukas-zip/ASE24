@@ -4,7 +4,6 @@ import Login from '../pages/Login'
 import ErrorPage from '../pages/ErrorPage'
 import ProtectedRouter from './protectedRouter'
 import SellerHome from '../pages/SellerPages/Home'
-import { useSelector } from 'react-redux'
 import CheckProtectedRouter from './CheckProtectedRouter'
 import ClientHomePage from '../pages/ClientHomePage'
 import IdentityInfoPage from '../pages/IdentityInfoPage'
@@ -15,9 +14,11 @@ import UserHomePage from '../pages/ClientHomePage/pages/HomePage'
 import OrderPage from '../pages/SellerPages/OrderPage'
 import ProfilePage from '../pages/SellerPages/ProfilePage'
 import StatisticPageForSeller from '../pages/SellerPages/Statistics'
+import SpecificCategoryProducts from '@/pages/ClientHomePage/pages/SpecificCategoryProducts'
+import ShopDetailPage from '../pages/ClientHomePage/pages/ShopDetailPage'
+import { getShopById } from '@/api/user.api'
 
 export default function MyRouter() {
-    const { user } = useSelector(state => state.user)
     const router = createBrowserRouter([
         {
             path: "/",
@@ -63,7 +64,27 @@ export default function MyRouter() {
                 },
                 {
                     path: "home",
-                    element: <ProtectedRouter><UserHomePage /></ProtectedRouter>,
+                    children: [
+                        {
+                            path: "",
+                            element: <UserHomePage />,
+                        },
+
+                        {
+                            path: "category/:category",
+                            element: <SpecificCategoryProducts />
+                        },
+                        {
+                            path: "shop/:shopID",
+                            element: <ShopDetailPage />,
+                            loader: async ({ params }) => {
+                                const res = await getShopById(params.shopID)
+                                if (res.status) {
+                                    return res.value
+                                }
+                            }
+                        }
+                    ],
                 },
                 {
                     path: "cart",

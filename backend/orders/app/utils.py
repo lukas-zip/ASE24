@@ -23,3 +23,16 @@ def get_product_details(product_id):
 
 def calc_discounted_price(price, discount):
     return (price - (float(price) * float(discount) / 100))
+
+
+def reformat_reponse(response):
+    item = response.get('Item')
+    return {
+                'execution_time': item.get('execution_time', {}).get('S', ''),
+                'order_id': item.get('order_id', {}).get('S', ''),
+                'orders': item.get('orders', {}).get('SS', []),
+                'quantities': item.get('quantities', {}).get('NS', []),
+                'status': item.get('status', {}).get('S', ''),
+                'total_price': item.get('total_price', {}).get('N', ''),
+                'username': item.get('username', {}).get('S', '')
+            }

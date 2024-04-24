@@ -4,6 +4,8 @@ from app import s3
 from botocore.exceptions import ClientError
 from io import BytesIO
 from urllib.parse import quote_plus
+import logging
+import os
 
 db_inventory_management = boto3.client(
     "dynamodb",
@@ -115,14 +117,6 @@ def create_gsi():
     except ClientError as e:
         print("Error creating Global Secondary Indexes:", e)
 
-
-
-
-
-
-
-
-
 # Function to get all products belonging to a shop
 def get_products_by_product_owner(product_owner):
     try:
@@ -141,7 +135,7 @@ def get_products_by_product_owner(product_owner):
                 'product_id': product_id,  # Include product_id in product_info
                 'product_owner': item.get('product_owner', {}).get('S', ''),
                 'product_name': item.get('product_name', {}).get('S', ''),
-                'product_picture': item.get('product_picture', {}).get('S', ''),
+                'product_picture': item.get('product_picture', {}).get('SS', ''),
                 'product_description': item.get('product_description', {}).get('S', ''),
                 'product_current_stock': item.get('product_current_stock', {}).get('N', ''),
                 'product_should_stock': item.get('product_should_stock', {}).get('N', ''),
@@ -171,7 +165,7 @@ def get_products_by_product_owner(product_owner):
                     'product_id': product_id,  # Include product_id in product_info
                     'product_owner': item.get('product_owner', {}).get('S', ''),
                     'product_name': item.get('product_name', {}).get('S', ''),
-                    'product_picture': item.get('product_picture', {}).get('S', ''),
+                    'product_picture': item.get('product_picture', {}).get('SS', ''),
                     'product_description': item.get('product_description', {}).get('S', ''),
                     'product_current_stock': item.get('product_current_stock', {}).get('N', ''),
                     'product_should_stock': item.get('product_should_stock', {}).get('N', ''),
@@ -207,30 +201,11 @@ def product_check(product_id):
         print("Error checking product:", e)
         return False
 
-def add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, image_file):
+def add_product(product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies, product_picture):
     
     try:
         # Generate UUID for the new product
         product_uuid = str(uuid.uuid4())
-
-        # Put picture into S3
-        bucket_name = 'productpictures'
-        object_key = f'{product_uuid}.jpg'  # Use UUID as object key
-
-        # Convert bytes object to file-like object
-        image_stream = BytesIO(image_file.read())
-
-        try:
-            # Upload the image file to S3
-            s3response = s3.upload_fileobj(image_stream, bucket_name, object_key)
-            print("Product picture added with UUID:", product_uuid)
-        except ClientError as e:
-            print("Error uploading product picture to S3:", e)
-            return
-        
-        # Construct the URL/path to the uploaded image
-        s3_base_url = f'http://localhost:4566/{bucket_name}/' # Der Link ist derzeit auf Local angepasst
-        image_url = s3_base_url + quote_plus(object_key)
 
         # Check if the product already exists
         existing_products = get_products_by_product_owner(product_owner)
@@ -251,7 +226,7 @@ def add_product(product_owner, product_name, product_description, product_curren
                 'product_id': {'S': product_uuid},  # Automatically generated UUID
                 'product_owner': {'S': product_owner},
                 'product_name': {'S': product_name},
-                'product_picture': {'S': image_url},  # Store URL/path to the image
+                'product_picture': {'SS': product_picture},  # Store URL/path to the image
                 'product_description': {'S': product_description},
                 'product_current_stock': {'N': str(product_current_stock)},
                 'product_should_stock': {'N': str(product_should_stock)},
@@ -310,7 +285,7 @@ def get_product(product_id):
                 'product_id': item.get('product_id', {}).get('S', ''),
                 'product_name': item.get('product_name', {}).get('S', ''),
                 'product_owner': item.get('product_owner', {}).get('S', ''),
-                'product_picture': item.get('product_picture', {}).get('S', ''),
+                'product_picture': item.get('product_picture', {}).get('SS', []),
                 'product_price': item.get('product_price', {}).get('N', ''),
                 'product_price_reduction': item.get('product_price_reduction', {}).get('N', ''),
                 'product_sale': item.get('product_sale', {}).get('BOOL', False),
@@ -345,26 +320,32 @@ def update_product(product_id, product_owner, updated_data):
         # Prepare UpdateExpression and ExpressionAttributeValues
         update_expression = "SET "
         expression_attribute_values = {}
-        
+
         for key, value in updated_data.items():
             # Include only valid attributes for update
             if key in ['product_name', 'product_description', 'product_current_stock', 
-                       'product_should_stock', 'product_price', 'product_price_reduction', 
-                       'product_sale', 'product_category', 'product_search_attributes', 
-                       'product_reviews', 'product_bom', 'product_assemblies']:
+                    'product_should_stock', 'product_price', 'product_price_reduction', 
+                    'product_sale', 'product_category', 'product_search_attributes', 
+                    'product_reviews', 'product_bom', 'product_assemblies', 'product_picture', 'product_sale']:
                 update_expression += f"{key} = :{key}, "
+                
                 # Check if the value is numeric
                 if key in ['product_current_stock', 'product_should_stock', 
-                           'product_price', 'product_price_reduction']:
+                        'product_price', 'product_price_reduction']:
                     expression_attribute_values[f":{key}"] = {'N': str(value)}  # Use 'N' for numeric attributes
-                elif key in ['product_bom', 'product_reviews', 'product_search_attributes', 'product_category']:
+                elif key in ['product_bom', 'product_reviews', 'product_search_attributes', 'product_category', 'product_picture']:
                     expression_attribute_values[f":{key}"] = {'SS': value}
+                elif key in ['product_sale']:
+                    expression_attribute_values[f":{key}"] = {'BOOL': value}
                 else:
                     expression_attribute_values[f":{key}"] = {'S': str(value)}  # Use 'S' for string attributes
         
         # Remove the trailing comma and space from the UpdateExpression
         update_expression = update_expression.rstrip(", ")
         
+        logging.info(f"UpdateExpression: {update_expression}")
+        logging.info(f"ExpressionAttributeValues: {expression_attribute_values}")
+
         # Perform the update operation
         response = db_inventory_management.update_item(
             TableName=table_name,
@@ -415,38 +396,40 @@ def perform_sell(product_id, product_owner, ordered_items):
     except ClientError as e:
         print("Error updating product:", e)
         return False
-    
+
 def search_products_by_category(category_term):
     try:
         response = db_inventory_management.scan(
             TableName='Products'
         )
         items = response.get('Items', [])
+
+        lowercase_category_term = category_term.lower()
         
         formatted_results = {}
         for item in items:
             product_id = item.get('product_id', {}).get('S')
-            categories = item.get('product_category', {}).get('SS', [])
-            for category in categories:
-                if category_term in category:
-                    product = {
-                        "product_assemblies": item.get('product_assemblies', {}).get('S'),
-                        "product_bom": item.get('product_bom', {}).get('SS'),
-                        "product_category": item.get('product_category', {}).get('SS'),
-                        "product_current_stock": item.get('product_current_stock', {}).get('N'),
-                        "product_description": item.get('product_description', {}).get('S'),
-                        "product_id": product_id,
-                        "product_name": item.get('product_name', {}).get('S'),
-                        "product_owner": item.get('product_owner', {}).get('S'),
-                        "product_picture": item.get('product_picture', {}).get('S'),
-                        "product_price": item.get('product_price', {}).get('N'),
-                        "product_price_reduction": item.get('product_price_reduction', {}).get('N'),
-                        "product_reviews": item.get('product_reviews', {}).get('SS'),
-                        "product_sale": item.get('product_sale', {}).get('S') == 'True',
-                        "product_search_attributes": item.get('product_search_attributes', {}).get('SS'),
-                        "product_should_stock": item.get('product_should_stock', {}).get('N')
-                    }
-                    formatted_results[product_id] = product
+            categories = [cate.lower() for cate in item.get('product_category', {}).get('SS', [])]
+
+            if any(lowercase_category_term in cate for cate in categories):
+                product = {
+                    "product_assemblies": item.get('product_assemblies', {}).get('S'),
+                    "product_bom": item.get('product_bom', {}).get('SS'),
+                    "product_category": item.get('product_category', {}).get('SS'),
+                    "product_current_stock": item.get('product_current_stock', {}).get('N', ''),
+                    "product_description": item.get('product_description', {}).get('S'),
+                    "product_id": product_id,
+                    "product_name": item.get('product_name', {}).get('S'),
+                    "product_owner": item.get('product_owner', {}).get('S'),
+                    "product_picture": item.get('product_picture', {}).get('SS'),
+                    "product_price": item.get('product_price', {}).get('N', ''),
+                    "product_price_reduction": item.get('product_price_reduction', {}).get('N', ''),
+                    "product_reviews": item.get('product_reviews', {}).get('SS'),
+                    "product_sale": item.get('product_sale', {}).get('S') == 'True',
+                    "product_search_attributes": item.get('product_search_attributes', {}).get('SS'),
+                    "product_should_stock": item.get('product_should_stock', {}).get('N', '')
+                }
+                formatted_results[product_id] = product
 
         return formatted_results
     except ClientError as e:
@@ -460,31 +443,33 @@ def search_products_by_attributes(attributes_term):
         )
         
         items = response.get('Items', [])
-        
+
+        lowercase_attributes_term = attributes_term.lower()
+
         formatted_results = {}
         for item in items:
             product_id = item.get('product_id', {}).get('S')
-            attributes = item.get('product_search_attributes', {}).get('SS', [])
-            for attribute in attributes:
-                if attributes_term in attribute:
-                    product = {
-                        "product_assemblies": item.get('product_assemblies', {}).get('S'),
-                        "product_bom": item.get('product_bom', {}).get('SS'),
-                        "product_category": item.get('product_category', {}).get('SS'),
-                        "product_current_stock": item.get('product_current_stock', {}).get('N'),
-                        "product_description": item.get('product_description', {}).get('S'),
-                        "product_id": product_id,
-                        "product_name": item.get('product_name', {}).get('S'),
-                        "product_owner": item.get('product_owner', {}).get('S'),
-                        "product_picture": item.get('product_picture', {}).get('S'),
-                        "product_price": item.get('product_price', {}).get('N'),
-                        "product_price_reduction": item.get('product_price_reduction', {}).get('N'),
-                        "product_reviews": item.get('product_reviews', {}).get('SS'),
-                        "product_sale": item.get('product_sale', {}).get('S') == 'True',
-                        "product_search_attributes": item.get('product_search_attributes', {}).get('SS'),
-                        "product_should_stock": item.get('product_should_stock', {}).get('N')
-                    }
-                    formatted_results[product_id] = product
+            attributes = [attr.lower() for attr in item.get('product_search_attributes', {}).get('SS', [])]
+            
+            if any(lowercase_attributes_term in attr for attr in attributes):
+                product = {
+                    "product_assemblies": item.get('product_assemblies', {}).get('S'),
+                    "product_bom": item.get('product_bom', {}).get('SS'),
+                    "product_category": item.get('product_category', {}).get('SS'),
+                    "product_current_stock": item.get('product_current_stock', {}).get('N'),
+                    "product_description": item.get('product_description', {}).get('S'),
+                    "product_id": product_id,
+                    "product_name": item.get('product_name', {}).get('S'),
+                    "product_owner": item.get('product_owner', {}).get('S'),
+                    "product_picture": item.get('product_picture', {}).get('SS'),
+                    "product_price": item.get('product_price', {}).get('N'),
+                    "product_price_reduction": item.get('product_price_reduction', {}).get('N'),
+                    "product_reviews": item.get('product_reviews', {}).get('SS'),
+                    "product_sale": item.get('product_sale', {}).get('S') == 'True',
+                    "product_search_attributes": item.get('product_search_attributes', {}).get('SS'),
+                    "product_should_stock": item.get('product_should_stock', {}).get('N')
+                }
+                formatted_results[product_id] = product
 
         return formatted_results
     except ClientError as e:
