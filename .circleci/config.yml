@@ -5,12 +5,9 @@ orbs:
 
 jobs:
   build-and-test:
-    docker:
-      - image: cimg/base:stable
+    machine: true
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.7
       - run:
           name: Install Docker Compose
           command: |
