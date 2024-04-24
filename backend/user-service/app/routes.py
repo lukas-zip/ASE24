@@ -1,5 +1,3 @@
-import logging
-
 from flask import jsonify, request
 from app import dynamodb
 from werkzeug.utils import secure_filename
