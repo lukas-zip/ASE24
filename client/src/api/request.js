@@ -8,6 +8,7 @@ const serviceBases = {
     products: 'http://127.0.0.1:8002', // 产品服务端口
     reviews: 'http://127.0.0.1:8003', // 评论服务端口
     orders: 'http://127.0.0.1:8004', // 订单服务端口
+    payment: 'http://127.0.0.1:8005', // 支付服务端口
     // 其他服务端口...
 };
 
@@ -76,7 +77,7 @@ export const request = (serviceType, method, url, data, config) => {
         case 'get':
             return axiosInstance.get(url, { params: data, ...configWithParams });
         case 'delete':
-            return axiosInstance.delete(url, { params: data, ...configWithParams });
+            return axiosInstance.delete(url, { data: data, ...configWithParams });
         case 'put':
             return axiosInstance.put(url, data, configWithParams);
         default:
