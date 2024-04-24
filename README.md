@@ -7,6 +7,11 @@ The system comprises various microservices: `user-service`, `product-service`, `
 
 To coordinate the different services, a `docker-compose.yml` file in the ASE24 directory orchestrates their integration.
 
+## Tests
+
+Tests are executable locally by entering `sh test.sh` to the console (ASE24 directory). Furthermore the tests are executed automatically by the CI/CD pipeline (CircleCi) when new commits are pushed to github.
+
+
 ## Usage
 
 To utilize this application, ensure Docker and Docker Compose are installed on your system. Once installed, follow these steps in order to run the microservice architecture:
