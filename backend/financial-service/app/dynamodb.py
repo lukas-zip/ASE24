@@ -105,12 +105,13 @@ def update_balance(shop_id, amount_to_add):
 def get_account_json(shop_id):
     try:
         account = shop_in_db(shop_id)
+        logging.info(account)
         if account is None:
             return None
         account_dict = {
-            'account_id': account.get('Item', {}).get('account_id', {}).get('S', ''),
-            'shop_id': account.get('Item', {}).get('shop_id', {}).get('S', ''),
-            'balance': account.get('Item', {}).get('balance', {}).get('N', ''),
+            'account_id': account.get('account_id', {}).get('S', ''),
+            'shop_id': account.get('shop_id', {}).get('S', ''),
+            'balance': account.get('balance', {}).get('N', ''),
         }
         return account_dict
     except ClientError as e:

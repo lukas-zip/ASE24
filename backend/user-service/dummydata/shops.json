@@ -5,7 +5,9 @@
     "shop_name": "John Micro",
     "description": "My small handcraft shop.",
     "address": "Hoferstrasse 19, Zuerich",
-    "phone": "1234567890"
+    "phone": "1234567890",
+    "profile_picture": null,
+    "shop_pictures": null
   },
   {
     "email": "hydro@example.com",
@@ -13,7 +15,9 @@
     "shop_name": "Jane Hydro",
     "description": "I´m selling self-made goods.",
     "address": "Bernerstrasse 18, Bern",
-    "phone": "2395678901"
+    "phone": "2395678901",
+    "profile_picture": null,
+    "shop_pictures": null
   },
   {
     "email": "electro@example.com",
@@ -21,6 +25,8 @@
     "shop_name": "Max Electro",
     "description": "Join me on my sustainability journey",
     "address": "Weinhofstrasse 123, Luzern",
-    "phone": "3456789012"
+    "phone": "3456789012",
+    "profile_picture": null,
+    "shop_pictures": null
   }
 ]

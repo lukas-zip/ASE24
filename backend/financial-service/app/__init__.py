@@ -12,7 +12,7 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = 'claire.commerceshop@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'gddu rejb dxwk scsw'
+    app.config['MAIL_PASSWORD'] = 'koso hxam kfjj swqv'
     app.config['MAIL_DEFAULT_SENDER'] = 'claire.commerceshop@gmail.com'
     app.config['MAIL_MAX_EMAILS'] = None
     app.config['MAIL_ASCII_ATTACHMENTS'] = False
