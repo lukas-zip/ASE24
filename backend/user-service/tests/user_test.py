@@ -35,7 +35,7 @@ def test_add_user(client):
     assert response_json['value']['username'] == user_data['username']
 
 
-def test_register(client):
+def test_register_user(client):
     # Setup: Create a table and add an item
     user_data = {
         "email": "jane.doe@example.com",
@@ -70,3 +70,18 @@ def test_login_success(client):
     client.post('/users', data=json.dumps(user_data), content_type='application/json')
     response = client.post('/login', json={'email': 'jane.doe@example.com', 'password': 'password2'})
     assert response.status_code == 200
+    assert response['status'] == True
+
+def test_login_fail(client):
+    user_data = {
+        "email": "jane.doe@example.com",
+        "password": "password2",
+        "username": "janedoe",
+        "address": "Jane Road, Bern 23456",
+        "phone": "2345678901"
+    }
+    client.post('/users', data=json.dumps(user_data), content_type='application/json')
+    response = client.post('/login', json={'email': 'jane.doe@example.com', 'password': 'false_password'})
+    assert response.status_code == 401
+    assert response['status'] == False
+    assert response['message'] == "Invalid login credentials"
