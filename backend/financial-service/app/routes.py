@@ -23,6 +23,7 @@ def test():
     print("Hello, world!")
     return response.json()
 
+
 @app.route('/account', methods=['POST'])
 def add_account():
     data = request.json
@@ -36,6 +37,7 @@ def add_account():
         print("Error adding user:", e)
         return jsonify({'status': False, 'message': 'Error'}), 500
 
+
 @app.route('/account/<shop_id>', methods=['GET'])
 # Function to get an account by UUID
 def get_account(shop_id):
@@ -48,7 +50,7 @@ def get_account(shop_id):
         print("Error getting user:", e)
 
 
-@app.route('/payment', methods=['POST'])
+@app.route('/create-payment-intent', methods=['POST'])
 def create_payment():
     try:
         data = json.loads(request.data)
@@ -60,7 +62,7 @@ def create_payment():
                 'enabled': True,
             },
             metadata={
-                'order_id': data['status'],
+                'order_id': data['order_id'],
             },
         )
         return jsonify({
@@ -91,21 +93,30 @@ def webhook():
 
     # Handle the event
     if event and event['type'] == 'payment_intent.succeeded':
-        payment_intent = event['data']['object']  # contains a stripe.PaymentIntent
-        order_id = payment_intent.metadata['order_id']
+        #payment_intent = event['data']['object']  # contains a stripe.PaymentIntent
+        payment_intent = {
+            "id": "pi_1Example1234",
+            "object": "payment_intent",
+            "status": "succeeded",
+            "metadata": {
+                "order_id": "3a15ca5a-490a-4632-b52b-175b4aa01be5"
+            },
+            "total_price": 74
+        }
+        order_id = payment_intent.get('metadata', {}).get('order_id', None)
         order_data = get_order(order_id)
         handle_payment_intent_succeeded(order_data)
         # Send confirmation mail
         #
         # Get mail from user from user-service
         # possible through the user id in orders
-        # but currently username is saved there
-        # first neccessary to update that
+        # but currently orders are beeing reworked
+        # first neccessary to finish that
         # http://user-service:8001/users/<user_id>
         #user_id=order_data['user_id']
         #mail = get_user_mail(user_id)
         #send_order_confirmation("lukas.huber99@icloud.com", order_id)
-        print('Payment for {} succeeded'.format(payment_intent['amount']))
+        print('Payment for {} succeeded'.format(payment_intent['total_price']))
     return jsonify(success=True)
 
 
@@ -113,6 +124,7 @@ def webhook():
 def handle_payment_intent_succeeded(order_data):
     # Calculate subtotals for each shop
     shop_subtotals = {}
+    logging.info("2")
     for product_id, price, quantity in zip(order_data['orders'], order_data['prices'], order_data['quantities']):
         shop_id = get_shop_from_product(product_id)
         if shop_id not in shop_subtotals:
@@ -161,8 +173,7 @@ def get_user_mail(user_id):
 #
 # Not yet working
 # Had to use dummy data
-# Orders are not returned in correct format
-# Currently returned like in database format
+# Orders are beeing reworked
 # Except that should work - delete response and remove comments
 #
 #@app.route('/test_order/<order_id>', methods=['GET'])
@@ -170,20 +181,20 @@ def get_order(order_id):
     response = requests.get(f"http://orders:8004/orders/{order_id}")
     response = {
         "order_id":  "3a15ca5a-490a-4632-b52b-175b4aa01be5",
-        "username": "username1",
+        "username": "20c0260e-eceb-4ede-9ead-ebe6eb9ef096",
         "orders": [
-            "61731345-a81d-4649-a1dd-fa4be67a17f1",
-            "61731345-a81d-4649-a1dd-fa4be67a17f1"
+            "89e94d99-63af-4dc4-a73a-1c6e9c0887ea",
+            "87e4b7a2-d570-4850-ad00-1c398557bf97"
         ],
         "prices": [
-            "22",
-            "10"
+            "10",
+            "12"
         ],
         "quantities": [
-            "22",
-            "5"
+            "5",
+            "2"
         ],
-        "total_price": "290",
+        "total_price": "74",
         "status": "in progress",
         "execution_time": "2024-04-06 10:51:03.318659"
     }
