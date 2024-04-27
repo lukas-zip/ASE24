@@ -165,7 +165,9 @@ def update_po_status(product_owner, order_id, status):
         # elif count > 1:
         #     return 'Error Updating Status: more than 1 po_order found'
         #items = po_order['Items']
-        print('PO Orderrr',po_order)
+        #print('PO Orderrr',po_order)
+        if po_order == 'Invalid Search':
+            return 'No PO Order Found'
         po_order_id = po_order['po_order_id']
 
 
@@ -347,6 +349,6 @@ def search_po_orders(product_owner, order_id):
     for po_order in search_orderid['Items']:
         if po_order in search_po['Items']:
             return po_order
-    return 'No Results Found'
+    return 'Invalid Search'
 
     
