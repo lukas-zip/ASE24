@@ -5,13 +5,13 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Table, TableStyle
 import boto3
-from app import dynamodb
+from app import initialise_dynamo
 import json
 from botocore.exceptions import ClientError
 from io import BytesIO
 import requests
 
-s3_invoice = dynamodb.s3_client
+s3_invoice = initialise_dynamo.s3_client
 
 # Create S3 bucket on LocalStack
 def create_s3_bucket():
@@ -53,16 +53,20 @@ def create_pdf(order_id):
 
         # get the order information
         response= requests.get(f'http://orders:8004/orders/{order_id}')
-        order_responds = response.json()
-        order_details = order_responds['Item']
+        order_details = response.json()
+      #  order_details = order_responds['Item']
+        total_price = order_details['total_price']
+        shipping_adress = order_details['user_id']
+        orders_list = order_details['orders_fe']
+
         #total_price = order_details['Item']['total_price']
-        total_price = order_details.get('total_price', {}).get('N')
+        #total_price = order_details.get('total_price', {}).get('N')
         #shipping_adress = order_details['Item']['username']
-        shipping_adress = order_details.get('username', {}).get('S')
+       # shipping_adress = order_details.get('username', {}).get('S')
         #product_list = order_details['Item']['orders']['SS']
-        product_list = order_details.get('orders', {}).get('SS')
+       # product_list = order_details.get('orders', {}).get('SS')
         #product_quant = order_details['Item']['quantities']['NS']
-        product_quant = order_details.get('quantities', {}).get('NS')
+        #product_quant = order_details.get('quantities', {}).get('NS')
 
         # creating a pdf object 
         fileName = f'invoice_{order_id}.pdf'
@@ -91,8 +95,10 @@ def create_pdf(order_id):
 
         # Create table for products
         data = [["Product ID", "Product Name", "Quantity", "Price"]]
-        for no in range(len(product_list)):
-            data.append([product_list[no], "X", product_quant[no], "X" ])
+        # for no in range(len(product_list)):
+        #     data.append([product_list[no], "X", product_quant[no], "X" ])
+        for order in orders_list:
+            data.append([order['product_id'], "X", order['quantity'], "X" ])
         
         table_width = page_width - 100  # Adjusted width for table
         table = Table(data, colWidths=[table_width / 4] * 4)  # Equal width for each column
