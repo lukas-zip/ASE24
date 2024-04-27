@@ -79,7 +79,9 @@ def set_po_orders_shipped(order_id, product_owner_id):
     res = dynamodb_po.update_po_status(product_owner_id, order_id,'shipped')
     return jsonify(res), 201
 
-
+# ----------------------------------------------------------------------------#
+# Invoice APIs
+# ----------------------------------------------------------------------------#
 # Create a invoice pdf out of the order details for one order
 @app.route('/invoice/<order_id>', methods=['POST'])
 def route_create_invoice(order_id):
