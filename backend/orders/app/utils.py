@@ -7,8 +7,6 @@ import urllib.request
 def get_product_details(product_id):
     url = f"http://inventory_management:8002/product/{product_id}"
     response = requests.get(url)
-    print('CAALING INVENTORYYY')
-    print(json.loads(response.content.decode('utf-8')))
     product_details = json.loads(response.content.decode('utf-8'))['value']
  
     #get product details

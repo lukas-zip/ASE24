@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from app import app, dynamodb_users,dynamodb_po
+from app import app, dynamodb_po, dynamodb_users, invoice
 from werkzeug.utils import secure_filename
 import os
 import re
@@ -18,6 +18,7 @@ def test():
     # Return success response
     print("Hello, world!")
     return jsonify({'status': True, 'message': 'Test successful'}), 201
+
 
 
 @app.get("/orders/<order_id>")
@@ -79,24 +80,31 @@ def set_po_orders_shipped(order_id, product_owner_id):
     return jsonify(res), 201
 
 
-# @app.get("/orders/product/search/<product_owner_id>/status/<status>")
-# def search_po_orders_by_status(order_id, product_owner_id,status):
-#     data = request.json
-#     res = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_status=status , order_id=order_id)  
-#     return jsonify(res), 201
+# Create a invoice pdf out of the order details for one order
+@app.route('/invoice/<order_id>', methods=['POST'])
+def route_create_invoice(order_id):
+    if not order_id:
+        return jsonify({'error': 'ID is required!'}), 400
+    try:
+        message, status = invoice.create_pdf(order_id)
+        if status == True:
+            return jsonify({'value': message,'status': status}), 200
+        else:
+            return jsonify({'message': message,'status': status}), 200
+    except ClientError as e:
+        print("Error adding review:", e)
 
-# #update order status, as delivered
-# @app.get("/orders/<order_id>/delivered")
-# def update_status_delivered(order_id):
-#     response = dynamodb.update_status(order_id,'delivered')
-#     return jsonify(response), 201
-
-# #update order status, as shipped
-# @app.get("/orders/<order_id>/shipped")
-# def update_status_shipped(order_id):
-#     response = dynamodb.update_status(order_id,'shipped')
-#     return jsonify(response), 201
-
+## Download the invoice for a specific order
+@app.route('/invoice/<order_id>',methods=['GET'])
+def route_get_invoice(order_id):
+    if not order_id:
+        return jsonify({'error': 'ID is required!'}), 400
+    try:
+        item, status = invoice.get_invoice(order_id)
+        return jsonify({'value': item,'status': status}), 200     
+    except ClientError as e:
+        print("Error adding review:", e)
+        return jsonify({'error': 'Failed to get review'}), 500
 
 
 # ----------------------------------------------------------------------------#
@@ -122,6 +130,8 @@ def search_po_orders_orderid(order_id):
 def test_search_po_orders(order_id,product_owner_id):
     response = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_id=order_id)
     return jsonify(response), 201
+
+
 
 # ----------------------------------------------------------------------------#
 # Error Handling.

@@ -71,7 +71,10 @@ def create_user_management_tables(dynamodb=db_user_management):
         print("Error creating UserManagement table:", e)
 
 def delete_user_management_tables():
-    db_user_management.delete_table(TableName='UserManagement')
+    try:
+        db_user_management.delete_table(TableName='UserManagement')
+    except db_user_management.exceptions.ResourceNotFoundException:
+        print("Table does not exist.")
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())

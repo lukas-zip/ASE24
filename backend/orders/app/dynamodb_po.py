@@ -165,6 +165,7 @@ def update_po_status(product_owner, order_id, status):
         # elif count > 1:
         #     return 'Error Updating Status: more than 1 po_order found'
         #items = po_order['Items']
+        print('PO Orderrr',po_order)
         po_order_id = po_order['po_order_id']
 
 
