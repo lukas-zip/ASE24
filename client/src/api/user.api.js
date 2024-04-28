@@ -31,6 +31,7 @@ export const getProductByCategory = (category) => request("products", 'get', `/p
 export const removeProductFromOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const addProductIntoOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const getOrderByUserId = (userID) => request("orders", 'get', `/orders/users/search/${userID}`);
+export const getOrderByShopId = (userID) => request("orders", 'get', `/orders/product/search/${userID}`);
 export const getOrderBySellerId = (sellerID) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);
 export const updateOrder = (orderId, data) => request("orders", 'put', `/orders/${orderId}`, data);
