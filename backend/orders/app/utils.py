@@ -16,6 +16,13 @@ def get_product_details(product_id):
 
     return product_price, product_price_reduction, product_owner
 
+
+def get_all_product_details(product_id):
+    url = f"http://inventory_management:8002/product/{product_id}"
+    response = requests.get(url)
+    product_details = json.loads(response.content.decode('utf-8'))['value']
+    return product_details
+
 def calc_discounted_price(price, discount):
     return (price - (float(price) * float(discount) / 100))
 
@@ -29,7 +36,7 @@ def reformat_order_reponse(item):
     
    # return orders
     for key, value in orders.items():
-        orders_arr.append({ "product_id":key , "quantity" : int(value['N']) , "product_owner": product_owners[key]['S']})
+        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S']})
 
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
@@ -51,6 +58,12 @@ def reformat_po_order_reponse(item):
     orders_dict = {}
     orders = item.get('orders', {}).get('M', [])
 
+    po_orders_arr =[]
+   # return orders
+    for key, value in orders.items():
+        po_orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_details": get_all_product_details(key)})
+
+
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
 
@@ -63,7 +76,8 @@ def reformat_po_order_reponse(item):
                 'total_price': item.get('total_price', {}).get('N', ''),
                 'order_status': item.get('order_status', {}).get('S', ''),
                 'product_owner': item.get('product_owner', {}).get('S', ''),
-                'user_id': item.get('user_id', {}).get('S', '')
+                'user_id': item.get('user_id', {}).get('S', ''),
+                'orders_fe': po_orders_arr
           }
 
 
