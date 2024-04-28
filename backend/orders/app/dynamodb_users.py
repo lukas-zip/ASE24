@@ -10,32 +10,8 @@ TABLE_NAME = 'OrdersManagement'
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 db_order_management = initialise_dynamo.db_order_management
-# db_order_management = boto3.client(
-#     "dynamodb",
-#     aws_access_key_id="test",  # Dummy Access Key for LocalStack
-#     aws_secret_access_key="test",  # Dummy Secret Key for LocalStack
-#     region_name="us-east-1",  # or your LocalStack configuration's region
-#     endpoint_url="http://localstack:4566"  # URL for LocalStack
-# )
-# s3_client = boto3.client(
-#     "s3",
-#     aws_access_key_id="test",
-#     aws_secret_access_key="test",
-#     region_name="us-east-1",
-#     endpoint_url="http://localstack:4566"
-# )
 
-# # Create S3 bucket on LocalStack
-# def create_s3_bucket():
-#     try:
-#         bucket_name = 'orders'
-#         s3_client.create_bucket(Bucket=bucket_name)
-#         print(f"Bucket {bucket_name} created successfully.")
-#     except ClientError as e:
-#         print(f"Error creating bucket: {e}")
-
-
-# Function to create the profiles table
+# Function to create orders table
 def create_orders_table():
     try:
         response = db_order_management.create_table(
@@ -62,30 +38,6 @@ def create_orders_table():
         print("OrdersManagement table created:", response)
     except ClientError as e:
         print("Error creating OrdersManagement table:", e)
-
-
-# # add order to the dynamodb
-# def add_order(user_id,orders,total_price,execution_time):
-#     try:
-#         # Generate UUID for the new user
-#         order_uuid = str(uuid.uuid4())
-
-#         # Put the new item into the table
-#         db_order_management.put_item(
-#             TableName=TABLE_NAME,
-#             Item={
-#                 'order_id': {'S': f'{order_uuid}'},
-#                 'user_id': {'S': user_id},
-#                 'orders': {'M':  {"product_id1": {"N": "2"}, "product_id2": {"N": "2"}}}, # product id:quantity
-#                 'product_owners': {'M':  {"product_id1": {"S": "product_owners"}, "product_id2": {"S": "product_owners"}}},  # product id:product_owner
-#                 'total_price': {'N': total_price},
-#                 }
-#         )
-
-#         print("Order added with UUID:", order_uuid)
-#         return get_order(order_uuid)
-#     except ClientError as e: 
-#         print("Error adding user:", e)
 
 
 # add item to the dynamodb
@@ -124,12 +76,10 @@ def add_item(user_id,product_id, quantity):
         print("Order added with UUID:", order_uuid)
         return get_order(order_uuid)
     except ClientError as e: 
-        print({'status': False, 'value': f'error adding user {e} '})
-        raise e  
+        return str(e)
 
 def get_order(order_uuid):
     try:
-        #TODO: handle no order id found case
         response = db_order_management.get_item(
             TableName=TABLE_NAME,
             Key={
@@ -137,22 +87,22 @@ def get_order(order_uuid):
             }
         )
         item = response.get('Item')
+
+        # If no order is found, return an error message
+        if not item:
+            raise ValueError('No order found with given ID') 
+
         order_info = utils.reformat_order_reponse(item)
         return order_info
 
     except ClientError as e:
-        print("Error getting order:", e)
+        return str(e)
    
 
 
 def get_all_orders():
     try:
         response = db_order_management.scan(TableName=TABLE_NAME)
-        # items = response.get('Items')
-        # final_res = []
-        # for item in items:
-        #     final_res.append(utils.reformat_order_reponse(item))
-        #{"Count":response.get('Count'), "Items":final_res}
         return  utils.reformat_order_arr_reponse(response) 
        
     except ClientError as e:
@@ -163,7 +113,12 @@ def get_all_orders():
 def update_order(order_id, product_id, quantity_change):
     try:
         #get current order values
-        order = get_order(order_id)
+        try:
+            order = get_order(order_id)
+        except ClientError as e:
+            #print("Error getting order:", e)
+            return str(e)
+
         orders_dict = order['orders']
         orders_po_dict = order['product_owners']
         total_price = float(order['total_price'])
@@ -286,8 +241,7 @@ def update_order(order_id, product_id, quantity_change):
         return get_order(order_id)
 
     except ClientError as e:
-        print(f"Error updating: {e}")
-        raise e
+        raise str(e)
 
 def update_status(order_id,status):
     try:
@@ -354,39 +308,6 @@ def search_orders(user_id):
         #terms can include: user_id, product_id, status  #TODO add time
         search_expression = ""
         expression_attribute_values = {}
-        # start_flag = True
- 
-        # for key, value in terms.items(): 
-        #     if not start_flag:
-        #         search_expression += ' AND '
-        #     else:
-        #         start_flag = False  
-
-            # search_expression += f"user_id = :user_id"
-            # expression_attribute_values[f":user_id"] = {'S': user_id}
-            
-            # Remove the trailing comma and space from expression
-            #search_expression = search_expression.rstrip(", ")
-
-
-            # if key == 'user_id':
-            #     search_expression += f"{'user_id'} = :{'user_id'},"
-            #     expression_attribute_values[f":{'user_id'}"] = {'S': terms[key]}
-            #     start_flag = False   
-
-            # elif key == 'status':
-               
-            #     search_expression += f"{'status'} = :{'status'},"
-            #     expression_attribute_values[f":{'status'}"] = {'S': terms[key]}
-
-            # elif key == 'product_owner_id':
-            #     if not start_flag:
-            #         search_expression += 'AND'
-            #     search_expression += f"{'product_owner_id'} = :{'product_owner_id'},"
-            #     expression_attribute_values[f":{'product_owner_id'}"] = {'S': terms[key]}
-            # else:
-            #     return 'Invalid Search Term'
-        #return f":search_expression: {search_expression} \n,expression_attribute_values:   {expression_attribute_values}"
         response = db_order_management.query(
                     TableName=TABLE_NAME,
                     IndexName='userIdIndx',
