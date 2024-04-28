@@ -18,7 +18,7 @@ export const deleteShop = (shopId) => request("user", 'delete', `/shops/${shopId
 
 // Products API (Port 8002)
 export const getAllProductsByShopId = (shopId) => request("products", 'get', `/product/cataloguesell/${shopId}`);
-export const getProductById = (productId) => request("products", 'get', `/products/${productId}`);
+export const getProductById = (productId) => request("products", 'get', `/product/${productId}`);
 export const searchProducts = (searchTerm) => request("products", 'get', `/product/search?term=${searchTerm}`);
 export const deleteProductFromCompany = (productId) => request("products", 'delete', `/product/delete`, { product_id: productId });
 export const updateProductForCompany = (productId, data) => request("products", 'put', `/product/update_product/${productId}`, data);
@@ -27,10 +27,13 @@ export const uploadProductPicture = (data) => request("products", 'post', `/prod
 
 export const getProductByCategory = (category) => request("products", 'get', `/product/category?term=${category}`);
 // Orders API
-export const getOrderById = (orderId) => request("orders", 'get', `/orders/${orderId}`);
+
+export const addProductIntoOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
+export const getOrderByUserId = (userID) => request("orders", 'get', `/orders/users/search/${userID}`);
+export const getOrderBySellerId = (sellerID) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);
 export const updateOrder = (orderId, data) => request("orders", 'put', `/orders/${orderId}`, data);
-export const createOrder = (data) => request("orders", 'post', '/orders/', data);
+export const createOrder = (data) => request("orders", 'post', '/orders', data);
 
 // Reviews API (Port 8003)
 export const createReview = (data) => request("reviews", 'post', `/review`, data);

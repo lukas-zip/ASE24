@@ -1,12 +1,12 @@
 import COLORS from '@/constants/COLORS';
 import './index.less'
 import { Divider, } from 'antd';
-import { useState } from 'react';
 import EmptyBox from '@/assets/pic/EmptyBox.png'
 import OrderCard from '../Order';
 import { useNavigate } from 'react-router-dom';
+import { useStateContext } from '@/pages/ClientHomePage/context';
 const UnpaidOrders = () => {
-    const [orders, setOrders] = useState([{}, {}])
+    const { orders } = useStateContext()
     const navigateTo = useNavigate()
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
@@ -23,8 +23,11 @@ const UnpaidOrders = () => {
                 </div>
             </div>}
             {orders.length !== 0 && <div className='UnpaidContainer-left-content'>
-                {orders.map((item, index) => {
-                    return <OrderCard key={index} />
+                {orders.map((item) => {
+                    const { order_id, orders_fe: orderItemsArray, totalprice } = item
+                    return <div key={order_id}>
+                        {orderItemsArray.map((specificProductInfo, key) => <OrderCard key={key} orderInfo={item} specificProductInfo={specificProductInfo} />)}
+                    </div>
                 })}
             </div>}
         </div>

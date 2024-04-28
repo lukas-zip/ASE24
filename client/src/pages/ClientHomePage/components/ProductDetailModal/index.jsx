@@ -4,13 +4,16 @@ import { useSelector } from 'react-redux'
 import { UserOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutlined, } from '@ant-design/icons';
 import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
-import { createOrder, createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
+import { addProductIntoOrder, createOrder, createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
 import { formatNumber } from '@/utils/FormatNumber';
 import { useNavigate } from 'react-router-dom';
+import { useStateContext } from '../../context';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const navigateTo = useNavigate()
+    const { getOrders, orders } = useStateContext()
+    console.log(orders);
     const { user: { user_id } } = useSelector((state) => state.user)
     const {
         product_assemblies,
@@ -147,18 +150,30 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const [quantity, setQuantity] = useState(1)
 
     const AddToChart = async () => {
-        const reqData = {
-            product_id,
-            quantity,
-            user_id: user_id,
-        }
-        await createOrder(reqData).then((res) => {
-            console.log(res);
-            if (res.status === true) {
+        if (orders.length === 0) {
+            const reqData = {
+                product_id,
+                quantity,
+                user_id: user_id,
+            }
+            await createOrder(reqData).then((res) => {
+                console.log(res);
+                getOrders()
                 message.success("Add to cart successfully!")
                 setIsOpen(false)
+            })
+        } else {
+            const reqData = {
+                product_id,
+                quantity,
             }
-        })
+            await addProductIntoOrder(orders[0].order_id, reqData).then((res) => {
+                console.log(res);
+                getOrders()
+                message.success("Add to cart successfully!")
+                setIsOpen(false)
+            })
+        }
     }
 
 
