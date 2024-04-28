@@ -24,26 +24,26 @@ def test():
 @app.get("/orders/<order_id>")
 def get_order_req(order_id):
     response = dynamodb_users.get_order(order_id)
-    return jsonify(response), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 @app.get("/orders")
 def get_all_orders_req():
     response = dynamodb_users.get_all_orders()
-    return jsonify(response), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 @app.delete("/orders/<order_id>")
 def delete_order_req(order_id: int):
     res = dynamodb_users.delete_order(order_id)
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 @app.put("/orders/<order_id>")
 def update_order_req(order_id):
     data = request.json
     res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 
@@ -51,7 +51,7 @@ def update_order_req(order_id):
 def search_orders(user_id):
     data = request.json
     res = dynamodb_users.search_orders(user_id)
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 @app.post("/orders")
@@ -61,23 +61,23 @@ def add_order_req():
     if data['quantity'] <= 0:
         return jsonify({'error': 'order quantity should be at least 1', 'status': False}), 400
     res = dynamodb_users.add_item(data['user_id'],data['product_id'], data['quantity'])
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 @app.get("/orders/product/search/<product_owner_id>")
 def search_po_orders(product_owner_id):
     res = dynamodb_po.search_orders_by_po(product_owner_id) 
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 @app.get("/orders/product/<order_id>/<product_owner_id>/delivered")
 def set_po_orders_delivered(order_id, product_owner_id):
     res = dynamodb_po.update_po_status(product_owner_id, order_id,'delivered')
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 @app.get("/orders/product/<order_id>/<product_owner_id>/shipped")
 def set_po_orders_shipped(order_id, product_owner_id):
     res = dynamodb_po.update_po_status(product_owner_id, order_id,'shipped')
-    return jsonify(res), 201
+    return jsonify({'status': True, 'value': res}), 200
 
 
 # Create a invoice pdf out of the order details for one order
@@ -114,22 +114,22 @@ def route_get_invoice(order_id):
 @app.get("/orders/test/<product_id>")
 def test_orders(product_id):
     res = utils.get_product_details(product_id)
-    return res, 201
+    return jsonify({'status': True, 'value': res}), 200
 
 @app.get("/orders/po")
 def get_all_po_orders():
-    response = dynamodb_po.get_all_po_orders()
-    return jsonify(response), 201
+    res = dynamodb_po.get_all_po_orders()
+    return jsonify({'status': True, 'value': res}), 200
 
 @app.get("/orders/po/test/search/order_id/<order_id>")
 def search_po_orders_orderid(order_id):
-    response = dynamodb_po.search_orders_by_orderid(order_id)
-    return jsonify(response), 201
+    res = dynamodb_po.search_orders_by_orderid(order_id)
+    return jsonify({'status': True, 'value': res}), 200
 
 @app.get("/orders/test/po/search/<order_id>/<product_owner_id>")
 def test_search_po_orders(order_id,product_owner_id):
-    response = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_id=order_id)
-    return jsonify(response), 201
+    res = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_id=order_id)
+    return jsonify({'status': True, 'value': res}), 200
 
 
 
