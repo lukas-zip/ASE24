@@ -115,8 +115,6 @@ def add_item(user_id,product_id, quantity):
                 'orders': {'M':  {product_id: {"N": str(quantity)}}}, 
                 'product_owners': {'M':  {product_id: {"S": product_owner}}}, 
                 'total_price': {'N': str(total_price)},
-                # 'execution_time': {'S': ''},
-                # 'order_status': {'S': status},
             }
         )
 
@@ -126,7 +124,8 @@ def add_item(user_id,product_id, quantity):
         print("Order added with UUID:", order_uuid)
         return get_order(order_uuid)
     except ClientError as e: 
-        return  {'status': False, 'value': f'error adding user {e} '}
+        print({'status': False, 'value': f'error adding user {e} '})
+        raise e  
 
 def get_order(order_uuid):
     try:
@@ -181,7 +180,7 @@ def update_order(order_id, product_id, quantity_change):
         if(po_order == 'Invalid Search'):
             count = 0
         else:
-            count = int(po_order['Count'])
+            count = 1
 
         #no corresponding po order found and new product
         if  count == 0 and (product_id not in orders_dict):
@@ -193,7 +192,7 @@ def update_order(order_id, product_id, quantity_change):
         elif count > 1:
             return 'More than 1 po order was found, expected only 1'
         else:
-            po_order_id = po_order['Items'][0]['po_order_id']
+            po_order_id = po_order['po_order_id']
 
         
 
@@ -219,8 +218,8 @@ def update_order(order_id, product_id, quantity_change):
             elif count > 1:
                 return 'More than 1 po order was found, expected only 1'
             else:
-                po_order_id = po_order['Items'][0]['po_order_id']
-                
+                po_order_id = po_order['po_order_id']
+
             #modify quantity
             current_quantity = float(orders_dict[product_id])
             #quantity_change is negative if the user removes items from the cart
@@ -235,8 +234,8 @@ def update_order(order_id, product_id, quantity_change):
             if total_quantity == 0:
                 del orders_dict[product_id]
                 del orders_po_dict[product_id]
-                remove_po_product(po_order_id, product_id, product_discounted_price_change) 
-                product_removed_flag = False
+                dynamodb_po.remove_po_product(po_order_id, product_id, discounted_price_change, total_quantity) 
+                po_order_update_flag = False
 
             else:
                 #update quantiy
@@ -247,7 +246,7 @@ def update_order(order_id, product_id, quantity_change):
 
         #update po order db
         if po_order_update_flag:
-            update_po_order(po_order_id, product_id, orders_dict[product_id], discounted_price_change)
+            dynamodb_po.update_po_order(po_order_id, product_id, orders_dict[product_id], discounted_price_change)
 
         # Dynamically build the update expression based on provided attributes
         # Prepare UpdateExpression and ExpressionAttributeValues

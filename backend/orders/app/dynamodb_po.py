@@ -148,6 +148,7 @@ def get_po_order(po_order_id):
             }
         )
         item = response.get('Item')
+        
         order_info = utils.reformat_po_order_reponse(item)
         return order_info
 
@@ -254,7 +255,7 @@ def update_po_order(po_order_id, product_id, total_quantity, product_discounted_
         raise e
 
 
-def remove_po_product(po_order_id, product_id, product_discounted_price_change):
+def remove_po_product(po_order_id, product_id, product_discounted_price_change, total_quantity):
     try:
         #get current order values
         order = get_po_order(po_order_id)

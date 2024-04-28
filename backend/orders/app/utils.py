@@ -36,7 +36,7 @@ def reformat_order_reponse(item):
     
    # return orders
     for key, value in orders.items():
-        orders_arr.append({ "product_id":key , "quantity" : int(value['N']) , "product_owner": product_owners[key]['S']})
+        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S']})
 
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
@@ -61,7 +61,7 @@ def reformat_po_order_reponse(item):
     po_orders_arr =[]
    # return orders
     for key, value in orders.items():
-        po_orders_arr.append({ "product_id":key , "quantity" : int(value['N']) , "product_details": get_all_product_details(key)})
+        po_orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_details": get_all_product_details(key)})
 
 
     for order in orders.keys():

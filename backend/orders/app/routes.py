@@ -16,68 +16,162 @@ app.config["DEBUG"] = True
 @app.route('/', methods=['GET'])
 def test():
     # Return success response
-    print("Hello, world!")
     return jsonify({'status': True, 'message': 'Test successful'}), 201
 
 
 
 @app.get("/orders/<order_id>")
 def get_order_req(order_id):
-    response = dynamodb_users.get_order(order_id)
-    return jsonify({'status': True, 'value': res}), 200
-
+    try:
+        # Check if the order_id parameter is provided
+        if not order_id:
+            return jsonify({'error': 'Order ID is missing', 'status': False}), 400
+        
+        # Call the get_order function
+        res = dynamodb_users.get_order(order_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 @app.get("/orders")
 def get_all_orders_req():
-    response = dynamodb_users.get_all_orders()
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Call the get_all_orders function
+        res = dynamodb_users.get_all_orders()
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 @app.delete("/orders/<order_id>")
-def delete_order_req(order_id: int):
-    res = dynamodb_users.delete_order(order_id)
-    return jsonify({'status': True, 'value': res}), 200
+def delete_order_req(order_id: int):    
+    try:
+        # Check if the order_id parameter is provided
+        if not order_id:
+            return jsonify({'error': 'Order ID is missing', 'status': False}), 400
+        
+        # Call the delete_order function
+        res = dynamodb_users.delete_order(order_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 @app.put("/orders/<order_id>")
 def update_order_req(order_id):
     data = request.json
-    res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
-    return jsonify({'status': True, 'value': res}), 200
+
+    # Check if all required parameters are present
+    required_params = ['product_id', 'quantity']
+    if not all(param in data for param in required_params):
+        return jsonify({'status': False,'value': 'Missing required parameters'}), 400
+
+    try:
+        res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
+        print(res)
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'status': False, 'value': str(e)}), 500
 
 
 
 @app.get("/orders/users/search/<user_id>")
 def search_orders(user_id):
     data = request.json
-    res = dynamodb_users.search_orders(user_id)
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Check if all required parameters are present
+        if not user_id:
+            return jsonify({'error': 'User ID is missing', 'status': False}), 400
+        
+        # Call search_orders function
+        res = dynamodb_users.search_orders(user_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 @app.post("/orders")
 def add_order_req():
     data = request.json
+
+    # Check if all required parameters are present
+    required_params = ['user_id', 'product_id', 'quantity']
+    if not all(param in data for param in required_params):
+        return jsonify({'status': False, 'value': 'Missing required parameters'}), 400
     
     if data['quantity'] <= 0:
-        return jsonify({'error': 'order quantity should be at least 1', 'status': False}), 400
-    res = dynamodb_users.add_item(data['user_id'],data['product_id'], data['quantity'])
-    return jsonify({'status': True, 'value': res}), 200
+        return jsonify({'status': False,'message': 'order quantity should be at least 1'}), 400
+    
+    # If all checks pass, proceed to add the order
+    try:
+        res = dynamodb_users.add_item(data['user_id'],data['product_id'], data['quantity'])
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        return jsonify({'status': False,'value': str(e)}), 500
 
 
 @app.get("/orders/product/search/<product_owner_id>")
-def search_po_orders(product_owner_id):
-    res = dynamodb_po.search_orders_by_po(product_owner_id) 
-    return jsonify({'status': True, 'value': res}), 200
+def search_po_orders(product_owner_id): 
+    try:
+        # Check if the product_owner_id parameter is provided
+        if not product_owner_id:
+            return jsonify({'error': 'Product owner ID is missing', 'status': False}), 400
+        
+        # Call the search_orders_by_po function
+        res = dynamodb_po.search_orders_by_po(product_owner_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
+
 
 @app.get("/orders/product/<order_id>/<product_owner_id>/delivered")
 def set_po_orders_delivered(order_id, product_owner_id):
-    res = dynamodb_po.update_po_status(product_owner_id, order_id,'delivered')
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Check if both order_id and product_owner_id parameters are provided
+        if not order_id or not product_owner_id:
+            return jsonify({'error': 'Order ID or Product owner ID is missing', 'status': False}), 400
+        
+        # Call the update_po_status function
+        res = dynamodb_po.update_po_status(product_owner_id, order_id, 'delivered')
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
+
 
 @app.get("/orders/product/<order_id>/<product_owner_id>/shipped")
 def set_po_orders_shipped(order_id, product_owner_id):
-    res = dynamodb_po.update_po_status(product_owner_id, order_id,'shipped')
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Check if both order_id and product_owner_id parameters are provided
+        if not order_id or not product_owner_id:
+            return jsonify({'error': 'Order ID or Product owner ID is missing', 'status': False}), 400
+        
+        # Call the update_po_status function
+        res = dynamodb_po.update_po_status(product_owner_id, order_id, 'shipped')
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 # Create a invoice pdf out of the order details for one order
@@ -113,24 +207,64 @@ def route_get_invoice(order_id):
 
 @app.get("/orders/test/<product_id>")
 def test_orders(product_id):
-    res = utils.get_product_details(product_id)
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Check if the product_id parameter is provided
+        if not product_id:
+            return jsonify({'error': 'Product ID is missing', 'status': False}), 400
+        
+        # Call the get_product_details function
+        res = utils.get_product_details(product_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 @app.get("/orders/po")
 def get_all_po_orders():
-    res = dynamodb_po.get_all_po_orders()
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Call the get_all_po_orders function
+        res = dynamodb_po.get_all_po_orders()
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
+
 
 @app.get("/orders/po/test/search/order_id/<order_id>")
 def search_po_orders_orderid(order_id):
-    res = dynamodb_po.search_orders_by_orderid(order_id)
-    return jsonify({'status': True, 'value': res}), 200
+    try:
+        # Check if the order_id parameter is provided
+        if not order_id:
+            return jsonify({'error': 'Order ID is missing', 'status': False}), 400
+        
+        # Call the search_orders_by_orderid function
+        res = dynamodb_po.search_orders_by_orderid(order_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 @app.get("/orders/test/po/search/<order_id>/<product_owner_id>")
 def test_search_po_orders(order_id,product_owner_id):
-    res = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_id=order_id)
-    return jsonify({'status': True, 'value': res}), 200
-
+    try:
+        # Check if both order_id and product_owner_id parameters are provided
+        if not order_id or not product_owner_id:
+            return jsonify({'error': 'Order ID or Product owner ID is missing', 'status': False}), 400
+        
+        # Call the search_po_orders function
+        res = dynamodb_po.search_po_orders(product_owner=product_owner_id, order_id=order_id)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 # ----------------------------------------------------------------------------#
@@ -141,8 +275,7 @@ def test_search_po_orders(order_id,product_owner_id):
 def unprocessable(error):
     return jsonify({
         'success': False,
-        'error': 400,
-        'message': 'bad request'
+        'value': 'bad request'
     }), 400
 
 
@@ -150,8 +283,7 @@ def unprocessable(error):
 def not_found(error):
     return jsonify({
         'success': False,
-        'error': 404,
-        'message': 'resource not found'
+        'value': 'resource not found'
     }), 404
 
 
@@ -159,8 +291,7 @@ def not_found(error):
 def method_not_allowed(error):
     return jsonify({
         'success': False,
-        'error': 405,
-        'message': 'method not allowed'
+        'value': 'method not allowed'
     }, 405)
 
 
@@ -168,8 +299,7 @@ def method_not_allowed(error):
 def unprocessable(error):
     return jsonify({
         'success': False,
-        'error': 422,
-        'message': 'unprocessable'
+        'value': 'unprocessable'
     }), 422
 
 
@@ -177,6 +307,5 @@ def unprocessable(error):
 def internal_server_error(error):
     return jsonify({
         'success': False,
-        'error': 500,
-        'message': 'Internal Server Error'
++        'value': 'Internal Server Error'
     }, 500)
