@@ -4,13 +4,16 @@ import { useSelector } from 'react-redux'
 import { UserOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutlined, } from '@ant-design/icons';
 import MyCarousel from '@/Components/myCarousel'
 import "./index.less"
-import { createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
+import { addProductIntoOrder, createOrder, createReview, deleteReview, getReviewByProductId, getShopById, updateReview } from '../../../../api/user.api';
 import { formatNumber } from '@/utils/FormatNumber';
 import { useNavigate } from 'react-router-dom';
+import { useStateContext } from '../../context';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const navigateTo = useNavigate()
+    const { getOrders, orders } = useStateContext()
+    console.log(orders);
     const { user: { user_id } } = useSelector((state) => state.user)
     const {
         product_assemblies,
@@ -75,6 +78,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 if (msg.status === true) {
                     message.success("Update review successfully!")
                     setUpdateReviewModalOpen(false)
+                    getReviews()
                 } else {
                     message.error(msg.message)
                 }
@@ -111,12 +115,13 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const [averageRating, setAverageRating] = useState(0)
     useEffect(() => {
         const totalRating = reviewsData.reduce((acc, review) => acc + Number(review.rating), 0)
-        console.log("totalRating", totalRating);
         !isNaN(totalRating / reviewsData.length) && setAverageRating(totalRating / reviewsData.length)
     }, [reviewsData])
     const getReviews = async () => {
         await getReviewByProductId(product_id).then((res) => {
-            console.log("resview", res);
+            if (res.status === false && res.message?.length === 0) {
+                setReviews([])
+            }
             if (res.status === true) {
                 console.log("zhe", res.value);
                 setReviews(res.value)
@@ -143,6 +148,33 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
 
     // order
     const [quantity, setQuantity] = useState(1)
+
+    const AddToChart = async () => {
+        if (orders.length === 0) {
+            const reqData = {
+                product_id,
+                quantity,
+                user_id: user_id,
+            }
+            await createOrder(reqData).then((res) => {
+                console.log(res);
+                getOrders()
+                message.success("Add to cart successfully!")
+                setIsOpen(false)
+            })
+        } else {
+            const reqData = {
+                product_id,
+                quantity,
+            }
+            await addProductIntoOrder(orders[0].order_id, reqData).then((res) => {
+                console.log(res);
+                getOrders()
+                message.success("Add to cart successfully!")
+                setIsOpen(false)
+            })
+        }
+    }
 
 
     return (
@@ -202,7 +234,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                 <div><InputNumber min={1} max={product_current_stock} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
                             </div>
                         </div>
-                        <div className='CheckOutBtn'>Add to cart</div>
+                        <div onClick={AddToChart} className='CheckOutBtn'>Add to cart</div>
                     </div>
                     <div className='blogComments'>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -257,8 +289,8 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                     <Skeleton avatar loading={false} active>
                                         <List.Item.Meta
                                             // avatar={<Avatar size={49} src={noGender} />}
-                                            avatar={<Avatar size={36} icon={<UserOutlined />} />}
-                                            title={<a href="#">User</a>}
+                                            avatar={<Avatar size={36} icon={<UserOutlined />} src={item?.customer?.profile_picture ? item.customer.profile_picture : ''} />}
+                                            title={<a href="#">{item?.customer?.username ? item.customer?.username : "User"}</a>}
                                             description={<div>
                                                 <Rate disabled defaultValue={Number(item.rating)} />
                                                 <div>{item.reviewcontent}</div>

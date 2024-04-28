@@ -153,6 +153,8 @@ def update_shop(data, entity_uuid):
         if not re.match(email_regex, email):
             return jsonify({'status': False, 'message': 'Invalid email format!'}), 400
 
+    if shop_pictures == []:
+        shop_pictures = [""]
 
     attributes = {
         'email': email,

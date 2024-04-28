@@ -49,7 +49,6 @@ export default function UserHomePage() {
         requestProductsByCategory()
     }, [])
 
-
     // navigate
     const navigateTo = useNavigate()
     return (
