@@ -24,7 +24,8 @@ def create_product_owner_orders_table():
                 {'AttributeName': 'po_order_id', 'AttributeType': 'S'},
                 {'AttributeName': 'order_id', 'AttributeType': 'S'},
                 {'AttributeName': 'product_owner', 'AttributeType': 'S'},
-                {'AttributeName': 'order_status', 'AttributeType': 'S'}
+                {'AttributeName': 'order_status', 'AttributeType': 'S'},
+                {'AttributeName': 'user_id', 'AttributeType': 'S'}
                 
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
@@ -56,6 +57,17 @@ def create_product_owner_orders_table():
                     'KeySchema': [
                         {
                             'AttributeName': 'order_id',
+                            'KeyType': 'HASH'   
+                        }                      
+                    ],
+                    'Projection': {'ProjectionType': 'ALL'},
+                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+                },
+                {
+                    'IndexName': 'UserIDIndx',
+                    'KeySchema': [
+                        {
+                            'AttributeName': 'user_id',
                             'KeyType': 'HASH'   
                         }                      
                     ],
@@ -344,8 +356,6 @@ def search_orders_by_orderid(order_id):
                     ExpressionAttributeValues= {':order_id': {'S': order_id}}
 
                 )
-      #  if response == False:
-        #return (f"Error searching PO DB search exp {search_expression}, exp attribute {expression_attribute_values}" )
         return utils.reformat_po_order_arr_reponse(response) 
 
     except ClientError as e:
@@ -377,6 +387,36 @@ def search_po_orders_by_status(order_status):
 
                 )
         return utils.reformat_po_order_arr_reponse(response) 
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
+
+def search_po_orders_by_userid(user_id):
+    try:
+        response = db_order_management.query(
+                    TableName=TABLE_NAME,
+                    IndexName='UserIDIndx',
+                    KeyConditionExpression="user_id = :user_id ",
+                    ExpressionAttributeValues= {':user_id': {'S': user_id}}
+
+                )
+        return utils.reformat_po_order_arr_reponse(response) 
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
+
+
+def search_orders_by_userid_and_statuts(user_id, status):
+    try:
+        orders = search_po_orders_by_userid(user_id)
+        res = []
+        for item in orders['Items']:
+            if item['order_status'] == status :
+                res.append(item)
+
+        return  {"Count":len(res), "Items":res}
 
     except ClientError as e:
         print(f"Error searching: {e}")

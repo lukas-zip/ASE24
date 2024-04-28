@@ -155,6 +155,21 @@ def search_po_orders_status(order_status):
         # If an exception occurs, return an error response
         return jsonify({'error': str(e), 'status': False}), 500
 
+@app.get("/orders/search/user/<user_id>/status/<order_status>")
+def search_orders_status_and_user_id(user_id,order_status): 
+    try:
+        # Check if both user_id and order_status parameters are provided
+        if not user_id or not order_status:
+            return jsonify({'error': 'User ID or Order status is missing', 'status': False}), 400
+        
+        # Call the search_orders_by_status function
+        res = dynamodb_po.search_orders_by_userid_and_statuts(user_id, order_status)
+        
+        # Return the response
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # If an exception occurs, return an error response
+        return jsonify({'error': str(e), 'status': False}), 500
 
 
 @app.get("/orders/product/<order_id>/<product_owner_id>/delivered")
