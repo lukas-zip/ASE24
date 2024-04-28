@@ -1,0 +1,34 @@
+[
+  {
+    "product_owner": "1324a686-c8b1-4c84-bbd6-17325209d78c6",
+    "product_name": "Product X",
+    "product_description": "Description of Product X",
+    "product_current_stock": 100,
+    "product_should_stock": 50,
+    "product_price": 50.00,
+    "product_picture": ["http://localhost:4566/productpictures/thisexampleproduct.png"],
+    "product_price_reduction": 0.00,
+    "product_sale": false,
+    "product_category": ["Accessoires", "Jewlery"],
+    "product_search_attributes": ["750er", "Gold"],
+    "product_reviews": [""],
+    "product_bom": ["UUID1", "UUID2"],
+    "product_assemblies": "Final"
+  },
+  {
+    "product_owner": "1324a686-c8b1-4c84-bbd6-17325209d78c6",
+    "product_name": "Product Y",
+    "product_description": "Description of Product Y",
+    "product_current_stock": 10,
+    "product_should_stock": 20,
+    "product_price": 100.00,
+    "product_picture": ["http://localhost:4566/productpictures/thisexampleproduct.png"],
+    "product_price_reduction": 10.00,
+    "product_sale": false,
+    "product_category": ["Necless"],
+    "product_search_attributes": ["Platin", "Greenish"],
+    "product_reviews": [""],
+    "product_bom": ["UUID1"],
+    "product_assemblies": "Final"
+  }
+]

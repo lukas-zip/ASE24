@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@darkBlockBackgroundColor: #1d1d1d;
+@lightBlockBackgroundColor: #ffffff;
+
+@darkTextColor: #e7e7e7;
+@darkTextColorforcomment: #747474;
+@lightTextColor: #313131;
+@darkHtmlBackgroundColor: #171717;
+@lightHtmlBackgroundColor: #ffffff;
+@lightDashboardBackgroundColor: #f3f3f3;
+@darkBackgroundColor: #0c0f0e;
+@lightBackgroundColor: #ffffff;
+@darkTextColor: #949494;
+@lightTextColor: #9b999b;
+@darkNavHoverColor: #383838;
+@lightNavHoverColor: #f0f0f0;
+
+
+.shoppingCartBtn {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    right: 50px;
+    bottom: 40px;
+    background-color: #4d90f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #3b79e0;
+    }
+}
+
+.ShopDetailPage {
+    flex: 1;
+    height: 98%;
+    margin-left: 10px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+
+
+    &-header {
+        height: 50px;
+        display: flex;
+        margin-bottom: 10px;
+
+
+        &-searchBox {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        &-address {
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    &-mainContent {
+        overflow: auto;
+        position: relative;
+    }
+
+
+    &-shopInfo {
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 10px;
+
+        &-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        &-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        &-details {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+
+            &-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+
+                &-title {
+                    font-size: 14px;
+                }
+
+                &-number {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        &-description {
+            font-family: "Open Sans", sans-serif;
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        &-address {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+
+    &-categories {
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 20px;
+
+
+        &-title {
+            font-family: 'Luckiest Guy', cursive;
+            color: #3b79e0;
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-shadow: 1px -1px #f0f0f0, -1px 1px #999, -2px 2px #80808080;
+        }
+
+        &-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+
+            &-item {
+                display: flex;
+                flex-direction: column;
+                width: 140px;
+                align-items: center;
+                cursor: pointer;
+                padding: 10px;
+                border-radius: 10px;
+
+                &:hover {
+                    background-color: #f0f0f0;
+                }
+
+                &-title {
+                    font-size: 18px;
+                    user-select: none;
+                    font-weight: bold;
+                    display: flex;
+                    text-align: center;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+
+    &-container {
+        overflow: auto;
+
+        @media (min-width: 600px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 800px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            &-box {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px;
+            }
+        }
+    }
+}
+
+
+.ShopDetailPage-allProducts {
+    &-item {
+        margin-bottom: 16px;
+
+        &-title {
+            user-select: none;
+            text-shadow: 2px -2px #fff, -1px 1px #999, -2px 2px #80808080;
+            font-family: 'Luckiest Guy', cursive;
+            color: #8f8f8f;
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 600px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 800px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            &-content {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px;
+            }
+        }
+
+        &-content-empty {
+            border-radius: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #8f8f8f;
+        }
+
+        // &-content {
+        //     display: flex;
+        //     overflow: hidden;
+        //     gap: 16px;
+        //     border-radius: 10px;
+        //     background-color: #f0f0f0;
+        // }
+
+    }
+}

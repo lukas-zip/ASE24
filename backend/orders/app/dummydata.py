@@ -1,11 +1,9 @@
-from app import dynamodb
+from app import dynamodb_users
 import json
 
 def add_dummy_data():
     with open('dummydata/orders.json', 'r') as f:
         dummy_orders = json.load(f)
     for order in dummy_orders:
-        dynamodb.add_order(username=order["username"], orders=order["orders"], prices=order["prices"], 
-                        total_price=order["total_price"], execution_time=order["execution_time"], status=order["status"],
-                        quantities=order["quantities"])
+        dynamodb_users.add_order(user_id=order["user_id"], orders='', total_price=order["total_price"], execution_time=order["execution_time"], order_status=order["order_status"])
 

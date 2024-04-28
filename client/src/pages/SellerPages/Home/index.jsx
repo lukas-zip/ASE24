@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import './index.less'
-import { Button, Card, Flex, Modal, Popconfirm, Space, Tabs, message } from 'antd'
+import { Button, Card, Divider, Empty, Flex, Modal, Popconfirm, Space, Tabs, message } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import { DeleteOutlined, EditOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons'
 import { deleteProductFromCompany, getAllProductsByShopId } from '../../../api/user.api'
 import { useSelector } from 'react-redux'
-import UploadTutorialModal from '../../../Components/uploadTutorial'
+import UploadProductModal from '../../../Components/uploadProduct'
 import EditProductModal from '../../../Components/editTutorial'
 import Overview from './components/overview'
 
@@ -58,7 +58,7 @@ function index() {
             newPanes.push({
                 label: 'Add Product',
                 key: newActiveKey,
-                children: <UploadTutorialModal getData={getAllProducts} removeTab={remove} />
+                children: <UploadProductModal getData={getAllProducts} removeTab={remove} />
             });
             setItems(newPanes);
             setActiveKey(newActiveKey);
@@ -117,13 +117,20 @@ function index() {
             {/* header */}
             {activeKey === "home" && <>
                 <Overview products={allProducts} />
+                <Divider />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", marginBottom: 10 }}>
                     <div>
                     </div>
-                    <Button type='primary' onClick={addUploadTab}><UploadOutlined />Add New Product</Button>
+                    {allProducts.length !== 0 && <Button type='primary' onClick={addUploadTab}><UploadOutlined />Add New Product</Button>}
                 </div>
                 <div>
+                    {allProducts.length === 0 && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 320 }}>
+                        <Empty description={"No product right now"} >
+                            <Button onClick={addUploadTab} type="primary"><UploadOutlined />Create Now</Button>
+                        </Empty>
+                    </div>}
                     <Space wrap size={'middle'}>
+
                         {allProducts.map((item, key) =>
                             <Card
                                 key={key}
@@ -131,7 +138,7 @@ function index() {
                                 style={{ width: cardWidth }}
                                 cover={
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src={item.product_picture} />
+                                        <img style={{ maxWidth: cardWidth, height: cardHeight, width: 'auto', objectFit: 'cover' }} alt="example" src={item.product_picture[0]} />
                                     </div>
                                 }
                                 actions={[
@@ -153,8 +160,7 @@ function index() {
                             >
                                 <Meta title={item.product_name} description={item.product_description} />
                             </Card>
-                        )
-                        }
+                        )}
                     </Space>
                 </div>
             </>

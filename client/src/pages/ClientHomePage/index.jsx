@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './components/sidebar'
 import { useSelector } from 'react-redux'
-import { useNavigate, Outlet } from 'react-router-dom'
+import { useNavigate, Outlet, useLocation } from 'react-router-dom'
 import './index.less';
+import { Badge } from 'antd';
+import { ShopFilled, ShoppingFilled } from '@ant-design/icons';
 
 const ClientHomePage = () => {
     const { user } = useSelector((state) => state.user)
@@ -10,12 +12,22 @@ const ClientHomePage = () => {
     useEffect(() => {
         !user && navigateTo('/login')
     }, [])
+    const location = useLocation()
+    const [shoppingChartDisplay, setShoppingChartDisplay] = useState(true)
+    useEffect(() => {
+        setShoppingChartDisplay(location.pathname.split('/')[2] !== "cart");
+    }, [location])
     return (
         <div className={`App App-light`}>
             <div className={`myDashboard myDashboard-light`}>
                 <Sidebar />
                 <Outlet />
             </div>
+            {shoppingChartDisplay && <div className='shoppingCartBtn' onClick={() => navigateTo("/user/cart")}>
+                <Badge count={2}>
+                    <ShoppingFilled style={{ fontSize: 22, color: "white" }} />
+                </Badge>
+            </div>}
         </div>
     );
 }

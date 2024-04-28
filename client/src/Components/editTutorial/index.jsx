@@ -6,78 +6,91 @@ import CardTitle from '../CardTitle';
 import { useRef, useState } from 'react';
 import CONSTANTS from '../../constants';
 import { useSelector } from 'react-redux';
-import { updateProductForCompany } from '../../api/user.api';
+import { updateProductForCompany, uploadProductPicture } from '../../api/user.api';
 
 export default function EditProductModal({ getData, selectedProduct, removeTab }) {
     const { user: { shop_id } } = useSelector(state => state.user)
     const [uploading, setUploading] = useState(false)
     const editFormRef = useRef(null);
-    const [cover, setCover] = useState([{
-        uid: '-1',
-        name: 'Product Picture',
+    const originCover = selectedProduct.product_picture.map((item, key) => ({
+        uid: key,
+        name: 'Product Picture ' + key,
         status: 'done',
-        url: selectedProduct.product_picture,
-        thumbUrl: selectedProduct.product_picture,
-    }])
-    const [imageFile, setImageFile] = useState()
+        url: item,
+        thumbUrl: item,
+    }))
+    const [productImages, setProductImages] = useState(originCover)
     const propsCover = {
         onRemove: (file) => {
-            const index = cover.indexOf(file);
-            const newFileList = cover.slice();
+            const index = productImages.indexOf(file);
+            const newFileList = productImages.slice();
             newFileList.splice(index, 1);
-            setCover(newFileList);
+            setProductImages(newFileList);
         },
         beforeUpload: (file) => {
             const isImage = file.type?.startsWith('image')
             if (isImage) {
-                setImageFile(file)
-                setCover([{ ...file, name: file.name }])
+                const isSupportedImageType = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type);
+                if (!isSupportedImageType) {
+                    message.error('Unsupported file format. Please upload a JPEG, PNG, GIF, or WEBP image.');
+                    return false; // 阻止上传
+                } else {
+                    productImages.push({ ...file, name: file.name })
+                    setProductImages(productImages)
+                }
             } else {
                 message.error('u only can upload picture here')
                 return false
             }
         },
-        fileList: cover,
+        fileList: productImages,
     };
-    const submitCoverToFirebase = ({ file }) => {
-        // setUploading(true)
-        // if (file) {
-        //     const storageRef = ref(storage, `Tutorial-Cover-${parseInt((new Date().getTime() / 1000).toString())}`);
-        //     const uploadTask = uploadBytesResumable(storageRef, file);
-        //     uploadTask.on('state_changed',
-        //         (snapshot) => {
-        //             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //             setCover([{ ...file, status: 'uploading', percent: progress }])
-        //             switch (snapshot.state) {
-        //                 case 'paused':
-        //                     console.log('Upload is paused');
-        //                     break;
-        //                 case 'running':
-        //                     console.log('Upload is running');
-        //                     break;
-        //             }
-        //         },
-        //         (error) => {
-        //             message.err('Some error happens')
-        //             setCover([{ ...file, status: 'error' }])
-        //             setUploading(false)
-        //         },
-        //         () => {
-        //             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        //                 setCover([{ ...file, status: 'done', url: downloadURL, thumbUrl: downloadURL, name: file.name }])
-        //             });
-        //             setUploading(false)
-        //         }
-        //     );
-        // } else {
-        //     message.err('Some error happens')
-        //     setCover([{ ...file, status: 'error' }])
-        //     setUploading(false)
-        // }
+    const submitCoverToFirebase = async ({ file }) => {
+        setUploading(true)
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            await uploadProductPicture(formData).then(res => {
+                if (res.status) {
+                    message.success('Uploaded successfully')
+                    const handledProductImages = productImages.map(item => {
+                        if (item.uid === file.uid) {
+                            return { ...file, status: 'done', url: res.value, thumbUrl: res.value, name: file.name }
+                        }
+                        return item
+                    })
+                    console.log(productImages);
+                    setProductImages(handledProductImages)
+                    setUploading(false)
+                } else {
+                    message.err('Upload failure')
+                    const handledProductImages = productImages.map(item => {
+                        if (item.uid === file.uid) {
+                            return { ...file, status: 'error' }
+                        }
+                        return item
+                    })
+                    setProductImages(handledProductImages)
+                    setUploading(false)
+                }
+            })
+        } else {
+            message.err('Some error happens')
+            const handledProductImages = productImages.map(item => {
+                if (item.uid === file.uid) {
+                    return { ...file, status: 'error' }
+                }
+                return item
+            })
+            setProductImages(handledProductImages)
+            setUploading(false)
+        }
     }
     const onFinish = async (items) => {
-        const reqData = { ...items, product_owner: shop_id }
+        const imgUrl = productImages.map(item => item.url)
+        const reqData = {
+            ...items, product_owner: shop_id, product_sale: items.product_sale || true, product_picture: imgUrl,
+        }
         console.log('req', reqData);
 
         try {

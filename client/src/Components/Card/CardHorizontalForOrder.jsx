@@ -23,9 +23,9 @@ export default function CardHorizontal({ img = "https://lh5.googleusercontent.co
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <span style={{
           flexShrink: 0,
-          flexBasis: 60,
-          height: 60,
-          width: 60,
+          flexBasis: 100,
+          height: 100,
+          width: 100,
           borderRadius: 10,
           display: "flex",
           justifyContent: "center",
@@ -35,7 +35,7 @@ export default function CardHorizontal({ img = "https://lh5.googleusercontent.co
         }}>
           <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={img} />
         </span>
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div className='TutorialCardHorizontal-desc-content'>Money</div>
           <div className='TutorialCardHorizontal-desc-title'>Name</div>
         </div>
