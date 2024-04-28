@@ -408,9 +408,23 @@ def search_po_orders_by_userid(user_id):
         return False
 
 
-def search_orders_by_userid_and_statuts(user_id, status):
+def search_orders_by_userid_and_status(user_id, status):
     try:
         orders = search_po_orders_by_userid(user_id)
+        res = []
+        for item in orders['Items']:
+            if item['order_status'] == status :
+                res.append(item)
+
+        return  {"Count":len(res), "Items":res}
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
+
+def search_orders_by_po_id_and_status(po_id, status):
+    try:
+        orders = search_orders_by_po(po_id)
         res = []
         for item in orders['Items']:
             if item['order_status'] == status :
