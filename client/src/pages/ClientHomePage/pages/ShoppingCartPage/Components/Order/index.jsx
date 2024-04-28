@@ -1,14 +1,14 @@
 import COLORS from '@/constants/COLORS'
 import './index.less'
 import { DeleteTwoTone, RightOutlined } from '@ant-design/icons'
-import { Avatar, InputNumber, Popconfirm } from 'antd'
+import { Avatar, InputNumber, Popconfirm, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import checked from '@/assets/pic/checked.png'
 import unchecked from '@/assets/pic/unchecked.svg'
 import { useEffect, useState } from 'react'
-import { deleteOrder, getProductById, getShopById } from '@/api/user.api'
-import { order } from '@/assets/data/data'
+import { deleteOrder, deleteProductFromCompany, getProductById, getShopById, removeProductFromOrder } from '@/api/user.api'
 import { useStateContext } from '@/pages/ClientHomePage/context'
+import { order } from '@/assets/data/data'
 
 export default function OrderCard({ orderInfo, specificProductInfo }) {
     const { product_id, quantity, product_owner } = specificProductInfo
@@ -22,7 +22,6 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
     const getProductInfo = async () => {
         await getProductById(product_id).then((res) => {
             if (res.status === true) {
-                console.log(res);
                 setProduct(res.value)
             }
         })
@@ -47,11 +46,22 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
     const navigateTo = useNavigate()
     const handleAddOperation = async () => {
     }
-    const { getOrders } = useStateContext()
+    const { getOrders, orders } = useStateContext()
+    console.log(orders);
     const confirm = async (e) => {
-        await deleteOrder(order_id).then(res => {
-            console.log(res);
-            getOrders()
+        const reqData = {
+            quantity: -quantity,
+            product_id
+        }
+        await removeProductFromOrder(order_id, reqData).then(res => {
+            if (res.status) {
+                getOrders()
+            } else {
+                message.error("Error, please try again")
+            }
+        }).catch(err => {
+            console.log(err);
+            message.error("Error, please try again")
         })
     };
     const cancel = (e) => {
@@ -61,7 +71,8 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
     return (
         <div className={`OrderItemCard`} onClick={() => { }} >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-                <img src={selected ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img>
+                {/* <img src={selected ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img> */}
+                <img src={true ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img>
             </div>
             <div
                 className='OrderItemCard-img'
@@ -98,14 +109,14 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                     <div style={{ display: 'flex', marginTop: 20, justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', gap: 10 }}>
                             <div style={{ fontWeight: 'bold' }}>Quantity: </div>
-                            <div><InputNumber variant='borderless' min={1} max={6} defaultValue={quantity} onChange={(num) => {
+                            <div><InputNumber variant='borderless' disabled min={1} max={100} defaultValue={quantity} onChange={(num) => {
                                 // setQuantity(num)
                             }} /></div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 16, gap: 2, fontWeight: 'bold', color: '#4790ff' }}>
                                 <div>CHF</div>
-                                <div style={{ fontSize: 26 }}>{(product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
+                                <div style={{ fontSize: 26 }}>{(quantity * product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
                             </div>
                             {(100 - product.product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product.product_price_reduction}%</div>
                                 <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product.product_price}</div>

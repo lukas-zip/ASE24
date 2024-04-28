@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '@/pages/ClientHomePage/context';
 const UnpaidOrders = () => {
     const { orders } = useStateContext()
+    console.log(orders);
     const navigateTo = useNavigate()
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
@@ -38,18 +39,18 @@ const UnpaidOrders = () => {
             <div className='UnpaidContainer-right-body'>
                 <div className='UnpaidContainer-right-body-item'>
                     <div className='UnpaidContainer-right-body-item-name'>Item Total:</div>
-                    <div className='UnpaidContainer-right-body-item-price' style={{ textDecoration: 'line-through', color: "#747474" }}>CHF2.9</div>
+                    <div className='UnpaidContainer-right-body-item-price' style={{ textDecoration: 'line-through', color: "#747474" }}>CHF</div>
                 </div>
                 <div className='UnpaidContainer-right-body-item'>
                     <div className='UnpaidContainer-right-body-item-name'>Item Discount:</div>
-                    <div className='UnpaidContainer-right-body-item-price' style={{ color: COLORS.primary, fontWeight: 'bold' }}>-CHF2.9</div>
+                    <div className='UnpaidContainer-right-body-item-price' style={{ color: COLORS.primary, fontWeight: 'bold' }}>-CHF</div>
                 </div>
             </div>
             <Divider />
             <div className='UnpaidContainer-right-footer'>
                 <div className='UnpaidContainer-right-footer-price'>
-                    <div>Total: ({orders.length} items) </div>
-                    <div>CHF 1000.10</div>
+                    <div>Total: ({(orders[0] && orders[0]?.orders_fe) ? orders[0].orders_fe.length : 0} items) </div>
+                    <div>CHF {(orders[0] && orders[0]?.total_price) ? Number(orders[0].total_price).toFixed(2) : 0}</div>
                 </div>
                 <div className='UnpaidContainer-right-footer-button'>
                     <div className='UnpaidContainer-right-footer-button-checkout'>Checkout</div>

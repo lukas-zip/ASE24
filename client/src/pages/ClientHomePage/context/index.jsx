@@ -9,8 +9,9 @@ const StateContextProvider = ({ children }) => {
     const [orders, setOrders] = useState([]);
     const getOrders = async () => {
         user?.user_id && await getOrderByUserId(user.user_id).then(res => {
-            console.log("here", res);
-            setOrders(res.Items)
+            if (res.status) {
+                setOrders(res.value.Items)
+            }
         })
     }
     useEffect(() => {
@@ -21,7 +22,7 @@ const StateContextProvider = ({ children }) => {
             orders,
             getOrders,
             setOrders,
-            orderNumber: orders.length
+            orderNumber: orders[0]?.orders_fe?.length
         }}>
             {children}
         </StateContext.Provider>

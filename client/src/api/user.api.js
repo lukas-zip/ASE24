@@ -28,6 +28,7 @@ export const uploadProductPicture = (data) => request("products", 'post', `/prod
 export const getProductByCategory = (category) => request("products", 'get', `/product/category?term=${category}`);
 // Orders API
 
+export const removeProductFromOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const addProductIntoOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const getOrderByUserId = (userID) => request("orders", 'get', `/orders/users/search/${userID}`);
 export const getOrderBySellerId = (sellerID) => request("orders", 'get', `/orders/${orderId}`);
