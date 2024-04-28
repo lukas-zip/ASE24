@@ -4,9 +4,11 @@ import { useSelector } from 'react-redux'
 import { useNavigate, Outlet, useLocation } from 'react-router-dom'
 import './index.less';
 import { Badge } from 'antd';
-import { ShopFilled, ShoppingFilled } from '@ant-design/icons';
+import { ShoppingFilled } from '@ant-design/icons';
+import { useStateContext } from './context';
 
 const ClientHomePage = () => {
+    const { orderNumber } = useStateContext()
     const { user } = useSelector((state) => state.user)
     const navigateTo = useNavigate()
     useEffect(() => {
@@ -24,7 +26,7 @@ const ClientHomePage = () => {
                 <Outlet />
             </div>
             {shoppingChartDisplay && <div className='shoppingCartBtn' onClick={() => navigateTo("/user/cart")}>
-                <Badge count={2}>
+                <Badge count={orderNumber}>
                     <ShoppingFilled style={{ fontSize: 22, color: "white" }} />
                 </Badge>
             </div>}

@@ -58,7 +58,7 @@ export const request = (serviceType, method, url, data, config) => {
             } else {
                 errorMessage = error?.message;
             }
-            $message.error(error?.response?.data ? error.response.data : errorMessage)
+            // $message.error(error?.response?.data ? error.response.data : errorMessage)
             return {
                 status: false,
                 message: error?.response?.data ? error.response.data : errorMessage,

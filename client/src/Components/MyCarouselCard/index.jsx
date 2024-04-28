@@ -10,7 +10,7 @@ const MyCarouselDisplay = ({ pictures }) => {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % pictures.length)
-        }, [3000])
+        }, [5000])
         return () => clearInterval(timer)
     }, [])
     useEffect(() => {

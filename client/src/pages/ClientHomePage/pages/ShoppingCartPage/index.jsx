@@ -32,6 +32,8 @@ export default function ShoppingCartPage() {
                 />
             </div>
             {activeTab === tabsKey.UNPAID && <UnpaidOrders />}
+            {activeTab === tabsKey.UNDELIVERED && <UnpaidOrders />}
+            {activeTab === tabsKey.RECEIVED && <UnpaidOrders />}
         </div >
     )
 }

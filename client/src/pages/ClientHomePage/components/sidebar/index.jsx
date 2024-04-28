@@ -39,7 +39,6 @@ export default function Sidebar() {
     const navObjs = [
         { value: 'home', icon: () => <HomeTwoTone className={navShrink ? 'navigationCenteredItem' : 'navigationItem'} twoToneColor={selecetedNavItem === 'home' ? '#4e8df5' : "#3d3d3d"} style={{ fontSize: 18 }} /> },
         { value: 'cart', icon: () => <ShoppingTwoTone className={navShrink ? 'navigationCenteredItem' : 'navigationItem'} twoToneColor={selecetedNavItem === 'cart' ? '#4e8df5' : "#3d3d3d"} style={{ fontSize: 18 }} /> },
-        { value: 'statistics', icon: () => <FileTextTwoTone className={navShrink ? 'navigationCenteredItem' : 'navigationItem'} twoToneColor={selecetedNavItem === 'statistics' ? '#4e8df5' : "#3d3d3d"} style={{ fontSize: 18 }} /> },
         { value: 'profile', icon: () => <IdcardTwoTone className={navShrink ? 'navigationCenteredItem' : 'navigationItem'} twoToneColor={selecetedNavItem === 'profile' ? '#4e8df5' : "#3d3d3d"} style={{ fontSize: 18 }} /> },
     ]
     const navigationItem = (value, Icon) => {
