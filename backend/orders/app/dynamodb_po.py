@@ -376,8 +376,7 @@ def search_po_orders_by_status(order_status):
                     ExpressionAttributeValues= {':order_status': {'S': order_status}}
 
                 )
-        return response
-      #  return utils.reformat_po_order_arr_reponse(response) 
+        return utils.reformat_po_order_arr_reponse(response) 
 
     except ClientError as e:
         print(f"Error searching: {e}")
