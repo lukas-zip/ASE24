@@ -1,11 +1,11 @@
 FROM python:3.10.0
 
-WORKDIR /reviews
+WORKDIR /app
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY . /reviews
+COPY . /reviews/app
 
 EXPOSE 8003
 

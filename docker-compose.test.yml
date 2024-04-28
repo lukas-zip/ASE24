@@ -1,4 +1,5 @@
 version: '3'
+<<<<<<< HEAD
 services:
   user-service:
     image: user-service:latest
@@ -8,3 +9,33 @@ services:
     image: product-catalogue-service:latest
     ports:
       - "8002:8002"
+=======
+
+services:
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "8001:8001"
+    command: pytest
+    volumes:
+      - ./backend/user-service:/app
+    environment:
+      - FLASK_ENV=testing
+
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack
+    environment:
+      - services=s3,iam,dynamodb
+      - DEBUG=1
+      - HOSTNAME_EXTERNAL=localhost
+      - DATA_DIR=/tmp/localstack/data
+      - services=s3:4566
+      - lambda_executor=${lambda_executor-}
+      - aws_region=us-east-1
+      - aws_access_key_id=test
+      - aws_secret_access_key=test
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+>>>>>>> db66721aeb71cd451fdc4baf6e3063d5286478cd

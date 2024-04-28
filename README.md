@@ -3,9 +3,18 @@ In a world in which consumers are more likely to want local suppliers and sustai
 
 ## Architecture
 
-The system comprises various microservices: `user-service`, `product-service`, `xxx`, ... each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named app, housing `__init__.py`, `dynamodb.py`, `dummydata.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service.
+The system comprises various microservices: `user-service`, `product-service`, `xxx`, ... each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named app, housing `__init__.py`, `dynamodb.py`, `dummydata.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service. Additionally, each service includes a test order to evaluate and test its functionalities.
 
 To coordinate the different services, a `docker-compose.yml` file in the ASE24 directory orchestrates their integration.
+<<<<<<< HEAD
+=======
+
+## Tests
+
+Tests are executable locally by entering `sh test.sh` to the console (ASE24 directory). This action triggers the `docker-compose.test.yml` file, launching the specified tests. Furthermore the tests are executed automatically by the CI/CD pipeline (CircleCi) when new commits are pushed to github.
+
+
+>>>>>>> db66721aeb71cd451fdc4baf6e3063d5286478cd
 ## Usage
 
 To utilize this application, ensure Docker and Docker Compose are installed on your system. Once installed, follow these steps in order to run the microservice architecture:

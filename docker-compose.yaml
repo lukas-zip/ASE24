@@ -6,8 +6,6 @@ services:
     build: ./backend/reviews
     ports:
       - "8003:8003"
-    # env_file:
-    #   - .env.localstack
     volumes:
       - ./backend/reviews:/app
     depends_on:
@@ -23,13 +21,12 @@ services:
       - FLASK_ENV=development
     depends_on:
       - localstack
+      - financial-service
 
   inventory_management:
     build: ./backend/inventory_management
     ports:
-      - "8002:8000"
-    # env_file:
-    #   - .env.localstack
+      - "8002:8002"
     volumes:
       - ./backend/inventory_management:/app
     depends_on:
@@ -45,6 +42,17 @@ services:
       - FLASK_ENV=development
     depends_on:
       - localstack
+
+  financial-service:
+    build: ./backend/financial-service
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./backend/financial-service:/app
+    depends_on:
+      - localstack
+      - inventory_management
+      - orders
 
   client:
     build: client
@@ -82,3 +90,9 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+  # stripe-cli:
+  #   container_name: stripe-cli
+  #   image: stripe/stripe-cli
+  #   command: "listen --api-key ${STRIPE_API_KEY:rk_test_somelongkey***************} --device-name ${STRIPE_DEVICE_NAME:Name} --forward-to web:8000/payment/webhook/"
+  #   # env_file:
+  #   #   - stripe_cli.env

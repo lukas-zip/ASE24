@@ -52,6 +52,8 @@ export default function Login() {
         }
     }
     const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
+
+    const [messageApi, contextHolder] = message.useMessage();
     const registerUser = async () => {
         const { name, email, password } = sigUpInfo
         if (role === CONSTANTS.USER_TYPE.USER) {
@@ -69,6 +71,7 @@ export default function Login() {
                         navigateTo('/')
                         message.success('Register Successfully! Have a nice trip!!!')
                     } else {
+                        console.log(res.message);
                         message.error(res.message)
                     }
                 })
@@ -92,12 +95,14 @@ export default function Login() {
                         navigateTo('/')
                         message.success('Register Successfully! Have a nice trip!!!')
                     } else {
-                        message.error(res.message)
+                        console.log("zheli", res);
+                        message.error(res.message.message)
+                        console.log("zheli");
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    message.error('Registration Failure! Try again please')
+                    message.info('Registration Failure! Try again please')
                 })
         }
     }
