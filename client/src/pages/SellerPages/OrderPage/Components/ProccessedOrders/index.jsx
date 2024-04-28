@@ -19,9 +19,6 @@ const ProccessedOrders = () => {
                         {/* <div style={{ color: "#747474" }}>Add your favorite items in it.</div> */}
                     </div>
                 </div>
-                <div className='startShopping' onClick={() => navigateTo('/')}>
-                    Start shopping
-                </div>
             </div>}
             {orders.length !== 0 && <div className='UnpaidContainer-left-content'>
                 {orders.map((item) => {
