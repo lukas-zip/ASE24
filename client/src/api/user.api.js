@@ -30,7 +30,7 @@ export const getProductByCategory = (category) => request("products", 'get', `/p
 export const getOrderById = (orderId) => request("orders", 'get', `/orders/${orderId}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);
 export const updateOrder = (orderId, data) => request("orders", 'put', `/orders/${orderId}`, data);
-export const createOrder = (data) => request("orders", 'post', '/orders', data);
+export const createOrder = (data) => request("orders", 'post', '/orders/', data);
 
 // Reviews API (Port 8003)
 export const createReview = (data) => request("reviews", 'post', `/review`, data);
