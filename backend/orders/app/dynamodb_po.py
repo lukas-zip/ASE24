@@ -23,7 +23,9 @@ def create_product_owner_orders_table():
             AttributeDefinitions=[
                 {'AttributeName': 'po_order_id', 'AttributeType': 'S'},
                 {'AttributeName': 'order_id', 'AttributeType': 'S'},
-                {'AttributeName': 'product_owner', 'AttributeType': 'S'}
+                {'AttributeName': 'product_owner', 'AttributeType': 'S'},
+                {'AttributeName': 'order_status', 'AttributeType': 'S'}
+                
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
             GlobalSecondaryIndexes=[
@@ -38,7 +40,18 @@ def create_product_owner_orders_table():
                     'Projection': {'ProjectionType': 'ALL'},
                     'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
                 },
-                                {
+                {
+                    'IndexName': 'OrderStatusIndx',
+                    'KeySchema': [
+                        {
+                            'AttributeName': 'order_status',
+                            'KeyType': 'HASH'   
+                        }                      
+                    ],
+                    'Projection': {'ProjectionType': 'ALL'},
+                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+                },
+                {
                     'IndexName': 'OrderIDIndx',
                     'KeySchema': [
                         {
@@ -49,6 +62,7 @@ def create_product_owner_orders_table():
                     'Projection': {'ProjectionType': 'ALL'},
                     'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
                 }
+                
                 
             ]
         )
@@ -353,3 +367,18 @@ def search_po_orders(product_owner, order_id):
     return 'Invalid Search'
 
     
+def search_po_orders_by_status(order_status):
+    try:
+        response = db_order_management.query(
+                    TableName=TABLE_NAME,
+                    IndexName='OrderStatusIndx',
+                    KeyConditionExpression="order_status = :order_status ",
+                    ExpressionAttributeValues= {':order_status': {'S': order_status}}
+
+                )
+        return response
+      #  return utils.reformat_po_order_arr_reponse(response) 
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
