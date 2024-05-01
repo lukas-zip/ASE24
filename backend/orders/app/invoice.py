@@ -49,7 +49,8 @@ def create_pdf(order_id):
 
         # get the order information new
         response_order = requests.get(f'http://orders:8004/orders/{order_id}')
-        order_details = response_order.json()
+        order_resp_json = response_order.json()
+        order_details = order_resp_json['value']
         total_price = order_details['total_price']
         product_list = order_details['orders_fe'] #list with order lines (id, owner and quantity)
         user_id = order_details['user_id'] #just name, adress missing
@@ -83,7 +84,7 @@ def create_pdf(order_id):
         pdf.drawString(50, top_margin - 195, f'Thank you for your order.')
 
         # Create table for products new
-        data = [["Product Name", "Quantity", "Price", "Discount", "Reduced Price"]]
+        data = [["Product Name", "Quantity", "Price", "Discount", "Reduced Price", "Sum"]]
         for no in range(len(product_list)): #hier noch pro product
             product_id = product_list[no]['product_id']
             product_quantity = product_list[no]['quantity']
@@ -92,9 +93,10 @@ def create_pdf(order_id):
             response_product = requests.get(f'http://inventory_management:8002/product/{product_id}')
             product_details = response_product.json()
             product_name = product_details['value']['product_name']
-            data.append([product_name, product_quantity ,product_price, product_disc, reduced_price ])
+            product_sum = reduced_price * product_quantity
+            data.append([product_name, product_quantity ,product_price, product_disc, reduced_price, product_sum ])
         table_width = page_width - 100  # Adjusted width for table
-        table = Table(data, colWidths=[table_width / 5] * 5)  # Equal width for each column
+        table = Table(data, colWidths=[table_width / 6] * 6)  # Equal width for each column
         table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
                                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
