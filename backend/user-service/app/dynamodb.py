@@ -249,7 +249,6 @@ def update_entity(entity_uuid, attributes):
         entity_type = get_entity_type(entity_uuid)
         if entity_type is None:
             return False
-        logging.error(entity_type)
         # Base update expression setup
         update_expression = "set "
         expression_attribute_values = {}
