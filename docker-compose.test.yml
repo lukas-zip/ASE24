@@ -1,15 +1,4 @@
 version: '3'
-<<<<<<< HEAD
-services:
-  user-service:
-    image: user-service:latest
-    ports:
-      - "8001:8001"
-  product-catalogue-service:
-    image: product-catalogue-service:latest
-    ports:
-      - "8002:8002"
-=======
 
 services:
 
@@ -38,4 +27,4 @@ services:
       - aws_secret_access_key=test
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
->>>>>>> db66721aeb71cd451fdc4baf6e3063d5286478cd
+
