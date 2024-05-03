@@ -57,7 +57,7 @@ services:
 
   stripe-cli:
     image: stripe/stripe-cli
-    command: listen --forward-to webapp:4242/webhook
+    command: stripe listen --forward-to financial-service:8005/webhook
 
   client:
     build: client
