@@ -36,13 +36,13 @@ def reformat_order_reponse(item):
     
    # return orders
     for key, value in orders.items():
-        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S']})
+        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S'], "product_details": get_all_product_details(key)})
 
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
 
     for po in product_owners.keys():
-        product_owners_dict[po] = product_owners[po].get('S', '')
+        product_owners_dict[po] = product_owners[po].get('S', ''),
 
     
     return {
