@@ -53,6 +53,11 @@ services:
       - localstack
       - inventory_management
       - orders
+      - stripe-cli
+
+  stripe-cli:
+    image: stripe/stripe-cli
+    command: listen --forward-to webapp:4242/webhook
 
   client:
     build: client
