@@ -63,6 +63,7 @@ services:
       - ./client/public:/app/public
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--openssl-legacy-provider
     depends_on:
       - user-service
       - inventory_management

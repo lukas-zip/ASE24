@@ -145,13 +145,16 @@ def change_password(entity_uuid, old_password, new_password):
 
 
 # Function to add a user to the dynamodb
-def add_user(email, password, username, address, phone, profile_picture):
+def add_user(email, password, username, address, phone, profile_picture, dummyid=None):
     try:
         if user_in_db(email) is not None:
             return None
 
         # Generate UUID for the new user
-        user_uuid = str(uuid.uuid4())
+        if dummyid is None:
+            user_uuid = str(uuid.uuid4())
+        else:
+            user_uuid = dummyid
 
         # Hash the password before storing it
         hashed_password = hash_password(password)
@@ -183,14 +186,17 @@ def add_user(email, password, username, address, phone, profile_picture):
 
 
 # Function to add a shop to the dynamodb
-def add_shop(shop_name, email, password, address, phone, description, profile_picture, shop_pictures):
+def add_shop(shop_name, email, password, address, phone, description, profile_picture, shop_pictures, dummyid=None):
     try:
         # Check if the user already exists
         if user_in_db(email) is not None:
             return None
 
         # Generate UUID for the new user
-        shop_uuid = str(uuid.uuid4())
+        if dummyid is None:
+            shop_uuid = str(uuid.uuid4())
+        else:
+            shop_uuid = dummyid
 
         # Hash the password before storing it
         hashed_password = hash_password(password)
@@ -218,11 +224,6 @@ def add_shop(shop_name, email, password, address, phone, description, profile_pi
                 'phone': {'S': phone}
             }
         )
-
-        data = {
-            "shop_id": f"{shop_uuid}"
-        }
-        #requests.post('http://financial-service:8005/account', json=data)
 
         print("Shop added with UUID:", shop_uuid)
         return get_shop_json(get_shop(shop_uuid))
