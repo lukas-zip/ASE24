@@ -53,6 +53,11 @@ services:
       - localstack
       - inventory_management
       - orders
+      - stripe-cli
+
+  stripe-cli:
+    image: stripe/stripe-cli
+    command: stripe listen --forward-to financial-service:8005/webhook
 
   client:
     build: client
@@ -63,6 +68,7 @@ services:
       - ./client/public:/app/public
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--openssl-legacy-provider
     depends_on:
       - user-service
       - inventory_management
