@@ -21,14 +21,23 @@ def create_orders_table():
             ],
             AttributeDefinitions=[
                 {'AttributeName': 'order_id', 'AttributeType': 'S'},
-                {'AttributeName': 'user_id', 'AttributeType': 'S'}
+                {'AttributeName': 'user_id', 'AttributeType': 'S'},
+                {'AttributeName': 'order_status', 'AttributeType': 'S'}
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
-            GlobalSecondaryIndexes=[
+            GlobalSecondaryIndexes=[ 
                 {
                     'IndexName': 'userIdIndx',
                     'KeySchema': [
                         {'AttributeName': 'user_id', 'KeyType': 'HASH'}
+                    ],
+                    'Projection': {'ProjectionType': 'ALL'},
+                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+                },
+                {
+                    'IndexName': 'statusIndx',
+                    'KeySchema': [
+                        {'AttributeName': 'order_status', 'KeyType': 'HASH'}
                     ],
                     'Projection': {'ProjectionType': 'ALL'},
                     'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
@@ -51,13 +60,13 @@ def add_item(user_id,product_id, quantity):
     
         discounted_price = utils.calc_discounted_price(product_price, product_price_reduction)
         total_price = discounted_price*quantity
-        status = 'Processed'
+        status = 'unpaid'
 
 
         if quantity <= 0:
                 return {'status': False, 'value': 'product quantity has to be at least 1!'}
 
-
+        current_time = str(datetime.now())
         # Put the new item into the table
         db_order_management.put_item(
             TableName=TABLE_NAME,
@@ -67,6 +76,8 @@ def add_item(user_id,product_id, quantity):
                 'orders': {'M':  {product_id: {"N": str(quantity)}}}, 
                 'product_owners': {'M':  {product_id: {"S": product_owner}}}, 
                 'total_price': {'N': str(total_price)},
+                'order_status': {'S': status},
+                'execution_time': {'S': current_time},
             }
         )
 
@@ -313,6 +324,24 @@ def search_orders(user_id):
                     IndexName='userIdIndx',
                     KeyConditionExpression="user_id = :user_id",
                     ExpressionAttributeValues= {':user_id': {'S': user_id}}
+                )
+        return utils.reformat_order_arr_reponse(response)  
+
+    except ClientError as e:
+        print(f"Error deleting: {e}")
+        return False
+
+
+def search_orders_by_status(status):
+    try:
+        #terms can include: user_id, product_id, status  #TODO add time
+        search_expression = ""
+        expression_attribute_values = {}
+        response = db_order_management.query(
+                    TableName=TABLE_NAME,
+                    IndexName='statusIndx',
+                    KeyConditionExpression="order_status = :order_status",
+                    ExpressionAttributeValues= {':order_status': {'S': status}}
                 )
         return utils.reformat_order_arr_reponse(response)  
 

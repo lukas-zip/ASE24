@@ -54,6 +54,12 @@ services:
       - inventory_management
       - orders
 
+  stripe-cli:
+    image: stripe/stripe-cli
+    command: listen --api-key "sk_test_51P3x1RL2VoulaBDdRpHDMZQCFlvnAmG1D1HRzjwnual8vUucfqdIRJiuMDGXOcVP5m6zwvaYPE6QzXiQkR3Hledx00yqj0pned" --forward-to financial-service:8005/webhook
+    depends_on:
+      - financial-service
+
   client:
     build: client
     ports:
@@ -63,6 +69,7 @@ services:
       - ./client/public:/app/public
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--openssl-legacy-provider
     depends_on:
       - user-service
       - inventory_management

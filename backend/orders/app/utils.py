@@ -36,13 +36,13 @@ def reformat_order_reponse(item):
     
    # return orders
     for key, value in orders.items():
-        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S']})
+        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S'], "product_details": get_all_product_details(key)})
 
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
 
     for po in product_owners.keys():
-        product_owners_dict[po] = product_owners[po].get('S', '')
+        product_owners_dict[po] = product_owners[po].get('S', ''),
 
     
     return {
@@ -51,7 +51,9 @@ def reformat_order_reponse(item):
                 'orders': orders_dict,
                 'product_owners': product_owners_dict,
                 'total_price': item.get('total_price', {}).get('N', ''),
-                'user_id': item.get('user_id', {}).get('S', '')
+                'user_id': item.get('user_id', {}).get('S', ''),
+                'execution_time': item.get('execution_time', {}).get('S', ''),
+                'order_status': item.get('order_status', {}).get('S', '')
           }
 
 def reformat_po_order_reponse(item):
@@ -74,7 +76,6 @@ def reformat_po_order_reponse(item):
                 'orders': orders_dict,
                 'order_status': item.get('order_status', {}).get('S', ''),
                 'total_price': item.get('total_price', {}).get('N', ''),
-                'order_status': item.get('order_status', {}).get('S', ''),
                 'product_owner': item.get('product_owner', {}).get('S', ''),
                 'user_id': item.get('user_id', {}).get('S', ''),
                 'orders_fe': po_orders_arr
