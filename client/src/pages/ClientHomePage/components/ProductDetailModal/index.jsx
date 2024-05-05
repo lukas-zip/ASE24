@@ -8,6 +8,7 @@ import { addProductIntoOrder, createOrder, createReview, deleteReview, getReview
 import { formatNumber } from '@/utils/FormatNumber';
 import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '../../context';
+import { myDebounceFunc } from '@/utils/debounceFunc';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
@@ -148,7 +149,6 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
 
     // order
     const [quantity, setQuantity] = useState(1)
-
     const AddToChart = async () => {
         if (orders.length === 0) {
             const reqData = {
@@ -175,6 +175,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
             })
         }
     }
+    const debouncedAddToCart = myDebounceFunc(AddToChart, 500)
 
 
     return (
@@ -234,7 +235,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                 <div><InputNumber min={1} max={product_current_stock} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
                             </div>
                         </div>
-                        <div onClick={AddToChart} className='CheckOutBtn'>Add to cart</div>
+                        <div onClick={debouncedAddToCart} className='CheckOutBtn'>Add to cart</div>
                     </div>
                     <div className='blogComments'>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

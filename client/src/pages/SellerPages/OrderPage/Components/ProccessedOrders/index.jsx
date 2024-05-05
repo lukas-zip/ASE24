@@ -1,14 +1,10 @@
-import COLORS from '@/constants/COLORS';
 import './index.less'
-import { Divider, } from 'antd';
 import EmptyBox from '@/assets/pic/EmptyBox.png'
 import OrderCard from '../Order';
-import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '@/pages/ClientHomePage/context';
 const ProccessedOrders = () => {
     const { orders } = useStateContext()
     console.log(orders);
-    const navigateTo = useNavigate()
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
             {orders.length === 0 && <div className='UnpaidContainer-left-empty'>
