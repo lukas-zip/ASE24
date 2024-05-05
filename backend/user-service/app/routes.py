@@ -15,14 +15,24 @@ route_blueprint = Blueprint('', __name__,)
 # Test if endpoint is available
 @route_blueprint.route('/', methods=['GET'])
 def test():
-    # Return success response
-    # app.logger.info('Info level log')
+    """
+    A simple test route that returns a success message and status. This function is a placeholder to confirm the API endpoint is reachable.
+
+    :return: A JSON response with a success status and message.
+    """
     print("Hello, world!")
     return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 
 @route_blueprint.route('/<entity>', methods=['POST'])
 def register_entity(entity):
+    """
+    Registers an entity, which can be either a 'user' or 'shop'. The function dynamically calls the appropriate registration function based on the entity type.
+
+    :param entity: A string specifying the entity type ('users' or 'shops').
+    :return: A JSON response indicating the result of the registration attempt.
+    :raises ClientError: If there is an issue with DynamoDB operations.
+    """
     try:
         data = request.json
         if entity == 'users':
@@ -38,6 +48,13 @@ def register_entity(entity):
 
 # User registration by retrieving data from post request and saving into dynamodb
 def register_user(data):
+    """
+    Registers a new user with the provided details, saving the data to DynamoDB.
+
+    :param data: A dictionary containing user details.
+    :return: A JSON response indicating the success or failure of the registration.
+    :raises ClientError: If an error occurs while adding the user to DynamoDB.
+    """
     email = data.get('email')
     password = data.get('password')
     username = data.get('username')
@@ -64,6 +81,13 @@ def register_user(data):
 
 # Shop registration by retrieving data from post request and saving into dynamodb
 def register_shop(data):
+    """
+    Registers a new shop with the provided details, saving the data to DynamoDB.
+
+    :param data: A dictionary containing shop details.
+    :return: A JSON response indicating the success or failure of the registration.
+    :raises ClientError: If an error occurs while adding the shop to DynamoDB.
+    """
     email = data.get('email')
     shop_name = data.get('shop_name')
     description = data.get('description')
@@ -94,6 +118,12 @@ def register_shop(data):
 # Check if user already  exists and provide login to platform
 @route_blueprint.route('/login', methods=['POST'])
 def login():
+    """
+    Handles user login by checking provided credentials against the database entries.
+
+    :return: A JSON response indicating success if credentials are valid, or an error message otherwise.
+    :raises ClientError: If a DynamoDB operation error occurs.
+    """
     data = request.json
     email = data.get('email')
     password = data.get('password')
@@ -114,10 +144,15 @@ def login():
 
 @route_blueprint.route('/<entity>/<entity_uuid>', methods=['PUT'])
 def update_entity(entity, entity_uuid):
+    """
+    Updates an entity (user or shop) based on the provided JSON data and action type specified within the data.
+
+    :param entity: The type of the entity ('users' or 'shops').
+    :param entity_uuid: UUID of the entity to be updated.
+    :return: A JSON response indicating the result of the update attempt.
+    :raises ClientError: If an error occurs while updating the entity in DynamoDB.
+    """
     try:
-        #if 'file' in request.files:
-        #    file = request.files['file']
-        #    return update_picture(file, entity_uuid)
         data = request.json
         action = data.get('action')
         if entity == 'users' and action == 'update':
@@ -135,7 +170,14 @@ def update_entity(entity, entity_uuid):
 
 # Update function for shop
 def update_shop(data, entity_uuid):
-    # Retrieve the data sent in the request
+    """
+    Updates the shop details in DynamoDB based on provided data.
+
+    :param data: A dictionary containing the new shop details.
+    :param entity_uuid: UUID of the shop to be updated.
+    :return: A JSON response indicating success or failure of the update.
+    :raises ClientError: If an error occurs during the DynamoDB update operation.
+    """
     shop_name = data.get('shop_name')
     description = data.get('description')
     email = data.get('email')
@@ -178,6 +220,14 @@ def update_shop(data, entity_uuid):
 
 
 def update_user(data, entity_uuid):
+    """
+    Updates user details in DynamoDB based on provided data.
+
+    :param data: A dictionary containing the new user details.
+    :param entity_uuid: UUID of the user to be updated.
+    :return: A JSON response indicating success or failure of the update.
+    :raises ClientError: If an error occurs during the DynamoDB update operation.
+    """
     # Retrieve the data sent in the request
     email = data.get('email')
     username = data.get('username')
@@ -214,6 +264,14 @@ def update_user(data, entity_uuid):
 
 
 def change_password(data, entity_uuid):
+    """
+    Changes the password for a user or shop entity after verifying the old password.
+
+    :param data: A dictionary containing the old and new passwords.
+    :param entity_uuid: UUID of the entity for which the password is to be changed.
+    :return: A JSON response indicating the result of the change password attempt.
+    :raises ClientError: If an error occurs during the password change process in DynamoDB.
+    """
     old_password = data.get('old_password')
     new_password = data.get('new_password')
 
@@ -233,6 +291,13 @@ def change_password(data, entity_uuid):
 
 
 def update_picture(file, entity_uuid):
+    """
+    Handles uploading and updating a profile picture for an entity.
+
+    :param file: File object containing the image to be uploaded.
+    :param entity_uuid: UUID of the entity to which the picture belongs.
+    :return: A JSON response with the outcome of the upload and update operation.
+    """
     if file.filename == '':
         return jsonify({'status': False, 'message': 'No selected file'}), 400
 
@@ -266,6 +331,14 @@ def update_picture(file, entity_uuid):
 
 @route_blueprint.route('/<entity>/<entity_uuid>', methods=['GET'])
 def get_entity(entity, entity_uuid):
+    """
+    Retrieves details for a specified entity (user or shop) based on its UUID.
+
+    :param entity: Type of entity ('users' or 'shops').
+    :param entity_uuid: UUID of the entity to retrieve.
+    :return: A JSON response with the entity details if successful, or an error message otherwise.
+    :raises Exception: General exceptions caught during the retrieval process.
+    """
     try:
         if entity == 'users':
             response = dynamodb.get_user_json(dynamodb.get_user(entity_uuid))
@@ -284,6 +357,14 @@ def get_entity(entity, entity_uuid):
 
 @route_blueprint.route('/<entity>/<entity_uuid>', methods=['DELETE'])
 def delete_entity(entity, entity_uuid):
+    """
+    Deletes an entity (user or shop) from the system including associated S3 resources.
+
+    :param entity: Type of the entity ('users' or 'shops').
+    :param entity_uuid: UUID of the entity to delete.
+    :return: A JSON response indicating the result of the deletion process.
+    :raises ClientError: If a DynamoDB operation error occurs.
+    """
     try:
         data = dynamodb.get_entity_json(entity_uuid)
         if entity == 'users':
@@ -304,6 +385,12 @@ def delete_entity(entity, entity_uuid):
         return jsonify({'status': False, 'message': f'An error occurred while deleting the {entity_uuid}'}), 500
 
 def delete_s3_pictures(data, entity):
+    """
+    Deletes pictures associated with an entity from S3.
+
+    :param data: A dictionary containing the entity details, including pictures.
+    :param entity: Type of entity ('users' or 'shops') for context on what pictures to delete.
+    """
     if entity == 'shops':
         for picture_path in data.get('shop_pictures', []):
             s3_object_key = picture_path.split('/')[-1]  # Extract object key from the picture path
@@ -315,6 +402,13 @@ def delete_s3_pictures(data, entity):
 
 @route_blueprint.route('/picture/<action>', methods = ['POST'])
 def upload_picture(action):
+    """
+    Uploads an image to a specified S3 bucket based on the action type ('profile' or 'shop'). Handles image uploading by validating the presence and format of the file, and then storing it in AWS S3.
+
+    :param action: Specifies the target bucket ('profile' for user profile pictures, 'shop' for shop-related pictures).
+    :return: A JSON response indicating the success or failure of the upload. Returns the URL of the uploaded image if successful.
+    :raises ClientError: If there's an error during the S3 upload process.
+    """
     #allowed_types = ['.jpg', '.png', '.mp4']
     if action == 'profile':
         bucket_name = 'profilepictures'
