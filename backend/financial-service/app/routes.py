@@ -172,7 +172,7 @@ def get_order(order_id):
 
 
 def update_order_payed(order_id):
-    response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid/")
+    response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid")
     if response.status_code == 200:
         return True
     else:
