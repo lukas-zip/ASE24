@@ -5,18 +5,17 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import EmptyBox from '@/assets/pic/EmptyBox.png'
 import { useNavigate } from 'react-router-dom';
-import OrderCard from './Components/Order';
+import OrderCard from './Components/OrderCard';
 import { CarOutlined, ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
-import ProccessedOrders from './Components/ProccessedOrders';
+import UnpaidOrders from './Components/UnpaidOrders';
 
 const tabsKey = {
-    PROCESSED: "Processed",
-    DELIVERED: "Delivered",
-    SHIPPED: "Shipped"
+    UNPAID: "Unpaid",
+    PAID: "Paid"
 }
 export default function OrderPage() {
     const navigateTo = useNavigate()
-    const [activeTab, setActiveTab] = useState(tabsKey.PROCESSED)
+    const [activeTab, setActiveTab] = useState(tabsKey.UNPAID)
     return (
         <div className='containerWrapper' style={{ margin: 10 }}>
             <div className='ShoppingCartPage-header'>
@@ -25,15 +24,13 @@ export default function OrderPage() {
                     defaultActiveKey={activeTab}
                     onChange={(e) => setActiveTab(e)}
                     items={[
-                        { key: tabsKey.PROCESSED, label: tabsKey.PROCESSED, icon: <WalletOutlined /> },
-                        { key: tabsKey.DELIVERED, label: tabsKey.DELIVERED, icon: <ClockCircleOutlined /> },
-                        { key: tabsKey.SHIPPED, label: tabsKey.SHIPPED, icon: <CarOutlined /> }
+                        { key: tabsKey.UNPAID, label: tabsKey.UNPAID, icon: <ClockCircleOutlined /> },
+                        { key: tabsKey.PAID, label: tabsKey.PAID, icon: <WalletOutlined /> },
                     ]}
                 />
             </div>
-            {activeTab === tabsKey.PROCESSED && <ProccessedOrders />}
-            {activeTab === tabsKey.DELIVERED && <ProccessedOrders />}
-            {activeTab === tabsKey.SHIPPED && <ProccessedOrders />}
+            {activeTab === tabsKey.UNPAID && <UnpaidOrders />}
+            {activeTab === tabsKey.PAID && <UnpaidOrders />}
         </div >
     )
 }

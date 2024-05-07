@@ -13,8 +13,8 @@ import { myDebounceFunc } from '@/utils/debounceFunc';
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const navigateTo = useNavigate()
-    const { getOrders, orders } = useStateContext()
-    console.log(orders);
+    const { getOrders, orders, unpaidOrders } = useStateContext()
+    console.log("unpaidOrders", unpaidOrders);
     const { user: { user_id } } = useSelector((state) => state.user)
     const {
         product_assemblies,
@@ -176,8 +176,6 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
         }
     }
     const debouncedAddToCart = myDebounceFunc(AddToChart, 500)
-
-
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen}
             onOk={() => setIsOpen(false)}

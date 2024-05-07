@@ -12,6 +12,8 @@ const serviceBases = {
     // 其他服务端口...
 };
 
+export { serviceBases }
+
 const createAxiosInstance = (baseURL) => axios.create({ baseURL });
 
 

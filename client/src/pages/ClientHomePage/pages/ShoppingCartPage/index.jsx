@@ -1,18 +1,15 @@
 import COLORS from '@/constants/COLORS';
 import './index.less'
-import { Divider, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import EmptyBox from '@/assets/pic/EmptyBox.png'
 import { useNavigate } from 'react-router-dom';
-import OrderCard from './Components/Order';
-import { CarOutlined, ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
 import UnpaidOrders from './Components/UnpaidOrders';
+import PaidOrders from './Components/PaidOrders';
 
 const tabsKey = {
     UNPAID: "unpaid",
-    UNDELIVERED: "undelivered",
-    RECEIVED: "received"
+    PAID: "paid",
 }
 export default function ShoppingCartPage() {
     const navigateTo = useNavigate()
@@ -25,15 +22,13 @@ export default function ShoppingCartPage() {
                     defaultActiveKey={activeTab}
                     onChange={(e) => setActiveTab(e)}
                     items={[
-                        { key: tabsKey.UNPAID, label: `Unpaid`, icon: <WalletOutlined /> },
-                        { key: tabsKey.UNDELIVERED, label: `Undelivered`, icon: <ClockCircleOutlined /> },
-                        { key: tabsKey.RECEIVED, label: `Received`, icon: <CarOutlined /> }
+                        { key: tabsKey.UNPAID, label: `Unpaid`, icon: <ClockCircleOutlined /> },
+                        { key: tabsKey.PAID, label: `Paid`, icon: <WalletOutlined /> },
                     ]}
                 />
             </div>
             {activeTab === tabsKey.UNPAID && <UnpaidOrders />}
-            {activeTab === tabsKey.UNDELIVERED && <UnpaidOrders />}
-            {activeTab === tabsKey.RECEIVED && <UnpaidOrders />}
+            {activeTab === tabsKey.PAID && <PaidOrders />}
         </div >
     )
 }

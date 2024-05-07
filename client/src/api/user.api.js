@@ -26,16 +26,32 @@ export const addProductForCompany = (data) => request("products", 'post', `/prod
 export const uploadProductPicture = (data) => request("products", 'post', `/product/upload/picture`, data);
 
 export const getProductByCategory = (category) => request("products", 'get', `/product/category?term=${category}`);
+
 // Orders API
+//user
+export const getUserUnpaidOrders = (userID) => request("orders", 'get', `/orders/search/user/${userID}/status/unpaid`);
+export const getUserPaidOrders = (userID) => request("orders", 'get', `/orders/search/user/${userID}/status/paid`);
+//seller
+export const getSellerPaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/unpaid`);
+export const getSellerUnpaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/paid`);
 
 export const removeProductFromOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const addProductIntoOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const getOrderByUserId = (userID) => request("orders", 'get', `/orders/users/search/${userID}`);
-export const getOrderByShopId = (userID) => request("orders", 'get', `/orders/product/search/${userID}`);
-export const getOrderBySellerId = (sellerID) => request("orders", 'get', `/orders/${orderId}`);
+export const getOrderByShopId = (sellerID) => request("orders", 'get', `/orders/product/search/${sellerID}`);
 export const deleteOrder = (orderId) => request("orders", 'delete', `/orders/${orderId}`);
 export const updateOrder = (orderId, data) => request("orders", 'put', `/orders/${orderId}`, data);
 export const createOrder = (data) => request("orders", 'post', '/orders', data);
+
+
+// payment
+export const createPaymentIntent = (data) => request("payment", 'post', '/create-payment-intent', data);
+// {
+//     "order_id": "fdefe9fe-1a9c-48be-b9ac-e13e98788e0c",
+//     "total_price": 82.32,
+//     "user_id": "384172b4-3aa6-490e-bda5-e90d0dfccfab"
+// }
+
 
 // Reviews API (Port 8003)
 export const createReview = (data) => request("reviews", 'post', `/review`, data);
