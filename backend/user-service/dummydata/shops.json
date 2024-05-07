@@ -1,5 +1,6 @@
 [
   {
+    "dummyid": "12bf71c5-807d-4852-a8da-66bc91a98216",
     "email": "micro@example.com",
     "password": "password11",
     "shop_name": "John Micro",
@@ -10,6 +11,7 @@
     "shop_pictures": null
   },
   {
+    "dummyid": "ab6cef36-9dd5-4e43-ba6e-a4b0044666cd",
     "email": "hydro@example.com",
     "password": "password22",
     "shop_name": "Jane Hydro",
@@ -20,6 +22,7 @@
     "shop_pictures": null
   },
   {
+    "dummyid": "e98ea562-ca29-4fd7-a690-552d0ed51682",
     "email": "electro@example.com",
     "password": "password33",
     "shop_name": "Max Electro",
