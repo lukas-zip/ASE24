@@ -8,9 +8,12 @@ from botocore.exceptions import ClientError
 from io import BytesIO
 from urllib.parse import quote_plus
 from flask import Blueprint
+import logging
 
 
 route_blueprint = Blueprint('', __name__,)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 # Test if endpoint is available
 @route_blueprint.route('/', methods=['GET'])
@@ -107,7 +110,7 @@ def register_shop(data):
     try:
         new_shop = dynamodb.add_shop(shop_name, email, password, address, phone, description, profile_picture, shop_pictures)
         if new_shop is None:
-            return jsonify({'status': False, 'message': 'Unable to register the shop. E-Mail address may already be in use.'}), 400
+            return jsonify({'status': False, 'message': 'Unable to register the shop. E-Mail address may already be in use.'}), 408
         return jsonify({'status': True, 'value': new_shop}), 200
 
     except ClientError as e:
@@ -283,7 +286,7 @@ def change_password(data, entity_uuid):
         if response == "mismatch":
             return jsonify({'status': False, 'message': 'The old password is incorrect.'}), 401
         elif response:
-            return jsonify({'status': True, 'value': response}), 401
+            return jsonify({'status': True, 'value': response}), 200
         else:
             return jsonify({'status': False, 'message': 'An error occurred while changing the password. Please try again!'}), 401
     except ClientError as e:
@@ -342,12 +345,14 @@ def get_entity(entity, entity_uuid):
     try:
         if entity == 'users':
             response = dynamodb.get_user_json(dynamodb.get_user(entity_uuid))
+            check = response["user_id"]
         elif entity == 'shops':
             response = dynamodb.get_shop_json(dynamodb.get_shop(entity_uuid))
+            check = response["shop_id"]
         else:
             return jsonify({'status': False, 'message': 'Invalid entity'}), 400
 
-        if not response:
+        if check is None:
             return jsonify({'status': False, 'message': 'No entity or failed to retrieve it'}), 400
         return jsonify({'status': True, 'value': response}), 201
     except Exception as e:
