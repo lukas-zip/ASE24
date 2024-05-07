@@ -73,14 +73,13 @@ def update_order_req(order_id):
    if not all(param in data for param in required_params):
        return jsonify({'status': False,'value': 'Missing required parameters'}), 400
 
-
-#    try:
-   res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
-   print(res)
-   return jsonify({'status': True, 'value': res}), 200
-#    except Exception as e:
-#        print(e)
-#        return jsonify({'status': False, 'value': str(e)}), 500
+   try:
+        res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
+        print(res)
+        return jsonify({'status': True, 'value': res}), 200
+   except Exception as e:
+       print(e)
+       return jsonify({'status': False, 'value': str(e)}), 500
 
 
 
