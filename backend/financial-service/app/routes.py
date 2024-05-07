@@ -102,6 +102,7 @@ def webhook():
         #mail = get_user_mail(user_id)
         #send_order_confirmation(mail, order_id)
         print('Payment for {} succeeded'.format(order_id))
+        update_order_payed(order_id)
     return jsonify(success=True)
 
 
@@ -168,4 +169,12 @@ def get_order(order_id):
         return jsonify(response.json()), 200
     else:
        return None
+
+
+def update_order_payed(order_id):
+    response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid/")
+    if response.status_code == 200:
+        return True
+    else:
+        return False
 
