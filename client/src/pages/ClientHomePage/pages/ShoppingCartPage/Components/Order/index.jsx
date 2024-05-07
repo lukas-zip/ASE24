@@ -118,7 +118,7 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                                 <div style={{ fontSize: 26 }}>{(quantity * product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
                             </div>
                             {(100 - product.product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product.product_price_reduction}%</div>
-                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product.product_price}</div>
+                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{(quantity * product.product_price).toFixed(2)}</div>
                             </>}
                         </div>
                     </div>

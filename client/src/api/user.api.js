@@ -32,8 +32,8 @@ export const getProductByCategory = (category) => request("products", 'get', `/p
 export const getUserUnpaidOrders = (userID) => request("orders", 'get', `/orders/search/user/${userID}/status/unpaid`);
 export const getUserPaidOrders = (userID) => request("orders", 'get', `/orders/search/user/${userID}/status/paid`);
 //seller
-export const getSellerPaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/unpaid`);
-export const getSellerUnpaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/paid`);
+export const getSellerPaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/paid`);
+export const getSellerUnpaidOrders = (sellerID) => request("orders", 'get', `/orders/search/po/${sellerID}/status/unpaid`);
 
 export const removeProductFromOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);
 export const addProductIntoOrder = (orderID, data) => request("orders", 'put', `/orders/${orderID}`, data);

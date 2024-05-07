@@ -10,7 +10,7 @@ export default function Overview({ products = [] }) {
         <div className='content-mainbox-statistic-overview'>
             <div className='content-mainbox-statistic-overview-cards'>
                 <MyCard key={1} SVG={productSVG} title={"Product"} value={products.length} />
-                <MyCard key={2} navigation={"/shop/order"} SVG={orderSVG} title={"Order"} value={orderNumber} />
+                <MyCard key={2} navigation={"/shop/order"} SVG={orderSVG} title={"Order"} value={orderNumber ? orderNumber : 0} />
             </div>
         </div>
     )

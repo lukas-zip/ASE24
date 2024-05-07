@@ -2,22 +2,22 @@ import './index.less'
 import EmptyBox from '@/assets/pic/EmptyBox.png'
 import OrderCard from '../OrderCard';
 import { useStateContext } from '@/pages/ClientHomePage/context';
-const ProccessedOrders = () => {
-    const { unpaidOrders } = useStateContext()
-    console.log("unpaidOrders", unpaidOrders);
+const PaidOrders = () => {
+    const { paidOrders } = useStateContext()
+    console.log("unpaidOrders", paidOrders);
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
-            {unpaidOrders.length === 0 && <div className='UnpaidContainer-left-empty'>
+            {paidOrders.length === 0 && <div className='UnpaidContainer-left-empty'>
                 <div className='emptyContent'>
                     <img src={EmptyBox} alt="" />
                     <div className='emptyContent-textContainer'>
-                        <div style={{ fontSize: 18, fontWeight: 'bold' }}>There is no unpaid order right now</div>
+                        <div style={{ fontSize: 18, fontWeight: 'bold' }}>There is no paid order right now</div>
                         {/* <div style={{ color: "#747474" }}>Add your favorite items in it.</div> */}
                     </div>
                 </div>
             </div>}
-            {unpaidOrders.length !== 0 && <div className='UnpaidContainer-left-content'>
-                {unpaidOrders.map((item) => {
+            {paidOrders.length !== 0 && <div className='UnpaidContainer-left-content'>
+                {paidOrders.map((item) => {
                     const { order_id, orders_fe: orderItemsArray } = item
                     return <div key={order_id}>
                         {orderItemsArray.map((specificProductInfo, key) => {
@@ -32,4 +32,4 @@ const ProccessedOrders = () => {
     </div>
 }
 
-export default ProccessedOrders
+export default PaidOrders

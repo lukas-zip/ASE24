@@ -23,6 +23,7 @@ const StateContextProvider = ({ children }) => {
             })
             user?.shop_id && await getSellerUnpaidOrders(user.shop_id).then(res => {
                 if (res.status) {
+                    console.log("here", res);
                     const resObj = res.value
                     setUnpaidOrders(resObj.Items)
                 }
@@ -57,7 +58,7 @@ const StateContextProvider = ({ children }) => {
     }
     useEffect(() => {
         getOrders();
-    }, [])
+    }, [user])
     return (
         <StateContext.Provider value={{
             orders,
