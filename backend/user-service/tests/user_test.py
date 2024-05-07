@@ -103,6 +103,7 @@ def test_get_user_success(client, user_uuid):
     assert response.get_json()['status'] == True
     assert response.get_json()['value'] == expected_response
 
+
 def test_get_user_failure(client):
     # Expected mock response from your database or service
     user_uuid = "asf92349090390wfasf"
