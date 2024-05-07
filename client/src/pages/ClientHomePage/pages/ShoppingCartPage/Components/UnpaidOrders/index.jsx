@@ -19,14 +19,14 @@ const stripePromise = loadStripe("pk_test_51P3x1RL2VoulaBDdTZCgMoiGawfZWU3PyyMlh
 
 const UnpaidOrders = () => {
     const { user } = useSelector(state => state.user)
-    const { orders } = useStateContext()
-    console.log(orders);
+    const { unpaidOrders } = useStateContext()
+    console.log(unpaidOrders);
     const navigateTo = useNavigate()
     const [clientSecret, setClientSecret] = useState("");
 
     const PaymentIntent = async () => {
-        if (orders[0]?.order_id) {
-            const reqBody = { user_id: user.user_id, order_id: orders[0].order_id, total_price: Number(orders[0].total_price) }
+        if (unpaidOrders[0]?.order_id) {
+            const reqBody = { user_id: user.user_id, order_id: unpaidOrders[0].order_id, total_price: Number(unpaidOrders[0].total_price) }
             await createPaymentIntent(reqBody).then(res => {
                 setClientSecret(res.clientSecret)
             })
@@ -34,7 +34,7 @@ const UnpaidOrders = () => {
     }
     useEffect(() => {
         PaymentIntent()
-    }, [orders[0]?.order_id]);
+    }, [unpaidOrders[0]?.order_id]);
 
     const appearance = {
         theme: 'stripe',
@@ -82,7 +82,7 @@ const UnpaidOrders = () => {
     const [paymentModalOpen, setPaymentModalOpen] = useState(false)
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
-            {orders.length === 0 && <div className='UnpaidContainer-left-empty'>
+            {unpaidOrders.length === 0 && <div className='UnpaidContainer-left-empty'>
                 <div className='emptyContent'>
                     <img src={EmptyBox} alt="" />
                     <div className='emptyContent-textContainer'>
@@ -94,8 +94,8 @@ const UnpaidOrders = () => {
                     Start shopping
                 </div>
             </div>}
-            {orders.length !== 0 && <div className='UnpaidContainer-left-content'>
-                {orders.map((item) => {
+            {unpaidOrders.length !== 0 && <div className='UnpaidContainer-left-content'>
+                {unpaidOrders.map((item) => {
                     const { order_id, orders_fe: orderItemsArray, totalprice } = item
                     return <div key={order_id}>
                         {orderItemsArray.map((specificProductInfo, key) => <OrderCard key={key} orderInfo={item} specificProductInfo={specificProductInfo} />)}
@@ -120,8 +120,8 @@ const UnpaidOrders = () => {
             <Divider />
             <div className='UnpaidContainer-right-footer'>
                 <div className='UnpaidContainer-right-footer-price'>
-                    <div>Total: ({(orders[0] && orders[0]?.orders_fe) ? orders[0].orders_fe.length : 0} items) </div>
-                    <div>CHF {(orders[0] && orders[0]?.total_price) ? Number(orders[0].total_price).toFixed(2) : 0}</div>
+                    <div>Total: ({(unpaidOrders[0] && unpaidOrders[0]?.orders_fe) ? unpaidOrders[0].orders_fe.length : 0} items) </div>
+                    <div>CHF {(unpaidOrders[0] && unpaidOrders[0]?.total_price) ? Number(unpaidOrders[0].total_price).toFixed(2) : 0}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: 10, }}>
                     <EnvironmentOutlined twoToneColor="#3d3d3d" style={{ fontSize: 18 }} />
@@ -130,7 +130,9 @@ const UnpaidOrders = () => {
                         <div onClick={() => setAddressModalOpen(true)} style={{ fontSize: 14, cursor: 'pointer' }}>{user.address ? user.address : "Fill your address"}</div>
                     </div>
                 </div>
-                <div className='UnpaidContainer-right-footer-button' onClick={() => setPaymentModalOpen(true)}>
+                <div className='UnpaidContainer-right-footer-button' onClick={() => {
+                    user.address ? setPaymentModalOpen(true) : message.error("Please fill your address first")
+                }}>
                     <div className='UnpaidContainer-right-footer-button-checkout'>Checkout</div>
                 </div>
             </div>

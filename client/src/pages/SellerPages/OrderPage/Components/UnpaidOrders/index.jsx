@@ -3,11 +3,10 @@ import EmptyBox from '@/assets/pic/EmptyBox.png'
 import OrderCard from '../OrderCard';
 import { useStateContext } from '@/pages/ClientHomePage/context';
 const ProccessedOrders = () => {
-    const { orders } = useStateContext()
-    console.log(orders);
+    const { unpaidOrders } = useStateContext()
     return <div className={`UnpaidContainer`}>
         <div className='UnpaidContainer-left'>
-            {orders.length === 0 && <div className='UnpaidContainer-left-empty'>
+            {unpaidOrders.length === 0 && <div className='UnpaidContainer-left-empty'>
                 <div className='emptyContent'>
                     <img src={EmptyBox} alt="" />
                     <div className='emptyContent-textContainer'>
@@ -16,8 +15,8 @@ const ProccessedOrders = () => {
                     </div>
                 </div>
             </div>}
-            {orders.length !== 0 && <div className='UnpaidContainer-left-content'>
-                {orders.map((item) => {
+            {unpaidOrders.length !== 0 && <div className='UnpaidContainer-left-content'>
+                {unpaidOrders.map((item) => {
                     const { order_id, orders_fe: orderItemsArray } = item
                     return <div key={order_id}>
                         {orderItemsArray.map((specificProductInfo, key) => {

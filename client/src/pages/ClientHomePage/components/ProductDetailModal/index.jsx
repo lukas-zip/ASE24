@@ -14,7 +14,6 @@ const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const navigateTo = useNavigate()
     const { getOrders, orders, unpaidOrders } = useStateContext()
-    console.log("unpaidOrders", unpaidOrders);
     const { user: { user_id } } = useSelector((state) => state.user)
     const {
         product_assemblies,
@@ -150,7 +149,8 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     // order
     const [quantity, setQuantity] = useState(1)
     const AddToChart = async () => {
-        if (orders.length === 0) {
+        if (unpaidOrders.length === 0) {
+            console.log("zhele no");
             const reqData = {
                 product_id,
                 quantity,
@@ -163,15 +163,19 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 setIsOpen(false)
             })
         } else {
+            console.log("zhele you");
             const reqData = {
                 product_id,
                 quantity,
             }
-            await addProductIntoOrder(orders[0].order_id, reqData).then((res) => {
-                console.log(res);
-                getOrders()
-                message.success("Add to cart successfully!")
-                setIsOpen(false)
+            await addProductIntoOrder(unpaidOrders[0].order_id, reqData).then((res) => {
+                if (res.status) {
+                    getOrders()
+                    message.success("Add to cart successfully!")
+                    setIsOpen(false)
+                } else {
+                    message.error(res.message.value)
+                }
             })
         }
     }

@@ -73,7 +73,7 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
             >
                 <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={product.product_picture[0]} />
             </div >
-            <div className='OrderItemCard-desc' style={{ display: 'flex', justifyContent: 'space-between', }}>
+            <div className='OrderItemCard-desc' style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <span className='OrderItemCard-desc-productName'>
                         <span style={{ userSelect: 'none', fontSize: 16, }}>Product Name: </span>
