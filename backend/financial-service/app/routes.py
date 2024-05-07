@@ -18,7 +18,7 @@ endpoint_secret = 'whsec_4f7ffef8aa2fff6f728882e3ecfc790a4ec6766bc2fc65f9c91e9fd
 route_blueprint = Blueprint('', __name__,)
 logging.basicConfig(level=logging.INFO)
 
-@route_blueprint.route('/', methods=['GET'])
+@route_blueprint.route('/test', methods=['GET'])
 def test():
     print("Hello, world!")
     return jsonify({'status': True, 'value': 'Test successful'}), 200
@@ -172,7 +172,7 @@ def get_order(order_id):
 
 
 def update_order_payed(order_id):
-    response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid/")
+    response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid")
     if response.status_code == 200:
         return True
     else:
