@@ -96,27 +96,21 @@ def webhook():
         payment_intent = event['data']['object']  # contains a stripe.PaymentIntent
         order_id = payment_intent['metadata'].get('order_id', None)
         order_data = get_order(order_id)
-        handle_payment_intent_succeeded(order_data)
-        # Send confirmation mail
-        #
-        # Get mail from user from user-service
-        # possible through the user id in orders
-        # but currently orders are beeing reworked
-        # first neccessary to finish that
+        handle_payment_intent_succeeded(order_data['value'])
+        #sending out mails
         #user_id=order_data['user_id']
         #mail = get_user_mail(user_id)
-        #send_order_confirmation("lukas.huber99@icloud.com", order_data)
+        #send_order_confirmation(mail, order_id)
         print('Payment for {} succeeded'.format(order_id))
     return jsonify(success=True)
 
 
-#@app.route('/payment', methods=['PUT'])
 def handle_payment_intent_succeeded(order_data):
     # Calculate subtotals for each shop
     shop_subtotals = {}
     for product in order_data['orders_fe']:
         product_owner = product['product_owner']
-        price = product['price']
+        price = product['final_price']
         quantity = product['quantity']
 
         if product_owner not in shop_subtotals:
@@ -131,17 +125,17 @@ def handle_payment_intent_succeeded(order_data):
     return jsonify({'status': True, 'value': f"Transferred success"}), 201
 
 
-def send_order_confirmation(email, order_details):
+def send_order_confirmation(email, order_id):
     mail = Mail(app)
-    msg = Message('Order Confirmation')
+    msg = Message('Order Confirmation Claire')
     address = email
     msg.recipients.append(str(address))
-    msg.body = f'Hello, your order has been confirmed. Details: {order_details}'
+    msg.body = f'Hello, your order has been confirmed. Order ID: {order_id}'
     mail.send(msg)
     return True
 
 
-#@app.route('/test_product/<product_id>', methods=['GET'])
+
 def get_shop_from_product(product_id):
     response = requests.get(f'http://inventory_management:8002/product/{product_id}')
     if response.status_code == 200:
@@ -151,7 +145,7 @@ def get_shop_from_product(product_id):
     else:
         return None
 
-#@app.route('/mail/<user_id>', methods=['GET'])
+
 def get_user_mail(user_id):
     response = requests.get(f'http://user-service:8001/users/{user_id}')
     logging.info(response)
@@ -166,41 +160,9 @@ def get_user_mail(user_id):
 
 def get_order(order_id):
     response = requests.get(f"http://orders:8004/orders/{order_id}")
-    response = {
-        "order_id": "fdefe9fe-1a9c-48be-b9ac-e13e98788e0c",
-        "orders": {
-            "e96ff733-f85b-4d0a-a5ee-3900ea00050d": "7"
-        },
-        "orders_fe": [
-            {
-                "product_id": "e96ff733-f85b-4d0a-a5ee-3900ea00050d",
-                "product_owner": "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-                "price": 7,
-                "quantity": 7
-            },
-            {
-                "product_id": "e55ff733-f85b-4d0a-a5ee-3900ea00050d",
-                "product_owner": "1124a686-c8b1-4c84-bbd6-17325209d78c6",
-                "price": 7,
-                "quantity": 1
-            },
-            {
-                "product_id": "e88ff733-f85b-4d0a-a5ee-3900ea00050d",
-                "product_owner": "1324a686-c8b1-4c84-bbd6-17325209d78c6",
-                "price": 7,
-                "quantity": 2
-            }
-        ],
-        "product_owners": {
-            "e96ff733-f85b-4d0a-a5ee-3900ea00050d": "1324a686-c8b1-4c84-bbd6-17325209d78c6"
-        },
-        "total_price": 82.32,
-        "user_id": "384172b4-3aa6-490e-bda5-e90d0dfccfab"
-    }
-    return response
-    #if response.status_code == 201:
-    # Return the JSON response from the external service
-    #return jsonify(response.json()), 200
-    #else:
-    #   return None
+    if response.status_code == 200:
+    #Return the JSON response from the external service
+        return jsonify(response.json()), 200
+    else:
+       return None
 
