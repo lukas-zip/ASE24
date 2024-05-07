@@ -1,31 +1,18 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from app import app, dynamodb_po, dynamodb_users, invoice
-from werkzeug.utils import secure_filename
-import os
-import re
+from flask import request, jsonify, Blueprint
+from app import dynamodb_po, dynamodb_users, invoice
 from botocore.exceptions import ClientError
-from datetime import datetime, date
-from types import SimpleNamespace
-import json
 from app import utils
 
-
-app.config["DEBUG"] = True
-
+route_blueprint = Blueprint('', __name__,)
 
 # Test if endpoint is available
-@app.route('/', methods=['GET'])
+@route_blueprint.route('/', methods=['GET'])
 def test():
    # Return success response
    return jsonify({'status': True, 'message': 'Test successful'}), 201
 
 
-
-
-
-
-@app.get("/orders/<order_id>")
+@route_blueprint.route("/orders/<order_id>", methods=['GET'])
 def get_order_req(order_id):
    try:
        # Check if the order_id parameter is provided
@@ -42,7 +29,7 @@ def get_order_req(order_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders")
+@route_blueprint.route("/orders", methods=['GET'])
 def get_all_orders_req():
    try:
        # Call the get_all_orders function
@@ -57,7 +44,7 @@ def get_all_orders_req():
 
 
 
-@app.delete("/orders/<order_id>")
+@route_blueprint.route("/orders/<order_id>", methods=['DELETE'])
 def delete_order_req(order_id: int):   
    try:
        # Check if the order_id parameter is provided
@@ -76,7 +63,7 @@ def delete_order_req(order_id: int):
 
 
 
-@app.put("/orders/<order_id>")
+@route_blueprint.route("/orders/<order_id>", methods=['PUT'])
 def update_order_req(order_id):
    data = request.json
 
@@ -97,7 +84,7 @@ def update_order_req(order_id):
 
 
 
-@app.get("/orders/users/search/<user_id>")
+@route_blueprint.route("/orders/users/search/<user_id>", methods=['GET'])  
 def search_orders(user_id):
    data = request.json
    try:
@@ -117,7 +104,7 @@ def search_orders(user_id):
 
 
 
-@app.post("/orders")
+@route_blueprint.route("/orders", methods=['POST'])   
 def add_order_req():
    data = request.json
 
@@ -140,7 +127,7 @@ def add_order_req():
 
 
 
-@app.get("/orders/product/search/<product_owner_id>")
+@route_blueprint.route("/orders/product/search/<product_owner_id>", methods=['GET']) 
 def search_po_orders(product_owner_id):
    try:
        # Check if the product_owner_id parameter is provided
@@ -157,7 +144,7 @@ def search_po_orders(product_owner_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/product/search/status/<order_status>")
+@route_blueprint.route("/orders/product/search/status/<order_status>", methods=['GET'])  
 def search_po_orders_status(order_status):
    try:
        # Check if the order_status parameter is provided
@@ -177,7 +164,7 @@ def search_po_orders_status(order_status):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/search/user/<user_id>/status/<order_status>")
+@route_blueprint.route("/orders/search/user/<user_id>/status/<order_status>", methods=['GET'])
 def search_orders_status_and_user_id(user_id,order_status):
    try:
        # Check if both user_id and order_status parameters are provided
@@ -189,7 +176,7 @@ def search_orders_status_and_user_id(user_id,order_status):
            return jsonify({'error': 'Order Status has to be one of paid, unpaid', 'status': False}), 400
       
        # Call the search_orders_by_status function
-       res = dynamodb_po.search_orders_by_userid_and_status(user_id, order_status)
+       res = dynamodb_users.search_orders_by_userid_and_status(user_id, order_status)
       
        # Return the response
        return jsonify({'status': True, 'value': res}), 200
@@ -198,7 +185,28 @@ def search_orders_status_and_user_id(user_id,order_status):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/search/po/<po_id>/status/<order_status>")
+# @route_blueprint.route("/orders/search/po/<user_id>/status/<order_status>", methods=['GET'])
+# def search_po_orders_status_and_user_id(user_id,order_status):
+#    try:
+#        # Check if both user_id and order_status parameters are provided
+#        if not user_id or not order_status:
+#            return jsonify({'error': 'User ID or Order status is missing', 'status': False}), 400
+
+
+#        if order_status not in ['paid', 'unpaid']:
+#            return jsonify({'error': 'Order Status has to be one of paid, unpaid', 'status': False}), 400
+      
+#        # Call the search_orders_by_status function
+#        res = dynamodb_po.search_orders_by_userid_and_status(user_id, order_status)
+      
+#        # Return the response
+#        return jsonify({'status': True, 'value': res}), 200
+#    except Exception as e:
+#        # If an exception occurs, return an error response
+#        return jsonify({'error': str(e), 'status': False}), 500
+
+
+@route_blueprint.route("/orders/search/po/<po_id>/status/<order_status>", methods=['GET'])
 def search_orders_status_and_po_id(po_id,order_status):
    try:
        # Check if both user_id and order_status parameters are provided
@@ -221,8 +229,8 @@ def search_orders_status_and_po_id(po_id,order_status):
 
 
 
-@app.get("/orders/product/<order_id>/<product_owner_id>/paid")
-def set_po_orders_delivered(order_id, product_owner_id):
+@route_blueprint.route("/orders/product/<order_id>/<product_owner_id>/paid", methods=['GET']) 
+def set_po_orders_paid(order_id, product_owner_id):
    try:
        # Check if both order_id and product_owner_id parameters are provided
        if not order_id or not product_owner_id:
@@ -238,13 +246,13 @@ def set_po_orders_delivered(order_id, product_owner_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/<order_id>/status/paid")
+@route_blueprint.route("/orders/<order_id>/status/paid", methods=['GET'])
 def set_user_order_status_paid(order_id):
    res = dynamodb_users.update_status(order_id, 'paid')
    return jsonify({'status': True, 'value': res}), 200
 
 
-@app.get("/orders/search/status/<status>")
+@route_blueprint.route("/orders/search/status/<status>", methods=['GET'])  
 def search_user_order_by_status(status):
    res = dynamodb_users.search_orders_by_status(status)
    return jsonify({'status': True, 'value': res}), 200
@@ -254,7 +262,7 @@ def search_user_order_by_status(status):
 # Invoice APIs
 # ----------------------------------------------------------------------------#
 # Create a invoice pdf out of the order details for one order
-@app.route('/invoice/<order_id>', methods=['POST'])
+@route_blueprint.route("/invoice/<order_id>'", methods=['POST']) 
 def route_create_invoice(order_id):
    if not order_id:
        return jsonify({'error': 'ID is required!'}), 400
@@ -269,7 +277,7 @@ def route_create_invoice(order_id):
 
 
 ## Download the invoice for a specific order
-@app.route('/invoice/<order_id>',methods=['GET'])
+@route_blueprint.route("/invoice/<order_id>'", methods=['GET'])
 def route_get_invoice(order_id):
    if not order_id:
        return jsonify({'error': 'ID is required!'}), 400
@@ -288,7 +296,7 @@ def route_get_invoice(order_id):
 # ----------------------------------------------------------------------------#
 
 
-@app.get("/orders/test/<product_id>")
+@route_blueprint.route("/orders/test/<product_id>", methods=['GET'])
 def test_orders(product_id):
    try:
        # Check if the product_id parameter is provided
@@ -305,7 +313,7 @@ def test_orders(product_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/po")
+@route_blueprint.route("/orders/po", methods=['GET'])  
 def get_all_po_orders():
    try:
        # Call the get_all_po_orders function
@@ -320,7 +328,7 @@ def get_all_po_orders():
 
 
 
-@app.get("/orders/po/test/search/order_id/<order_id>")
+@route_blueprint.route("/orders/po/test/search/order_id/<order_id>", methods=['GET'])    
 def search_po_orders_orderid(order_id):
    try:
        # Check if the order_id parameter is provided
@@ -337,7 +345,7 @@ def search_po_orders_orderid(order_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
-@app.get("/orders/test/po/search/<order_id>/<product_owner_id>")
+@route_blueprint.route("/orders/test/po/search/<order_id>/<product_owner_id>", methods=['GET']) 
 def test_search_po_orders(order_id,product_owner_id):
    try:
        # Check if both order_id and product_owner_id parameters are provided
@@ -361,7 +369,7 @@ def test_search_po_orders(order_id,product_owner_id):
 # ----------------------------------------------------------------------------#
 
 
-@app.errorhandler(400)
+@route_blueprint.app_errorhandler(400)
 def unprocessable(error):
    return jsonify({
        'success': False,
@@ -371,7 +379,7 @@ def unprocessable(error):
 
 
 
-@app.errorhandler(404)
+@route_blueprint.app_errorhandler(404)
 def not_found(error):
    return jsonify({
        'success': False,
@@ -381,7 +389,7 @@ def not_found(error):
 
 
 
-@app.errorhandler(405)
+@route_blueprint.app_errorhandler(405)
 def method_not_allowed(error):
    return jsonify({
        'success': False,
@@ -391,7 +399,7 @@ def method_not_allowed(error):
 
 
 
-@app.errorhandler(422)
+@route_blueprint.app_errorhandler(422)
 def unprocessable(error):
    return jsonify({
        'success': False,
@@ -401,7 +409,7 @@ def unprocessable(error):
 
 
 
-@app.errorhandler(500)
+@route_blueprint.app_errorhandler(500)
 def internal_server_error(error):
    return jsonify({
        'success': False,
