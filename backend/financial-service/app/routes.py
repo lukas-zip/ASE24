@@ -1,11 +1,11 @@
-from app import app, dynamodb
 from botocore.exceptions import ClientError
-from flask_mail import Mail, Message
+from app import dynamodb
 import requests
 import json
 from flask import jsonify, request
 import stripe
 import logging
+from flask import Blueprint
 
 # This is your test secret API key.
 stripe.api_key = 'sk_test_51P3x1RL2VoulaBDdRpHDMZQCFlvnAmG1D1HRzjwnual8vUucfqdIRJiuMDGXOcVP5m6zwvaYPE6QzXiQkR3Hledx00yqj0pned'
@@ -15,16 +15,16 @@ stripe.api_key = 'sk_test_51P3x1RL2VoulaBDdRpHDMZQCFlvnAmG1D1HRzjwnual8vUucfqdIR
 # at https://dashboard.stripe.com/webhooks
 endpoint_secret = 'whsec_4f7ffef8aa2fff6f728882e3ecfc790a4ec6766bc2fc65f9c91e9fd31c0b42e8'
 
+route_blueprint = Blueprint('', __name__,)
 logging.basicConfig(level=logging.INFO)
 
-@app.route('/', methods=['GET'])
+@route_blueprint.route('/', methods=['GET'])
 def test():
-    response = requests.get('http://user-service:8001/')
     print("Hello, world!")
-    return response.json()
+    return jsonify({'status': True, 'value': 'Test successful'}), 200
 
 
-@app.route('/account', methods=['POST'])
+@route_blueprint.route('/account', methods=['POST'])
 def add_account():
     data = request.json
     shop_id = data.get('shop_id')
@@ -38,7 +38,7 @@ def add_account():
         return jsonify({'status': False, 'message': 'Error'}), 500
 
 
-@app.route('/account/<shop_id>', methods=['GET'])
+@route_blueprint.route('/account/<shop_id>', methods=['GET'])
 # Function to get an account by UUID
 def get_account(shop_id):
     try:
@@ -50,7 +50,7 @@ def get_account(shop_id):
         print("Error getting user:", e)
 
 
-@app.route('/create-payment-intent', methods=['POST'])
+@route_blueprint.route('/create-payment-intent', methods=['POST'])
 def create_payment():
     try:
         data = json.loads(request.data)
@@ -72,7 +72,7 @@ def create_payment():
         return jsonify(error=str(e)), 403
 
 
-@app.route('/webhook', methods=['POST'])
+@route_blueprint.route('/webhook', methods=['POST'])
 def webhook():
     payload = request.data
 
@@ -126,6 +126,9 @@ def handle_payment_intent_succeeded(order_data):
 
 
 def send_order_confirmation(email, order_id):
+    from app import app  # Import here within the function
+    from flask_mail import Mail, Message
+
     mail = Mail(app)
     msg = Message('Order Confirmation Claire')
     address = email
