@@ -74,13 +74,13 @@ def update_order_req(order_id):
        return jsonify({'status': False,'value': 'Missing required parameters'}), 400
 
 
-   try:
-       res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
-       print(res)
-       return jsonify({'status': True, 'value': res}), 200
-   except Exception as e:
-       print(e)
-       return jsonify({'status': False, 'value': str(e)}), 500
+#    try:
+   res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
+   print(res)
+   return jsonify({'status': True, 'value': res}), 200
+#    except Exception as e:
+#        print(e)
+#        return jsonify({'status': False, 'value': str(e)}), 500
 
 
 
@@ -246,16 +246,29 @@ def set_po_orders_paid(order_id, product_owner_id):
        return jsonify({'error': str(e), 'status': False}), 500
 
 
+from flask import jsonify, abort
+
 @route_blueprint.route("/orders/<order_id>/status/paid", methods=['GET'])
 def set_user_order_status_paid(order_id):
-   res = dynamodb_users.update_status(order_id, 'paid')
-   return jsonify({'status': True, 'value': res}), 200
-
+    try:
+        res = dynamodb_users.update_status(order_id, 'paid')
+        return jsonify({'status': True, 'value': res}), 200
+    except Exception as e:
+        # Return an appropriate error response
+        return jsonify({'status': False, 'error': 'Internal Server Error'}), 500
 
 @route_blueprint.route("/orders/search/status/<status>", methods=['GET'])  
 def search_user_order_by_status(status):
-   res = dynamodb_users.search_orders_by_status(status)
-   return jsonify({'status': True, 'value': res}), 200
+    try:
+        res = dynamodb_users.search_orders_by_status(status)
+        return jsonify({'status': True, 'value': res}), 200
+    except ValueError as ve:
+        # Handle specific error if needed
+        return jsonify({'status': False, 'error': str(ve)}), 400
+    except Exception as e:
+        # Return an appropriate error response
+        return jsonify({'status': False, 'error': 'Internal Server Error'}), 500
+
 
 
 # ----------------------------------------------------------------------------#
