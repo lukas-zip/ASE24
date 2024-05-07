@@ -21,10 +21,11 @@ jobs:
           command: docker-compose -f docker-compose.test.yml up -d
       - run:
           name: Run Tests
-          command: docker-compose -f docker-compose.test.yml run user-service pytest tests/
+          command: docker-compose -f docker-compose.test.yml run financial-service pytest tests/
       - run:
           name: Run Tests
-          command: docker-compose -f docker-compose.test.yml run financial-service pytest tests/
+          command: docker-compose -f docker-compose.test.yml run user-service pytest tests/
+
 
 workflows:
   version: 2
