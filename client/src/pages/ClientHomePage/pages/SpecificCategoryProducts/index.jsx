@@ -25,45 +25,6 @@ export default function SpecificCategoryProducts() {
                         {Object.keys(allProducts).map((item, key) => <div className={`SpecificCategoryProducts-allCategoriesProducts-item`} key={key}>
                             {allProducts !== 0 && <div className='SpecificCategoryProducts-allCategoriesProducts-item-content' >
                                 {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
-                                {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
                             </div>}
                             {allProducts.length !== 0 && <div style={{ color: COLORS.commentText, marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                                 --No more products--

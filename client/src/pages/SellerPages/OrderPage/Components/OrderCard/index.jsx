@@ -1,13 +1,11 @@
 import COLORS from '@/constants/COLORS'
 import './index.less'
-import { DeleteTwoTone, RightOutlined } from '@ant-design/icons'
-import { Avatar, InputNumber, Popconfirm, message } from 'antd'
+import { Avatar, InputNumber, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import checked from '@/assets/pic/checked.png'
-import unchecked from '@/assets/pic/unchecked.svg'
 import { useEffect, useState } from 'react'
-import { getProductById, getShopById, removeProductFromOrder } from '@/api/user.api'
+import { getProductById, getShopById, getUserById, removeProductFromOrder } from '@/api/user.api'
 import { useStateContext } from '@/pages/ClientHomePage/context'
+import { UserOutlined } from '@ant-design/icons'
 
 export default function OrderCard({ orderInfo, specificProductInfo }) {
     const { product_id, quantity, product_owner } = specificProductInfo
@@ -35,44 +33,28 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
             }
         })
     }
+
+    const { order_id, orders_fe: orderItemsArray, total_price, execution_time, user_id } = orderInfo
+    const [userInfo, setUserInfo] = useState()
+    console.log(orderInfo);
+    const getUserInfo = async () => {
+        await getUserById(user_id).then((res) => {
+            if (res.status === true) {
+                setUserInfo(res.value)
+            }
+        })
+    }
     useEffect(() => {
         getProductInfo()
         getProductOwnerInfo()
+        getUserInfo()
     }, [])
-
-    const { order_id, orders_fe: orderItemsArray, totalprice } = orderInfo
-
     const navigateTo = useNavigate()
     const handleAddOperation = async () => {
     }
     const { getOrders, orders } = useStateContext()
-    console.log(orders);
-    const confirm = async (e) => {
-        const reqData = {
-            quantity: -quantity,
-            product_id
-        }
-        await removeProductFromOrder(order_id, reqData).then(res => {
-            if (res.status) {
-                getOrders()
-            } else {
-                message.error("Error, please try again")
-            }
-        }).catch(err => {
-            console.log(err);
-            message.error("Error, please try again")
-        })
-    };
-    const cancel = (e) => {
-        console.log(e);
-    };
-    const [selected, setSelected] = useState(true)
     return (
         <div className={`OrderItemCard`} onClick={() => { }} >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-                {/* <img src={selected ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img> */}
-                <img src={true ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img>
-            </div>
             <div
                 className='OrderItemCard-img'
                 style={{
@@ -91,25 +73,38 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
             >
                 <img style={{ maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'cover' }} src={product.product_picture[0]} />
             </div >
-            <div className='OrderItemCard-desc'>
-                <span className='OrderItemCard-desc-productName'>
-                    <span style={{ userSelect: 'none' }}>
-                        {product.product_name}
+            <div className='OrderItemCard-desc' style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <span className='OrderItemCard-desc-productName'>
+                        <span style={{ userSelect: 'none', fontSize: 16, }}>Product Name: </span>
+                        <span style={{ userSelect: 'none', fontSize: 18, fontWeight: 'bold' }}>
+                            {product.product_name}
+                        </span>
                     </span>
-                </span>
-                <div className='OrderItemCard-desc-title' style={{ color: COLORS.commentText, fontSize: 12 }}>
-                    <span
-                        onClick={() => navigateTo(`/user/home/shop/${product_owner}`)}
-                        style={{ userSelect: 'none', cursor: 'pointer' }}>
-                        By <Avatar size={18} src={ShopInfo.profile_picture} /> {ShopInfo.shop_name} <RightOutlined size={12} />
+                    <span className='OrderItemCard-desc-productName'>
+                        <span style={{ userSelect: 'none', fontSize: 16, }}>Quantity: </span>
+                        <span style={{ userSelect: 'none', fontSize: 18, fontWeight: 'bold' }}>
+                            {quantity}
+                        </span>
+                    </span>
+                    <span className='OrderItemCard-desc-productName'>
+                        <span style={{ userSelect: 'none', fontSize: 16, }}>Total Price: </span>
+                        <span style={{ userSelect: 'none', fontSize: 18, fontWeight: 'bold', color: COLORS.primary }}>
+                            {Number(total_price).toFixed(2)} CHF
+                        </span>
+                    </span>
+                    <span className='OrderItemCard-desc-productName'>
+                        <span style={{ userSelect: 'none', fontSize: 16 }}>Order Create Time: </span>
+                        <span style={{ userSelect: 'none', }}>
+                            {new Date(execution_time).toLocaleString()}
+                        </span>
                     </span>
                 </div>
-                <div>
+                {/* <div>
                     <div style={{ display: 'flex', marginTop: 20, justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', gap: 10 }}>
                             <div style={{ fontWeight: 'bold' }}>Quantity: </div>
                             <div><InputNumber variant='borderless' disabled min={1} max={100} defaultValue={quantity} onChange={(num) => {
-                                // setQuantity(num)
                             }} /></div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -118,25 +113,20 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                                 <div style={{ fontSize: 26 }}>{(quantity * product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
                             </div>
                             {(100 - product.product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product.product_price_reduction}%</div>
-                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{(quantity * product.product_price).toFixed(2)}</div>
+                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product.product_price}</div>
                             </>}
                         </div>
                     </div>
+                </div> */}
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <p style={{ userSelect: 'none', fontSize: 16 }}>Created By:</p>
+                        <span style={{ padding: 6, borderRadius: 10, backgroundColor: COLORS.backgroundGray, }}><Avatar src={userInfo?.profile_picture} icon={<UserOutlined />} /> {userInfo?.username}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <p style={{ userSelect: 'none', fontSize: 16 }}>Address:</p>{userInfo?.address}
+                    </div>
                 </div>
-            </div>
-            <div>
-                <span style={{ userSelect: 'none', cursor: 'pointer' }}>
-                    <Popconfirm
-                        title="Delete the order"
-                        description="Are you sure to delete this order?"
-                        onConfirm={confirm}
-                        onCancel={cancel}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <DeleteTwoTone twoToneColor={COLORS.commentText} />
-                    </Popconfirm>
-                </span>
             </div>
         </div >
     )

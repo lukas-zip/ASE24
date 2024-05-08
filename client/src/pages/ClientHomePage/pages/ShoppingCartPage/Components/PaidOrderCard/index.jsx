@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { getProductById, getShopById, removeProductFromOrder } from '@/api/user.api'
 import { useStateContext } from '@/pages/ClientHomePage/context'
 
-export default function OrderCard({ orderInfo, specificProductInfo }) {
+export default function PaidOrder({ orderInfo, specificProductInfo }) {
     const { product_id, quantity, product_owner } = specificProductInfo
     const [product, setProduct] = useState({
         product_assemblies: [],
@@ -66,13 +66,8 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
     const cancel = (e) => {
         console.log(e);
     };
-    const [selected, setSelected] = useState(true)
     return (
         <div className={`OrderItemCard`} onClick={() => { }} >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-                {/* <img src={selected ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img> */}
-                <img src={true ? checked : unchecked} onClick={() => setSelected(!selected)} style={{ width: 30, height: 30, cursor: 'pointer', marginRight: 10 }}></img>
-            </div>
             <div
                 className='OrderItemCard-img'
                 style={{
@@ -118,14 +113,14 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                                 <div style={{ fontSize: 26 }}>{(quantity * product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
                             </div>
                             {(100 - product.product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product.product_price_reduction}%</div>
-                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{(quantity * product.product_price).toFixed(2)}</div>
+                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product.product_price}</div>
                             </>}
                         </div>
                     </div>
                 </div>
             </div>
             <div>
-                <span style={{ userSelect: 'none', cursor: 'pointer' }}>
+                {/* <span style={{ userSelect: 'none', cursor: 'pointer' }}>
                     <Popconfirm
                         title="Delete the order"
                         description="Are you sure to delete this order?"
@@ -136,7 +131,7 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                     >
                         <DeleteTwoTone twoToneColor={COLORS.commentText} />
                     </Popconfirm>
-                </span>
+                </span> */}
             </div>
         </div >
     )

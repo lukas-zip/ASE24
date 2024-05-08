@@ -42,14 +42,17 @@ export default function Login() {
     }, [user])
 
     const UserSignIn = async () => {
-        const res = await signIn(sigInInfo)
-        if (res && res.status !== false) {
-            localStorage.setItem('user', res.value)
-            dispatch(setUser(res.value))
-            navigateTo('/')
-        } else {
+        await signIn(sigInInfo).then(res => {
+            if (res.status) {
+                localStorage.setItem('user', res.value)
+                dispatch(setUser(res.value))
+                navigateTo('/')
+            } else {
+                message.error(res.message.message)
+            }
+        }).catch(err => {
             message.error('Error happen, try again please')
-        }
+        })
     }
     const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
 
