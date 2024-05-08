@@ -1,0 +1,7 @@
+S3 Bucket
+==================
+
+.. automodule:: s3
+   :members:
+   :undoc-members:
+   :show-inheritance:

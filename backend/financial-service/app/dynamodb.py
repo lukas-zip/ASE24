@@ -42,6 +42,19 @@ def create_accounts_table():
     except ClientError as e:
         print("Error creating UserManagement table:", e)
 
+
+def delete_accounts_table():
+    """
+    Deletes the 'Accounts' table from DynamoDB on LocalStack. Logs if the table does not exist.
+
+    :raises ResourceNotFoundException: If the table does not exist.
+    """
+    try:
+        db_accounts.delete_table(TableName='UserManagement')
+    except db_accounts.exceptions.ResourceNotFoundException:
+        print("Table does not exist.")
+
+
 def shop_in_db(shop_id):
     try:
         response = db_accounts.query(

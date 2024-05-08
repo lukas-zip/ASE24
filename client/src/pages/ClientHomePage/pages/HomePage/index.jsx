@@ -1,16 +1,18 @@
 import './index.less'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import CardVertical from '@/Components/Card/CardVertical';
-import { Button, Empty, Input, message } from 'antd';
+import { Button, Empty, Input, Modal, message } from 'antd';
 import { EnvironmentTwoTone, RightOutlined } from '@ant-design/icons';
 import COLORS from '@/constants/COLORS';
 import { useEffect, useState } from 'react';
-import { getAllProductsByShopId, getProductByCategory, searchProducts } from '@/api/user.api';
+import { getAllProductsByShopId, getProductByCategory, searchProducts, updateUser } from '@/api/user.api';
 import CONSTANTS from '@/constants';
 import Product_Categories_PIC from '@/assets/pic/product-categories';
 import { useNavigate } from 'react-router-dom';
-const { Search } = Input
+import { setUser } from '@/store/user.store';
+const { Search, TextArea } = Input
 export default function UserHomePage() {
+    const dispatch = useDispatch()
     const { user } = useSelector(state => state.user)
     const onSearch = async (searchTerm) => {
         await searchProducts(searchTerm).then(res => {
@@ -51,6 +53,39 @@ export default function UserHomePage() {
 
     // navigate
     const navigateTo = useNavigate()
+    const [updateAddressLoading, setUpdatedAddressLoading] = useState(false)
+    const [addressModalOpen, setAddressModalOpen] = useState(false)
+    const [updatedAddress, setUpdatedAddress] = useState(user.address)
+    const updateAddress = async () => {
+        try {
+            if (updatedAddress === user.address) {
+                message.error("Address not changed")
+                return
+            } else if (!updatedAddress) {
+                message.error("Nothing to update")
+                return
+            }
+            setUpdatedAddressLoading(true)
+            let handledItems = { ...user, address: updatedAddress, action: 'update' }
+            await updateUser(user.user_id, handledItems)
+                .then((res) => {
+                    setUpdatedAddressLoading(false)
+                    if (res.status) {
+                        dispatch(setUser(res.value))
+                        setAddressModalOpen(false)
+                        message.success("Update successfully")
+                    } else {
+                        message.error(res.message)
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    setUpdatedAddressLoading(false)
+                })
+        } catch (error) {
+            console.log(error);
+            message.error("Error")
+        }
+    }
     return (
         <div className={`productPage`} style={{}}>
             <div className={`productPage-header`}>
@@ -61,7 +96,7 @@ export default function UserHomePage() {
                     <EnvironmentTwoTone twoToneColor="#3d3d3d" style={{ fontSize: 18 }} />
                     <div style={{ marginLeft: 6, }} >
                         <div style={{ fontSize: 12, color: COLORS.commentText, userSelect: 'none' }}>Deliver to</div>
-                        <div style={{ fontSize: 14, cursor: 'pointer' }}>your address</div>
+                        <div onClick={() => setAddressModalOpen(true)} style={{ fontSize: 14, cursor: 'pointer' }}>your address</div>
                     </div>
                 </div>
             </div>
@@ -93,6 +128,14 @@ export default function UserHomePage() {
                     </div>)}
                 </div>
             </div>
+            <Modal title="Address" open={addressModalOpen} footer={null} onCancel={() => setAddressModalOpen(false)} onOk={() => { setAddressModalOpen(false) }}>
+                <div>
+                    <TextArea onChange={(e) => setUpdatedAddress(e.target.value)} defaultValue={user.address} variant="filled" />
+                </div>
+                <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button loading={updateAddressLoading} onClick={updateAddress} type='primary'>Update</Button>
+                </div>
+            </Modal>
         </div >
     )
 }

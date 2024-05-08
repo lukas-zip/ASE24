@@ -17,7 +17,7 @@ const Dashboard = () => {
   const mySidebarOptions = [
     getItem("Home", 'home', <HomeOutlined />),
     getItem("Order", 'order', <ContainerOutlined />),
-    getItem("Statistic", 'statistic', <WalletOutlined />),
+    // getItem("Statistic", 'statistic', <WalletOutlined />),
     getItem("Settings", 'settings', <SettingOutlined />),
   ]
 

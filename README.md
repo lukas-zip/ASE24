@@ -3,13 +3,16 @@ In a world in which consumers are more likely to want local suppliers and sustai
 
 ## Architecture
 
-The system comprises various microservices: `user-service`, `product-service`, `xxx`, ... each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named `app`, housing `__init__.py`, `dynamodb.py`, `dummydata.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service. Additionally, each service includes a test folder to evaluate and test its functionalities.
+The system comprises various microservices: `user-service`, `inventory_management`, `orders`, `reviews` and `financial-service` each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named `app`, housing `__init__.py`, `dynamodb.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service. Additionally, each service includes a test folder to evaluate and test its functionalities.
 
 To coordinate the different services, a `docker-compose.yml` file in the ASE24 directory orchestrates their integration.
 
 ## Tests
 
-Tests are executable locally by entering `sh test.sh` to the console (ASE24 directory). This action triggers the `docker-compose.test.yml` file, launching the specified tests. Furthermore the tests are executed automatically by the CI pipeline (CircleCi) when new commits are pushed to github.
+Tests are executable locally by entering `sh test.sh` in the console (ASE24 directory). This action triggers the `docker-compose.test.yml` file, launching the specified tests (make sure that all requirements are installed e.g. by running the application). Furthermore the tests are executed automatically by the CI pipeline (CircleCi) when new commits are pushed to github.
+   ```bash
+  sh test.sh
+   ```
 
 ## Usage
 
@@ -18,4 +21,7 @@ To utilize this application, ensure Docker and Docker Compose are installed on y
 1. Verify Docker and Docker Compose installation.
 2. Open your terminal or command prompt and navigate to the ASE24 directory.
 3. Execute the run.sh script by entering `sh run.sh`. This action initializes all services defined in `docker-compose.yml`.
+   ```bash
+   sh run.sh
+   ```
 4. Launch a web browser and go to http://localhost:3000 to access the frontend of the application.

@@ -21,14 +21,23 @@ def create_orders_table():
             ],
             AttributeDefinitions=[
                 {'AttributeName': 'order_id', 'AttributeType': 'S'},
-                {'AttributeName': 'user_id', 'AttributeType': 'S'}
+                {'AttributeName': 'user_id', 'AttributeType': 'S'},
+                {'AttributeName': 'order_status', 'AttributeType': 'S'}
             ],
             ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
-            GlobalSecondaryIndexes=[
+            GlobalSecondaryIndexes=[ 
                 {
                     'IndexName': 'userIdIndx',
                     'KeySchema': [
                         {'AttributeName': 'user_id', 'KeyType': 'HASH'}
+                    ],
+                    'Projection': {'ProjectionType': 'ALL'},
+                    'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+                },
+                {
+                    'IndexName': 'statusIndx',
+                    'KeySchema': [
+                        {'AttributeName': 'order_status', 'KeyType': 'HASH'}
                     ],
                     'Projection': {'ProjectionType': 'ALL'},
                     'ProvisionedThroughput': {'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
@@ -38,6 +47,15 @@ def create_orders_table():
         print("OrdersManagement table created:", response)
     except ClientError as e:
         print("Error creating OrdersManagement table:", e)
+
+
+def delete_order_management_tables():
+    try:
+        db_order_management.delete_table(TableName=TABLE_NAME)
+    except db_order_management.exceptions.ResourceNotFoundException:
+        print("Table does not exist.")
+
+
 
 
 # add item to the dynamodb
@@ -51,13 +69,13 @@ def add_item(user_id,product_id, quantity):
     
         discounted_price = utils.calc_discounted_price(product_price, product_price_reduction)
         total_price = discounted_price*quantity
-        status = 'Processed'
+        status = 'unpaid'
 
 
         if quantity <= 0:
                 return {'status': False, 'value': 'product quantity has to be at least 1!'}
 
-
+        current_time = str(datetime.now())
         # Put the new item into the table
         db_order_management.put_item(
             TableName=TABLE_NAME,
@@ -67,6 +85,8 @@ def add_item(user_id,product_id, quantity):
                 'orders': {'M':  {product_id: {"N": str(quantity)}}}, 
                 'product_owners': {'M':  {product_id: {"S": product_owner}}}, 
                 'total_price': {'N': str(total_price)},
+                'order_status': {'S': status},
+                'execution_time': {'S': current_time},
             }
         )
 
@@ -87,6 +107,7 @@ def get_order(order_uuid):
             }
         )
         item = response.get('Item')
+        print('RESONSEE ITEMMM:', response)
 
         # If no order is found, return an error message
         if not item:
@@ -306,8 +327,6 @@ def delete_order(order_id):
 def search_orders(user_id):
     try:
         #terms can include: user_id, product_id, status  #TODO add time
-        search_expression = ""
-        expression_attribute_values = {}
         response = db_order_management.query(
                     TableName=TABLE_NAME,
                     IndexName='userIdIndx',
@@ -320,4 +339,35 @@ def search_orders(user_id):
         print(f"Error deleting: {e}")
         return False
 
+
+def search_orders_by_status(status):
+    try:
+        #terms can include: user_id, product_id, status  #TODO add time
+        response = db_order_management.query(
+                    TableName=TABLE_NAME,
+                    IndexName='statusIndx',
+                    KeyConditionExpression="order_status = :order_status",
+                    ExpressionAttributeValues= {':order_status': {'S': status}}
+                )
+        return utils.reformat_order_arr_reponse(response)  
+
+    except ClientError as e:
+        print(f"Error deleting: {e}")
+        return False
+
+
+def search_orders_by_userid_and_status(user_id, status):
+    try:
+        orders = search_orders(user_id)
+        res = []
+        for item in orders['Items']:
+            if item['order_status'] == status :
+                res.append(item)
+
+        return  {"Count":len(res), "Items":res}
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
+  
 
