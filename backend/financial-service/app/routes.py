@@ -93,6 +93,7 @@ def webhook():
             return jsonify(success=False)
 
     # Handle the event
+    logging.info(event['type'])
     if event and event['type'] == 'payment_intent.succeeded':
         payment_intent = event['data']['object']  # contains a stripe.PaymentIntent
         order_id = payment_intent['metadata'].get('order_id', None)
@@ -103,6 +104,7 @@ def webhook():
         #mail = get_user_mail(user_id)
         #send_order_confirmation(mail, order_id)
         print('Payment for {} succeeded'.format(order_id))
+        create_invoice(order_id)
         update_order_payed(order_id)
     return jsonify(success=True)
 
@@ -165,13 +167,20 @@ def get_order(order_id):
     response = requests.get(f"http://orders:8004/orders/{order_id}")
     if response.status_code == 200:
     #Return the JSON response from the external service
-        return jsonify(response.json()), 200
+        return response.json()
     else:
        return None
 
 
 def update_order_payed(order_id):
     response = requests.get(f"http://orders:8004/orders/{order_id}/status/paid")
+    if response.status_code == 200:
+        return True
+    else:
+        return False
+
+def create_invoice(order_id):
+    response = requests.post(f"http://orders:8004/invoice/{order_id}")
     if response.status_code == 200:
         return True
     else:
