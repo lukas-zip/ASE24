@@ -1,4 +1,3 @@
-import { message as $message } from 'antd';
 import axios from 'axios';
 import { store } from '@/store';
 import { setGlobalState } from '@/store/global.store';
@@ -61,6 +60,7 @@ export const request = (serviceType, method, url, data, config) => {
                 errorMessage = error?.message;
             }
             // $message.error(error?.response?.data ? error.response.data : errorMessage)
+            console.log(error);
             return {
                 status: false,
                 message: error?.response?.data ? error.response.data : errorMessage,
