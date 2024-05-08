@@ -7,6 +7,8 @@ RUN pip3 install -r requirements.txt
 
 COPY . /reviews/app
 
+ENV FLASK_ENV=development
+
 EXPOSE 8003
 
 CMD ["python3", "run.py", "--host=0.0.0.0"]
