@@ -21,3 +21,16 @@ def setup_dynamodb():
 def teardown_dynamodb():
     # Delete table after testing
     delete_accounts_table()
+
+
+@pytest.fixture
+def account_uuid(client):
+    # Data for a new account
+    shop_data = {
+        "shop_id": "af7asf698g76adf6s7fdf7a8fasd0f",
+    }
+    # Create a new account
+    response = client.post('/account', data=json.dumps(shop_data), content_type='application/json')
+    # Assume the POST endpoint returns a JSON with the shop's UUID
+    account_uuid = response.get_json()['value']
+    return account_uuid
