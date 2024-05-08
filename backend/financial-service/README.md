@@ -15,10 +15,16 @@ financial-service/
 │ ├── dynamodb.py # Integrates with AWS DynamoDB for data operations
 │ └── routes.py # Defines all the Flask routes for the financial endpoints
 │
+├── tests/ # Contains tests for the application
+│ ├── __init__.py # Makes the directory a Python module
+│ ├── conftest.py # Configurations for pytest
+│ └── payment_test.py # Tests related to payment functionalities
+│
 ├── Dockerfile # Docker configuration for building the service container
+├── pytest.ini # Pytest configuration file
+├── README.md # This README file
 ├── requirements.txt # Python package dependencies
-├── run.py # Entry point to run the Flask application
-└── README.md # This README file
+└── run.py # Entry point to run the Flask application
 ```
 
 ## Getting Started

@@ -50,7 +50,7 @@ def delete_accounts_table():
     :raises ResourceNotFoundException: If the table does not exist.
     """
     try:
-        db_accounts.delete_table(TableName='UserManagement')
+        db_accounts.delete_table(TableName='Accounts')
     except db_accounts.exceptions.ResourceNotFoundException:
         print("Table does not exist.")
 
@@ -117,7 +117,6 @@ def update_balance(shop_id, amount_to_add):
 def get_account_json(shop_id):
     try:
         account = shop_in_db(shop_id)
-        logging.info(account)
         if account is None:
             return None
         account_dict = {
