@@ -43,6 +43,7 @@ def add_account():
 def get_account(shop_id):
     try:
         account = dynamodb.get_account_json(shop_id)
+        logging.info(account)
         if account is None:
             return jsonify({'status': False, 'message': 'Unable to retrieve account.'}), 400
         return jsonify({'status': True, 'value': account}), 200
@@ -152,11 +153,9 @@ def get_shop_from_product(product_id):
 
 def get_user_mail(user_id):
     response = requests.get(f'http://user-service:8001/users/{user_id}')
-    logging.info(response)
     if response.status_code == 201:
         # Return the JSON response from the external service
         data = response.json()
-        logging.info(data)
         return data['value']['email']
     else:
         return None
