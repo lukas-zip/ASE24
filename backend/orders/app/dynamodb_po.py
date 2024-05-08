@@ -147,7 +147,7 @@ def add_po_order(po_id,order_id, user_id,product_id = None, quantity = None):
         if product_id is not None:
             orders = {product_id: {"N": str(quantity)}}
             product_price, product_price_reduction, product_owner = utils.get_product_details(product_id)
-            total_price = utils.calc_discounted_price(product_price, product_price_reduction)
+            total_price = utils.calc_discounted_price(product_price, product_price_reduction)*float(quantity)
 
         # Put the new item into the table
         db_order_management.put_item(
@@ -238,7 +238,7 @@ def update_po_status(product_owner, order_id, status):
 
 
 
-def update_po_order(po_order_id, product_id, total_quantity, product_discounted_price_change):
+def update_po_order(po_order_id, product_id, quantity_change, total_discounted_price_change):
     try:
         #get current order values
         order = get_po_order(po_order_id)
@@ -246,8 +246,8 @@ def update_po_order(po_order_id, product_id, total_quantity, product_discounted_
         total_price = float(order['total_price'])
 
         #modify total price  
-        total_price += product_discounted_price_change
-        orders_dict[product_id] = total_quantity
+        total_price += float(total_discounted_price_change)
+        orders_dict[product_id] = float(orders_dict[product_id]) +float(quantity_change)
 
         # Dynamically build the update expression based on provided attributes
         # Prepare UpdateExpression and ExpressionAttributeValues
