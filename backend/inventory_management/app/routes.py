@@ -1,23 +1,30 @@
-from flask import Flask, jsonify, request, send_file
+#from flask import Flask, jsonify, request, send_file, Blueprint
+#from flask_cors import CORS
+#import boto3
+#from app import app, dynamodb, s3
+#import uuid
+#import base64
+#import os
+from flask import jsonify, Blueprint, request
 from flask_cors import CORS
-import boto3
-from app import app, dynamodb, s3
-import uuid
+from app import dynamodb, s3
 from botocore.exceptions import ClientError
 from io import BytesIO
 from urllib.parse import quote_plus
-import base64
-import os
+#from app.routes import route_blueprint
+
+
+route_blueprint = Blueprint('', __name__,)
 
 # ------------------------------------------
 # For destination check
 # ------------------------------------------
-@app.route('/', methods=['GET'])
+@route_blueprint.route('/', methods=['GET'])
 def test():
     # Return success response
-    return jsonify({'value': 'Test was successful for the inventorymanagement', 'status': True}), 201
+    return jsonify({'value': 'Test was successful for the inventorymanagement', 'status': True}), 200
 
-@app.route('/productsbyowner', methods=['GET'])
+@route_blueprint.route('/productsbyowner', methods=['GET'])
 def get_products_by_owner():
     # Retrieve products by owner
     products = dynamodb.get_products_by_product_owner("1324a686-c8b1-4c84-bbd6-17325209d78c6")
@@ -38,7 +45,7 @@ def get_products_by_owner():
 # Shop functions
 # ------------------------------------------
 # product insertion function
-@app.route('/product/insert', methods=['POST'])
+@route_blueprint.route('/product/insert', methods=['POST'])
 def insert_product():
     data = request.json
     
@@ -74,7 +81,7 @@ def insert_product():
         print("Error adding product:", e)
         return jsonify({'error': 'Failed to insert product.', 'status': False}), 500
 
-@app.route('/product/upload/picture', methods = ['POST'])
+@route_blueprint.route('/product/upload/picture', methods = ['POST'])
 def upload_picture():
 
     # introducing productpicture bucket
@@ -116,7 +123,7 @@ def upload_picture():
     #object_key = f'{product_uuid}.jpg'  # Use UUID as object key
 
 # product deletion
-@app.route('/product/delete', methods=['DELETE'])
+@route_blueprint.route('/product/delete', methods=['DELETE'])
 def delete_product_haendler():
     data = request.json
     product_id = data.get('product_id')
@@ -147,7 +154,7 @@ def delete_product_haendler():
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
 # process a sell --> providing the ID for the sell of the product
-@app.route('/product/sell/<product_id>', methods=['PUT'])
+@route_blueprint.route('/product/sell/<product_id>', methods=['PUT'])
 def product_sell(product_id):
     try:
         data = request.json
@@ -171,7 +178,7 @@ def product_sell(product_id):
 # ------------------------------------------
 
 # get certain product, used when clicking on a product --> product view
-@app.route('/product/<product_id>', methods=['GET'])
+@route_blueprint.route('/product/<product_id>', methods=['GET'])
 def get_product_info(product_id):
     try:
         product_info = dynamodb.get_product(str(product_id))
@@ -184,7 +191,7 @@ def get_product_info(product_id):
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
 # get product catalogue for a certain seller --> used to show all products belonging to one seller
-@app.route('/product/cataloguesell/<product_owner>', methods=['GET'])
+@route_blueprint.route('/product/cataloguesell/<product_owner>', methods=['GET'])
 def get_products_to_sell_catalog(product_owner):
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
@@ -201,7 +208,7 @@ def get_products_to_sell_catalog(product_owner):
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
     
 # get product catalogue for a certain seller --> shows all products that secondary
-@app.route('/product/cataloguebuild/<product_owner>', methods=['GET'])
+@route_blueprint.route('/product/cataloguebuild/<product_owner>', methods=['GET'])
 def get_products_to_build_catalog(product_owner):
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
@@ -217,7 +224,7 @@ def get_products_to_build_catalog(product_owner):
         print(f"Error: {e}")
         return jsonify({'error': 'An error occurred while processing your request.', 'status': False}), 500
 
-@app.route('/product/update_product/<product_id>', methods=['PUT'])
+@route_blueprint.route('/product/update_product/<product_id>', methods=['PUT'])
 def update_product_route(product_id):
     try:
         # Get the updated product data from the request
@@ -238,7 +245,7 @@ def update_product_route(product_id):
         return jsonify({'error': str(e), 'status': False}), 500
 
 # Define search route
-@app.route('/product/search', methods=['GET'])
+@route_blueprint.route('/product/search', methods=['GET'])
 def search():
     term = request.args.get('term')
     if not term:
@@ -261,7 +268,7 @@ def search():
 
     return jsonify({'value': formatted_results, 'status': True}), 200
 
-@app.route('/product/category', methods=['GET'])
+@route_blueprint.route('/product/category', methods=['GET'])
 def get_category():
     category = request.args.get('term')
     if not category:
@@ -276,7 +283,7 @@ def get_category():
 
     return jsonify({'value': formatted_results, 'status': True}), 200
 
-@app.route('/product/production/fullfilled/<product_id>', methods=['PUT'])
+@route_blueprint.route('/product/production/fullfilled/<product_id>', methods=['PUT'])
 def set_production(product_id):
     
     data = request.json
@@ -307,7 +314,7 @@ def set_production(product_id):
         return jsonify({'error': str(e), 'status': False}), 500
 
 # this function aims to respond with all products by a product owner that should be restocked (case: current_stock <= should_stock)
-@app.route('/product/production/recommendations/<product_owner>', methods=['GET'])
+@route_blueprint.route('/product/production/recommendations/<product_owner>', methods=['GET'])
 def get_production_recommendations(product_owner):
     
     try:

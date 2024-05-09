@@ -12,6 +12,16 @@ services:
     environment:
       - FLASK_ENV=testing
 
+  inventory_management:
+    build: ./backend/inventory_management
+    ports:
+      - "8002:8002"
+    command: pytest
+    volumes:
+      - ./backend/inventory_management:/app
+    environment:
+      - FLASK_ENV=testing
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack
