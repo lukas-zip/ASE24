@@ -6,6 +6,7 @@ from app.dynamodb import create_product_table, add_product
 import os
 
 products_ids = []
+dummy_product_owner = "1324a686-c8b1-4c84-bbd6-17325209d78c6"
 
 def test_endpoint(client):
     response = client.get('/')
@@ -110,6 +111,29 @@ def test_get_product(client):
         response = client.get('/product/{product_id}')
         assert response.status_code == 200  # Assuming 200 for success
 
+def test_product_recommendations(client):
+    
+    response = client.get('/product/production/recommendations/{dummy_product_owner}')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    assert data['status'] == True
+    
+
+    # attempting to evaluate the data, localstack dynamodb breaks.
+    # data_value = data['value'][1]
+    # assert data_value['product_assemblies'] == "Final"
+    # assert data_value['product_bom'] == ["UUID1"]
+    # assert data_value['product_category'] == ["Necless"]
+    # assert data_value['product_current_stock'] == "10"
+    # assert data_value['product_description'] == "Description of Product Y"
+    # assert data_value['product_name'] == ""
+    # assert data_value['product_picture'] == ["http://localhost:4566/productpictures/thisexampleproduct.png"]
+    # assert data_value['product_price'] == "100"
+    # assert data_value['product_price_reduction'] == "10"
+    # assert data_value['product_reviews'] == [""]
+    # assert data_value['product_search_attributes'] == ["Greenish", "Platin"]
+    # assert data_value['product_should_stock'] == "20"
 
 
 # def test_upload_picture(client):
