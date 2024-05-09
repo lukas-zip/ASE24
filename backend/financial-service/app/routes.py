@@ -18,7 +18,7 @@ endpoint_secret = 'whsec_4f7ffef8aa2fff6f728882e3ecfc790a4ec6766bc2fc65f9c91e9fd
 route_blueprint = Blueprint('', __name__,)
 logging.basicConfig(level=logging.INFO)
 
-@route_blueprint.route('/', methods=['GET'])
+@route_blueprint.route('/test', methods=['GET'])
 def test():
     """
     A simple test route that confirms the server is operational.
