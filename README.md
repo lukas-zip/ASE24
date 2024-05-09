@@ -25,3 +25,33 @@ To utilize this application, ensure Docker and Docker Compose are installed on y
    sh run.sh
    ```
 4. Launch a web browser and go to http://localhost:3000 to access the frontend of the application.
+
+### Example Login Data
+
+1. Shops:
+- Email: micro@example.com
+- Password: password11
+
+- Email: hydro@example.com
+- Password: password22
+
+- Email: electro@example.com
+- Password: password33
+
+2. Users:
+- Email: john.doe@example.com
+- Password: password1
+
+- Email: jane.doe@example.com
+- Password: password2
+
+- Email: max.smith@example.com
+- Password: password3
+
+
+### Example Credit Card Details
+Please visit https://docs.stripe.com/testing
+or just use:
+- Card number: 4242 4242 4242 4242
+- Date: Any future data
+- CVC: Any 3 digits
