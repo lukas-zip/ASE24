@@ -28,7 +28,6 @@ def testing_dummy_data(client):
     assert 'value' in response_data
     assert len(response_data) == len(dummy_products)
 
-
 def test_add_product(client):
 
     product_data = {
@@ -91,8 +90,6 @@ def test_insert_product_with_negative_stock(client):
         "product_bom": [],
         "product_assemblies": ""
     }
-
-    #data_json = json.dumps(data)
 
     # Send POST request with test data
     response = client.post('/product/insert', json=data, content_type='application/json')

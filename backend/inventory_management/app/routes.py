@@ -1,10 +1,3 @@
-#from flask import Flask, jsonify, request, send_file, Blueprint
-#from flask_cors import CORS
-#import boto3
-#from app import app, dynamodb, s3
-#import uuid
-#import base64
-#import os
 from flask import jsonify, Blueprint, request
 from flask_cors import CORS
 from app import dynamodb, s3
@@ -13,7 +6,6 @@ from io import BytesIO
 from urllib.parse import quote_plus
 #from app.routes import route_blueprint
 
-
 route_blueprint = Blueprint('', __name__,)
 
 # ------------------------------------------
@@ -21,23 +13,57 @@ route_blueprint = Blueprint('', __name__,)
 # ------------------------------------------
 @route_blueprint.route('/', methods=['GET'])
 def test():
+    """
+    Test endpoint for inventory management.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a success message and a status indicator.
+            HTTP status code is 200 (OK).
+
+    Routes:
+        GET /
+
+    Raises:
+        None
+    """
+
     # Return success response
     return jsonify({'value': 'Test was successful for the inventorymanagement', 'status': True}), 200
 
 @route_blueprint.route('/productsbyowner', methods=['GET'])
 def get_products_by_owner():
-    # Retrieve products by owner
+    """
+    Retrieves products by owner from DynamoDB and returns them as JSON. Mainly used for Dummy Data.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a list of products with their details.
+            HTTP status code is 200 (OK).
+
+    Routes:
+        GET /productsbyowner
+
+    Raises:
+        Any exceptions raised during DynamoDB operation or internal errors.
+    """
+    # Retrieve products by owner from DynamoDB
     products = dynamodb.get_products_by_product_owner("1324a686-c8b1-4c84-bbd6-17325209d78c6")
 
+    # Format the products into a list of dictionaries
     final_products = [{
             'product_id': product_id,
             **product_info
         } for product_id, product_info in products.items()]
 
+    # Check if products are found
     if final_products:
+        # Return JSON response with products and status True
         return jsonify({'value': final_products, 'status': True}), 200
     else:
+        # Return empty list with status True
         return jsonify({'value':[], 'status': True}), 200
+
 # ------------------------------------------
 
 
@@ -47,9 +73,24 @@ def get_products_by_owner():
 # product insertion function
 @route_blueprint.route('/product/insert', methods=['POST'])
 def insert_product():
+    """
+    Inserts a product into the database and returns a status JSON response.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a status message indicating success or failure.
+            HTTP status code is 200 (OK) if successful, 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        POST /product/insert
+
+    Raises:
+        ClientError: If there is an error while adding the product to the database.
+    """
+    # Get JSON data from request
     data = request.json
     
-    # Get form data
+    # Extract form data
     product_owner = data.get('product_owner')
     product_name = data.get('product_name')
     product_description = data.get('product_description')
@@ -65,14 +106,15 @@ def insert_product():
     product_bom = data.get('product_bom')
     product_assemblies = data.get('product_assemblies')
 
-    if None in (product_owner, product_name, product_description, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies):
+    # Check if any required fields are missing
+    if None in (product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies):
         return jsonify({'error': "All values need to at least contain one value.", 'status': False}), 400
 
-    return_values = {}
-
+    # Validate data types
     if type(product_owner) != str or type(product_name) != str or type(product_description) != str or type(product_current_stock) != int or type(product_should_stock) != int or type(product_price) != float or type(product_picture) != list or type(product_price_reduction) != float or type(product_sale) != bool or type(product_category) != list or type(product_search_attributes) != list or type(product_reviews) != list or type(product_bom) != list or type(product_assemblies) != str:
         return jsonify({'error': "All values should need to be in expected dataformat.", 'status': False}), 400
 
+    # Check for negative numeric values
     if product_current_stock < 0 or product_should_stock < 0 or product_price < 0 or product_price_reduction < 0:
         return jsonify({'error': "The numeric values are not allowed to be negative.", 'status': False}), 400
 
@@ -84,8 +126,24 @@ def insert_product():
         print("Error adding product:", e)
         return jsonify({'error': 'Failed to insert product.', 'status': False}), 500
 
+
 @route_blueprint.route('/product/upload/picture', methods = ['POST'])
 def upload_picture():
+
+    """
+    Uploads a product picture to S3 and returns the URL.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the uploaded image URL and a status message.
+            HTTP status code is 200 (OK) if successful, 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        POST /product/upload/picture
+
+    Raises:
+        ClientError: If there is an error while uploading the image to S3.
+    """
 
     # introducing productpicture bucket
     bucket_name = 'productpictures'
@@ -132,6 +190,22 @@ def upload_picture():
 # product deletion
 @route_blueprint.route('/product/delete', methods=['DELETE'])
 def delete_product_haendler():
+
+    """
+    Handles the deletion of a product.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a status message indicating success or failure.
+            HTTP status code is 200 (OK) if successful, 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        DELETE /product/delete
+
+    Raises:
+        ClientError: If there is an error while deleting the product from the database or S3.
+    """
+
     data = request.json
     product_id = data.get('product_id')
 
@@ -163,6 +237,25 @@ def delete_product_haendler():
 # process a sell --> providing the ID for the sell of the product
 @route_blueprint.route('/product/sell/<product_id>', methods=['PUT'])
 def product_sell(product_id):
+
+    """
+    Handles selling of a product.
+
+    Parameters:
+        product_id (str): The ID of the product to be sold.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a status message indicating success or failure.
+            HTTP status code is 200 (OK) if successful, 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        PUT /product/sell/<product_id>
+
+    Raises:
+        ClientError: If there is an error while performing the sell operation.
+    """
+
     try:
         data = request.json
 
@@ -187,6 +280,25 @@ def product_sell(product_id):
 # get certain product, used when clicking on a product --> product view
 @route_blueprint.route('/product/<product_id>', methods=['GET'])
 def get_product_info(product_id):
+
+    """
+    Retrieves information about a product.
+
+    Parameters:
+        product_id (str): The ID of the product to retrieve information for.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the product information and a status message.
+            HTTP status code is 200 (OK) if successful, 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        GET /product/<product_id>
+
+    Raises:
+        ClientError: If there is an error while retrieving the product information.
+    """
+
     try:
         product_info = dynamodb.get_product(str(product_id))
         if product_info:
@@ -200,6 +312,25 @@ def get_product_info(product_id):
 # get product catalogue for a certain seller --> used to show all products belonging to one seller
 @route_blueprint.route('/product/cataloguesell/<product_owner>', methods=['GET'])
 def get_products_to_sell_catalog(product_owner):
+
+    """
+    Retrieves products to be sold from a catalog.
+
+    Parameters:
+        product_owner (str): The owner of the products to retrieve.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the products to sell and a status message.
+            HTTP status code is 200 (OK) if successful, or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        GET /product/cataloguesell/<product_owner>
+
+    Raises:
+        ClientError: If there is an error while retrieving the products.
+    """
+
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
         final_products = [{
@@ -217,6 +348,25 @@ def get_products_to_sell_catalog(product_owner):
 # get product catalogue for a certain seller --> shows all products that secondary
 @route_blueprint.route('/product/cataloguebuild/<product_owner>', methods=['GET'])
 def get_products_to_build_catalog(product_owner):
+
+    """
+    Retrieves products for building from a catalog.
+
+    Parameters:
+        product_owner (str): The owner of the products to retrieve.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the products to build and a status message.
+            HTTP status code is 200 (OK) if successful, or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        GET /product/cataloguebuild/<product_owner>
+
+    Raises:
+        ClientError: If there is an error while retrieving the products.
+    """
+
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
         final_products = [{
@@ -233,6 +383,25 @@ def get_products_to_build_catalog(product_owner):
 
 @route_blueprint.route('/product/update_product/<product_id>', methods=['PUT'])
 def update_product_route(product_id):
+
+    """
+    Updates product information.
+
+    Parameters:
+        product_id (str): The ID of the product to update.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a status message indicating success or failure.
+            HTTP status code is 200 (OK) if successful, or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        PUT /product/update_product/<product_id>
+
+    Raises:
+        Any exceptions that occur during the update process.
+    """
+
     try:
         # Get the updated product data from the request
         updated_data = request.json
@@ -254,6 +423,22 @@ def update_product_route(product_id):
 # Define search route
 @route_blueprint.route('/product/search', methods=['GET'])
 def search():
+
+    """
+    Performs a search for products.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the search results and a status message.
+            HTTP status code is 200 (OK) if successful, or 400 (Bad Request) otherwise.
+
+    Routes:
+        GET /product/search
+
+    Raises:
+        None
+    """
+
     term = request.args.get('term')
     if not term:
         return jsonify({'error': 'Search term parameter is required', 'status': False}), 400
@@ -277,6 +462,22 @@ def search():
 
 @route_blueprint.route('/product/category', methods=['GET'])
 def get_category():
+
+    """
+    Retrieves products by category.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the products matching the category and a status message.
+            HTTP status code is 200 (OK) if successful, or 400 (Bad Request) otherwise.
+
+    Routes:
+        GET /product/category
+
+    Raises:
+        None
+    """
+
     category = request.args.get('term')
     if not category:
         return jsonify({'error': 'Search category parameter is required', 'status': False}), 400
@@ -292,6 +493,24 @@ def get_category():
 
 @route_blueprint.route('/product/production/fullfilled/<product_id>', methods=['PUT'])
 def set_production(product_id):
+
+    """
+    Sets production for a product.
+
+    Parameters:
+        product_id (str): The ID of the product for which production is being set.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes a status message indicating success or failure.
+            HTTP status code is 200 (OK) if successful, or 400 (Bad Request) or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        PUT /product/production/fullfilled/<product_id>
+
+    Raises:
+        Any exceptions that occur during the process.
+    """
     
     data = request.json
 
@@ -323,6 +542,24 @@ def set_production(product_id):
 # this function aims to respond with all products by a product owner that should be restocked (case: current_stock <= should_stock)
 @route_blueprint.route('/product/production/recommendations/<product_owner>', methods=['GET'])
 def get_production_recommendations(product_owner):
+
+    """
+    Retrieves production recommendations for a product owner.
+
+    Parameters:
+        product_owner (str): The owner of the products to retrieve production recommendations for.
+
+    Returns:
+        tuple: A tuple containing JSON response and HTTP status code.
+            JSON response includes the production recommendations and a status message.
+            HTTP status code is 200 (OK) if successful, or 500 (Internal Server Error) otherwise.
+
+    Routes:
+        GET /product/production/recommendations/<product_owner>
+
+    Raises:
+        ClientError: If there is an error while retrieving the production recommendations.
+    """
     
     try:
         products = dynamodb.get_products_by_product_owner(str(product_owner))
