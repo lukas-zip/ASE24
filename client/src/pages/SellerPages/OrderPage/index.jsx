@@ -1,22 +1,20 @@
-import COLORS from '@/constants/COLORS';
 import './index.less'
-import { Divider, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import EmptyBox from '@/assets/pic/EmptyBox.png'
 import { useNavigate } from 'react-router-dom';
-import OrderCard from './Components/Order';
-import { CarOutlined, ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
-import ProccessedOrders from './Components/ProccessedOrders';
+import { ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
+import UnpaidOrders from './Components/UnpaidOrders';
+import PaidOrders from './Components/PaidOrders';
+import { useStateContext } from '@/pages/ClientHomePage/context';
 
 const tabsKey = {
-    PROCESSED: "Processed",
-    DELIVERED: "Delivered",
-    SHIPPED: "Shipped"
+    UNPAID: "Unpaid",
+    PAID: "Paid"
 }
 export default function OrderPage() {
+    const { unpaidOrders, paidOrders } = useStateContext()
     const navigateTo = useNavigate()
-    const [activeTab, setActiveTab] = useState(tabsKey.PROCESSED)
+    const [activeTab, setActiveTab] = useState(tabsKey.PAID)
     return (
         <div className='containerWrapper' style={{ margin: 10 }}>
             <div className='ShoppingCartPage-header'>
@@ -25,15 +23,13 @@ export default function OrderPage() {
                     defaultActiveKey={activeTab}
                     onChange={(e) => setActiveTab(e)}
                     items={[
-                        { key: tabsKey.PROCESSED, label: tabsKey.PROCESSED, icon: <WalletOutlined /> },
-                        { key: tabsKey.DELIVERED, label: tabsKey.DELIVERED, icon: <ClockCircleOutlined /> },
-                        { key: tabsKey.SHIPPED, label: tabsKey.SHIPPED, icon: <CarOutlined /> }
+                        { key: tabsKey.PAID, label: `${tabsKey.PAID} (${paidOrders?.length ? paidOrders?.length : 0})`, icon: <WalletOutlined /> },
+                        { key: tabsKey.UNPAID, label: `${tabsKey.UNPAID} (${unpaidOrders?.length ? unpaidOrders?.length : 0})`, icon: <ClockCircleOutlined /> },
                     ]}
                 />
             </div>
-            {activeTab === tabsKey.PROCESSED && <ProccessedOrders />}
-            {activeTab === tabsKey.DELIVERED && <ProccessedOrders />}
-            {activeTab === tabsKey.SHIPPED && <ProccessedOrders />}
+            {activeTab === tabsKey.UNPAID && <UnpaidOrders />}
+            {activeTab === tabsKey.PAID && <PaidOrders />}
         </div >
     )
 }

@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../../../backend/user-service/app'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'user microservice'
+project = 'User Microservice'
 copyright = '2024, Lukas'
 author = 'Lukas'
 

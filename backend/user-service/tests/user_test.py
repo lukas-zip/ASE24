@@ -73,15 +73,15 @@ def test_update_user(client, user_uuid):
     assert response_json['value']['type'] == "User"
     assert response_json['value']['username'] == update_data['username']
 
-def test_change_password(client, shop_uuid):
+def test_change_password(client, user_uuid):
     # Setup: Password change data
     update_data = {
         "action": "password",
-        "old_password": "shopsecure123",
+        "old_password": "testpass123",
         "new_password": "newPassword123",
     }
-    # PUT request to '/shops/<entity_uuid>' for password change
-    response = client.put(f'/shops/{shop_uuid}', data=json.dumps(update_data), content_type='application/json')
+    # PUT request to '/users/<entity_uuid>' for password change
+    response = client.put(f'/users/{user_uuid}', data=json.dumps(update_data), content_type='application/json')
     # Check if the request was successful
     assert response.status_code == 200
     response_json = response.get_json()

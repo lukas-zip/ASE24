@@ -33,7 +33,7 @@ def reformat_order_reponse(item):
 
     orders = item.get('orders', {}).get('M', [])
     product_owners = item.get('product_owners', {}).get('M', [])
-    
+   
    # return orders
     for key, value in orders.items():
         product_details = get_all_product_details(key)
@@ -46,9 +46,8 @@ def reformat_order_reponse(item):
         orders_dict[order] = orders[order].get('N', '')
 
     for po in product_owners.keys():
-        product_owners_dict[po] = product_owners[po].get('S', ''),
-
-    
+        product_owners_dict[po] = product_owners[po].get('S', '')
+ 
     return {
                 'order_id': item.get('order_id', {}).get('S', ''),
                 'orders_fe': orders_arr,

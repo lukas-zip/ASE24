@@ -107,6 +107,7 @@ def get_order(order_uuid):
             }
         )
         item = response.get('Item')
+        print('RESONSEE ITEMMM:', response)
 
         # If no order is found, return an error message
         if not item:

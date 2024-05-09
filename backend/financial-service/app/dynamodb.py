@@ -15,6 +15,13 @@ db_accounts = boto3.client(
 
 # Function to create the profiles table
 def create_accounts_table():
+    """
+    Creates a DynamoDB table named 'Accounts' with a primary key 'account_id' and a secondary index 'ShopIndex' on 'shop_id'.
+    This function configures the table with a specific provisioned throughput and sets the index to project all attributes.
+
+    :return: None, prints the result of the table creation operation.
+    :raises ClientError: If there is an error creating the table in DynamoDB.
+    """
     try:
         response = db_accounts.create_table(
             TableName='Accounts',
@@ -45,17 +52,25 @@ def create_accounts_table():
 
 def delete_accounts_table():
     """
-    Deletes the 'Accounts' table from DynamoDB on LocalStack. Logs if the table does not exist.
+    Attempts to delete the 'Accounts' table from DynamoDB, specifically configured to interact with LocalStack.
 
-    :raises ResourceNotFoundException: If the table does not exist.
+    :return: None, prints a message if the table does not exist.
+    :raises ResourceNotFoundException: If the table does not exist in the database.
     """
     try:
-        db_accounts.delete_table(TableName='UserManagement')
+        db_accounts.delete_table(TableName='Accounts')
     except db_accounts.exceptions.ResourceNotFoundException:
         print("Table does not exist.")
 
 
 def shop_in_db(shop_id):
+    """
+    Queries the DynamoDB 'Accounts' table to check if a shop with the specified shop_id exists.
+
+    :param shop_id: The unique identifier for the shop.
+    :return: The first item from the response if the shop exists, None otherwise.
+    :raises ClientError: If there is an error during the query operation in DynamoDB.
+    """
     try:
         response = db_accounts.query(
             TableName='Accounts',
@@ -71,6 +86,14 @@ def shop_in_db(shop_id):
 
 # Function to add a user to the dynamodb
 def add_shop_account(shop_id):
+    """
+    Adds a new shop account to the 'Accounts' table in DynamoDB if it does not already exist.
+    The account is identified by a generated UUID and initialized with a balance of zero.
+
+    :param shop_id: The unique identifier for the shop to be added.
+    :return: The UUID of the new account if added, None if the shop already exists.
+    :raises ClientError: If there is an error adding the new shop account to DynamoDB.
+    """
     try:
         if shop_in_db(shop_id) is not None:
             return None
@@ -92,6 +115,15 @@ def add_shop_account(shop_id):
         print("Error adding user:", e)
 
 def update_balance(shop_id, amount_to_add):
+    """
+    Updates the balance of an existing shop account in the 'Accounts' table based on the provided shop_id.
+    The balance is incremented by the specified amount, which can be a float or an integer.
+
+    :param shop_id: The unique identifier for the shop whose balance is to be updated.
+    :param amount_to_add: The amount to add to the existing balance.
+    :return: The updated balance from the response.
+    :raises ClientError: If there is an error during the update operation or if the shop does not exist.
+    """
     try:
         # Update the balance for the given shop_id
         amount_to_add_str = str(amount_to_add) if isinstance(amount_to_add, int) else "{:.2f}".format(amount_to_add)
@@ -115,9 +147,15 @@ def update_balance(shop_id, amount_to_add):
 
 # Function to get an account by UUID
 def get_account_json(shop_id):
+    """
+    Retrieves the account details for a shop from the 'Accounts' table and returns it in a dictionary format.
+
+    :param shop_id: The unique identifier for the shop.
+    :return: A dictionary containing the account details including 'account_id', 'shop_id', and 'balance'.
+    :raises ClientError: If there is an error retrieving the shop's account details from DynamoDB.
+    """
     try:
         account = shop_in_db(shop_id)
-        logging.info(account)
         if account is None:
             return None
         account_dict = {

@@ -4,6 +4,8 @@
 The Financial Service is designed to handle payments and data management for our application. It interfaces with AWS DynamoDB for data storage and provides a Stripe integration.
 
 ## Architecture
+The documentation of the code is provided in the following wiki: http://localhost:63342/ASE24/docs/financial_service/build/html/index.html?_ijt=3qf5qhcm7mhhcouv5gmk5vvig8&_ij_reload=RELOAD_ON_SAVE
+
 The following is the directory structure of the Financial Service, outlining the primary components of the service:
 
 ### Directory Structure
@@ -15,10 +17,16 @@ financial-service/
 │ ├── dynamodb.py # Integrates with AWS DynamoDB for data operations
 │ └── routes.py # Defines all the Flask routes for the financial endpoints
 │
+├── tests/ # Contains tests for the application
+│ ├── __init__.py # Makes the directory a Python module
+│ ├── conftest.py # Configurations for pytest
+│ └── payment_test.py # Tests related to payment functionalities
+│
 ├── Dockerfile # Docker configuration for building the service container
+├── pytest.ini # Pytest configuration file
+├── README.md # This README file
 ├── requirements.txt # Python package dependencies
-├── run.py # Entry point to run the Flask application
-└── README.md # This README file
+└── run.py # Entry point to run the Flask application
 ```
 
 ## Getting Started
@@ -37,6 +45,13 @@ financial-service/
    ```bash
    sh run.sh
    ```
+
+### Example Credit Card Details
+Please visit https://docs.stripe.com/testing
+or just use:
+- Card number: 4242 4242 4242 4242
+- Date: Any future data
+- CVC: Any 3 digits
 
 ## Testing
 Similar for testing we suggest executing the test.sh script in the ASE24 directory.

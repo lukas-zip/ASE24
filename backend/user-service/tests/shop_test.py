@@ -93,7 +93,6 @@ def test_get_shop_success(client, shop_uuid):
 
 
 def test_get_shop_failure(client):
-    # Expected mock response from your database or service
     shop_uuid = "fas89fasf8898afs89df"
     response = client.get(f'/shops/{shop_uuid}')
     assert response.status_code == 400
@@ -102,7 +101,6 @@ def test_get_shop_failure(client):
 
 
 def test_delete_shop_success(client, shop_uuid):
-    # Mock the DynamoDB and S3 interactions
     response = client.delete(f'/shops/{shop_uuid}')
     assert response.status_code == 200
     assert response.get_json()['status'] == True
