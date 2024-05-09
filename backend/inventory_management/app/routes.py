@@ -59,19 +59,22 @@ def insert_product():
     product_picture = data.get('product_picture')
     product_price_reduction = data.get('product_price_reduction')
     product_sale = data.get('product_sale')
-    product_category = data.get('product_category')  # Use getlist() for multiple values
-    product_search_attributes = data.get('product_search_attributes')  # Use getlist() for multiple values
-    product_reviews = data.get('product_reviews')  # Use getlist() for multiple values
+    product_category = data.get('product_category')
+    product_search_attributes = data.get('product_search_attributes')
+    product_reviews = data.get('product_reviews')
     product_bom = data.get('product_bom')
     product_assemblies = data.get('product_assemblies')
 
+    if None in (product_owner, product_name, product_description, product_description, product_current_stock, product_should_stock, product_price, product_price_reduction, product_sale, product_category, product_category, product_search_attributes, product_reviews, product_bom, product_assemblies):
+        return jsonify({'error': "All values need to at least contain one value.", 'status': False}), 400
+
     return_values = {}
 
-    #Checking for required fields
-    # if not all([product_owner, product_name, product_description, product_current_stock, product_should_stock, product_price]):
-    #     return jsonify({'error': 'Product data is incomplete.', 'status': False}), 400
+    if type(product_owner) != str or type(product_name) != str or type(product_description) != str or type(product_current_stock) != int or type(product_should_stock) != int or type(product_price) != float or type(product_picture) != list or type(product_price_reduction) != float or type(product_sale) != bool or type(product_category) != list or type(product_search_attributes) != list or type(product_reviews) != list or type(product_bom) != list or type(product_assemblies) != str:
+        return jsonify({'error': "All values should need to be in expected dataformat.", 'status': False}), 400
 
-    # Dont know if we want to ask for different other criteria
+    if product_current_stock < 0 or product_should_stock < 0 or product_price < 0 or product_price_reduction < 0:
+        return jsonify({'error': "The numeric values are not allowed to be negative.", 'status': False}), 400
 
     # Add the product to the database
     try:
@@ -86,7 +89,7 @@ def upload_picture():
 
     # introducing productpicture bucket
     bucket_name = 'productpictures'
-    #allowed_types = ['.jpg', '.png', '.mp4']
+    allowed_mime_types = ['image/jpeg', 'image/jpg', 'image/png', 'video/mp4']
 
     # Check if the request contains form data
     if 'image' not in request.files:
@@ -100,6 +103,10 @@ def upload_picture():
         return 'No selected file', 400
 
     object_key = image_file.filename
+    object_type = image_file.mimetype
+
+    if object_type not in allowed_mime_types:
+        return jsonify({'error': "The dataformat cannot be accepted.", 'status': False}), 400
 
     #Convert bytes object to file-like object
     image_stream = BytesIO(image_file.read())
