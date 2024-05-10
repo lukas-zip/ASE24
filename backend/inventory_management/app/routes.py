@@ -89,16 +89,16 @@ def insert_product():
     """
     # Get JSON data from request
     data = request.json
-    
+
     # Extract form data
     product_owner = data.get('product_owner')
     product_name = data.get('product_name')
     product_description = data.get('product_description')
     product_current_stock = data.get('product_current_stock')
     product_should_stock = data.get('product_should_stock')
-    product_price = data.get('product_price')
+    product_price = float(data.get('product_price'))
     product_picture = data.get('product_picture')
-    product_price_reduction = data.get('product_price_reduction')
+    product_price_reduction = float(data.get('product_price_reduction'))
     product_sale = data.get('product_sale')
     product_category = data.get('product_category')
     product_search_attributes = data.get('product_search_attributes')
