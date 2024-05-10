@@ -47,7 +47,7 @@ def create_accounts_table():
         )
         print("Finance table created:", response)
     except ClientError as e:
-        print("Error creating UserManagement table:", e)
+        print("Error creating Accounts table:", e)
 
 
 def delete_accounts_table():
