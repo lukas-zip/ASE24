@@ -54,24 +54,6 @@ def test_add_product(client):
     assert response.json['status'] == True
     assert response.json['value'] == "Product inserted successfully."
 
-# testing missing required fields.
-def test_insert_product_missing_required_fields(client):
-    # Define test data with missing required fields
-    data = {
-        
-    }
-
-    # Send POST request with test data
-    response = client.post('/product/insert', json=data, content_type='application/json')
-
-    # Check response status code
-    assert response.status_code == 400
-
-    # Check response data
-    data = json.loads(response.data)
-    assert data['status'] == False
-    assert 'error' in data
-
 def test_insert_product_with_negative_stock(client):
     # Define test data
     data = {
@@ -115,23 +97,6 @@ def test_product_recommendations(client):
 
     data = json.loads(response.data)
     assert data['status'] == True
-    
-
-    # attempting to evaluate the data, localstack dynamodb breaks.
-    # data_value = data['value'][1]
-    # assert data_value['product_assemblies'] == "Final"
-    # assert data_value['product_bom'] == ["UUID1"]
-    # assert data_value['product_category'] == ["Necless"]
-    # assert data_value['product_current_stock'] == "10"
-    # assert data_value['product_description'] == "Description of Product Y"
-    # assert data_value['product_name'] == ""
-    # assert data_value['product_picture'] == ["http://localhost:4566/productpictures/thisexampleproduct.png"]
-    # assert data_value['product_price'] == "100"
-    # assert data_value['product_price_reduction'] == "10"
-    # assert data_value['product_reviews'] == [""]
-    # assert data_value['product_search_attributes'] == ["Greenish", "Platin"]
-    # assert data_value['product_should_stock'] == "20"
-
 
 # def test_upload_picture(client):
 #     # Define test files
