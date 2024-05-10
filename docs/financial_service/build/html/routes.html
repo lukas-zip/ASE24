@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Routes &#8212; Financial Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=61cd365c" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="DynamoDB" href="dynamodb.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-routes">
+<span id="routes"></span><h1>Routes<a class="headerlink" href="#module-routes" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.add_account">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">add_account</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#add_account"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.add_account" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a new account in the DynamoDB table using an API endpoint. Extracts ‘shop_id’ from the POST request JSON body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response containing the creation status and the new account ID if successful, or an error message if not.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ClientError</strong> – If there’s a DynamoDB client error during account creation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.create_invoice">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">create_invoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#create_invoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.create_invoice" title="Link to this definition">¶</a></dt>
+<dd><p>Generates an invoice for a completed order by interacting with an external order management service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> – The unique identifier for the order for which the invoice is created.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the invoice creation is successful, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.create_payment">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">create_payment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#create_payment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.create_payment" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a Stripe PaymentIntent based on the total price and order ID received via POST request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with the clientSecret of the PaymentIntent for client-side use, or an error message.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If there is an error during PaymentIntent creation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_account">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_account"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_account" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves an account’s details by shop_id from the DynamoDB table. Logs the account data and handles retrieval errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shop_id</strong> – The unique identifier for the shop.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response containing the account details if found, or an error message if not.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s a DynamoDB client error during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_order">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_order" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves an order by its ID from an external orders service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> – The unique identifier for the order.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The order details if found, None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_shop_from_product">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_shop_from_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_shop_from_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_shop_from_product" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves the shop owner of a product by querying an external inventory management service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>product_id</strong> – The unique identifier for the product.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The shop owner if the product is found, None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_user_mail">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_user_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_user_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_user_mail" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches a user’s email by user_id from an external user service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – The unique identifier for the user.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The user’s email if found, None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.handle_payment_intent_succeeded">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">handle_payment_intent_succeeded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#handle_payment_intent_succeeded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.handle_payment_intent_succeeded" title="Link to this definition">¶</a></dt>
+<dd><p>Processes a successful payment by allocating the total payment across sub-orders based on shop subtotals,
+and updates each shop’s balance. This function is invoked as part of the webhook handler for successful payments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_data</strong> – The data pertaining to the order including items and quantities.</p></li>
+<li><p><strong>order_id</strong> – The unique identifier for the order.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response indicating the success of the funds transfer across sub-orders.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.send_order_confirmation">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">send_order_confirmation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#send_order_confirmation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.send_order_confirmation" title="Link to this definition">¶</a></dt>
+<dd><p>Sends an order confirmation email to the user using the Flask-Mail extension. This function is called after a successful
+order payment is processed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> – The recipient’s email address.</p></li>
+<li><p><strong>order_id</strong> – The unique identifier for the order.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the email is sent successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.test">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.test" title="Link to this definition">¶</a></dt>
+<dd><p>A simple test route that confirms the server is operational.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A JSON response containing a status indicator and a test message, along with HTTP status code 200.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.update_order_payed">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">update_order_payed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#update_order_payed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.update_order_payed" title="Link to this definition">¶</a></dt>
+<dd><p>Updates the payment status of an order to ‘paid’ by contacting an external order management service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> – The unique identifier for the order whose status is to be updated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the update is successful, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.update_suborder_payed">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">update_suborder_payed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_owner_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#update_suborder_payed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.update_suborder_payed" title="Link to this definition">¶</a></dt>
+<dd><p>Updates the payment status of a suborder to ‘paid’. This function is called as part of the payment processing workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> – The unique identifier for the order.</p></li>
+<li><p><strong>product_owner_id</strong> – The unique identifier for the product owner or shop.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the update is successful, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.webhook">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">webhook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#webhook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.webhook" title="Link to this definition">¶</a></dt>
+<dd><p>Handles incoming webhook events from Stripe, verifies the signature, processes the payment event, and
+updates order status if payment succeeds. Logs errors and events for diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response indicating success or failure based on the event handling.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>stripe.error.SignatureVerificationError</strong> – If the signature verification of the webhook fails.</p></li>
+<li><p><strong>json.decoder.JSONDecodeError</strong> – If there is an error parsing the JSON payload from Stripe.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Financial Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dynamodb.html">DynamoDB</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Routes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#routes.add_account"><code class="docutils literal notranslate"><span class="pre">add_account()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.create_invoice"><code class="docutils literal notranslate"><span class="pre">create_invoice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.create_payment"><code class="docutils literal notranslate"><span class="pre">create_payment()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_account"><code class="docutils literal notranslate"><span class="pre">get_account()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_order"><code class="docutils literal notranslate"><span class="pre">get_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_shop_from_product"><code class="docutils literal notranslate"><span class="pre">get_shop_from_product()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_user_mail"><code class="docutils literal notranslate"><span class="pre">get_user_mail()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.handle_payment_intent_succeeded"><code class="docutils literal notranslate"><span class="pre">handle_payment_intent_succeeded()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.send_order_confirmation"><code class="docutils literal notranslate"><span class="pre">send_order_confirmation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.update_order_payed"><code class="docutils literal notranslate"><span class="pre">update_order_payed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.update_suborder_payed"><code class="docutils literal notranslate"><span class="pre">update_suborder_payed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.webhook"><code class="docutils literal notranslate"><span class="pre">webhook()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="dynamodb.html" title="previous chapter">DynamoDB</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Lukas.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/routes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>DynamoDB &#8212; User Microservice 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=61cd365c" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Routes/ APIs" href="routes.html" />
+    <link rel="prev" title="Welcome to the User Service’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-dynamodb">
+<span id="dynamodb"></span><h1>DynamoDB<a class="headerlink" href="#module-dynamodb" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.add_shop">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">add_shop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_picture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shop_pictures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dummyid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.add_shop" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new shop to the DynamoDB ‘UserManagement’ table with provided details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shop_name</strong> – Name of the shop.</p></li>
+<li><p><strong>email</strong> – Shop owner’s email address.</p></li>
+<li><p><strong>password</strong> – Shop owner’s password (will be hashed before storage).</p></li>
+<li><p><strong>address</strong> – Shop’s address (optional).</p></li>
+<li><p><strong>phone</strong> – Shop’s phone number (optional).</p></li>
+<li><p><strong>description</strong> – Description of the shop (optional).</p></li>
+<li><p><strong>profile_picture</strong> – URL to the shop’s profile picture (optional).</p></li>
+<li><p><strong>shop_pictures</strong> – List of URLs to pictures of the shop (optional).</p></li>
+<li><p><strong>dummyid</strong> – Optional UUID to use instead of generating a new one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON dictionary containing shop data if successful, None if shop exists.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there is an error during the shop addition process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.add_user">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">add_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_picture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dummyid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.add_user" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new user to the DynamoDB ‘UserManagement’ table with provided details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> – User’s email address.</p></li>
+<li><p><strong>password</strong> – User’s password (will be hashed before storage).</p></li>
+<li><p><strong>username</strong> – User’s username.</p></li>
+<li><p><strong>address</strong> – User’s address (optional).</p></li>
+<li><p><strong>phone</strong> – User’s phone number (optional).</p></li>
+<li><p><strong>profile_picture</strong> – URL to the user’s profile picture (optional).</p></li>
+<li><p><strong>dummyid</strong> – Optional UUID to use instead of generating a new one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON dictionary containing user data if successful, None if user exists.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there is an error during the user addition process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.change_password">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">change_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.change_password" title="Link to this definition">¶</a></dt>
+<dd><p>Attempts to change the password for a given entity (user or shop) after verifying the old password.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_uuid</strong> – The UUID of the entity whose password is to be changed.</p></li>
+<li><p><strong>old_password</strong> – The current password for verification.</p></li>
+<li><p><strong>new_password</strong> – The new password to set if the old password is correctly verified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>On success, returns update data for the entity; on failure, returns a mismatch message or raises a ClientError.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.check_login">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">check_login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.check_login" title="Link to this definition">¶</a></dt>
+<dd><p>Verify if the provided password matches the hashed password stored in DynamoDB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> – The email of the user, used to retrieve the user’s data from DynamoDB.</p></li>
+<li><p><strong>password</strong> – The password to be verified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the password is correct, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.create_s3_bucket">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">create_s3_bucket</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.create_s3_bucket" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an S3 bucket named ‘userview’ on LocalStack. Logs the result of the operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s an error during the bucket creation process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.create_user_management_tables">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">create_user_management_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamodb=&lt;botocore.client.DynamoDB</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.create_user_management_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a table named ‘UserManagement’ in DynamoDB on LocalStack with the necessary schema and indexes for user management.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dynamodb</strong> – DynamoDB client instance (default is db_user_management).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the create_table operation containing metadata about the created table.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If the table creation fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.delete_shop">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">delete_shop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.delete_shop" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes a shop from the DynamoDB table based on its UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shop_uuid</strong> – The UUID of the shop to delete.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the shop was successfully deleted, False otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the deletion process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.delete_user">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">delete_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.delete_user" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes a user from the DynamoDB table based on their UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_uuid</strong> – The UUID of the user to delete.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the user was successfully deleted, False otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the deletion process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.delete_user_management_tables">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">delete_user_management_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.delete_user_management_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes the ‘UserManagement’ table from DynamoDB on LocalStack. Logs if the table does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ResourceNotFoundException</strong> – If the table does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_dynamodb_resource">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_dynamodb_resource</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_dynamodb_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes and returns a connection to the DynamoDB and S3 services using predefined settings for LocalStack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing the DynamoDB and S3 client objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_entity">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_entity" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch an entity (user or shop) from the DynamoDB table using the entity UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entity_uuid</strong> – The UUID of the entity to fetch.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The entity item if found, None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_entity_json">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_entity_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_entity_json" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches a JSON representation of an entity (either a user or a shop) from DynamoDB based on its UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entity_uuid</strong> – The UUID of the entity to fetch.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary representation of the entity if found, otherwise False if the entity does not exist.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while fetching the entity data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_entity_type">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_entity_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_entity_type" title="Link to this definition">¶</a></dt>
+<dd><p>Determines the type of an entity (user or shop) based on its UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entity_uuid</strong> – The UUID of the entity.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A string representing the type of the entity (‘User’ or ‘Shop’) if found, None otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the fetch operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_shop">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_shop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_shop" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves a shop from the DynamoDB table based on its UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shop_uuid</strong> – The UUID of the shop.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The shop’s data as fetched from DynamoDB, or logs an error if not found.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the fetch operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_shop_json">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_shop_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_shop_json" title="Link to this definition">¶</a></dt>
+<dd><p>Converts DynamoDB shop item data into a JSON-friendly dictionary format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shop</strong> – The DynamoDB shop item.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary containing the shop’s details.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while retrieving the shop data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_user">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_user" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves a user from the DynamoDB table based on their UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_uuid</strong> – The UUID of the user.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The user’s data as fetched from DynamoDB, or logs an error if not found.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the fetch operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.get_user_json">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">get_user_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.get_user_json" title="Link to this definition">¶</a></dt>
+<dd><p>Converts DynamoDB user item data into a JSON-friendly dictionary format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user</strong> – The DynamoDB user item.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary containing the user’s details.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while retrieving the user data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.hash_password">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">hash_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.hash_password" title="Link to this definition">¶</a></dt>
+<dd><p>Hashes a password using bcrypt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>password</strong> – The password to hash.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The hashed password as a bytes object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.pk_sk_values">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">pk_sk_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.pk_sk_values" title="Link to this definition">¶</a></dt>
+<dd><p>Generates primary key (PK) and sort key (SK) values for an entity in DynamoDB based on its UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entity_uuid</strong> – The UUID of the entity.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the PK and SK values, or False if the entity type is unknown.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs determining the entity type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.update_entity">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">update_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.update_entity" title="Link to this definition">¶</a></dt>
+<dd><p>Updates attributes of an existing entity (user or shop) in the DynamoDB ‘UserManagement’ table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_uuid</strong> – UUID of the entity to update.</p></li>
+<li><p><strong>attributes</strong> – Dictionary of attribute names and their new values to update.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Update data for the entity if successful, or raises a</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.update_profile_picture">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">update_profile_picture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.update_profile_picture" title="Link to this definition">¶</a></dt>
+<dd><p>Uploads a profile picture to an S3 bucket and updates the corresponding DynamoDB entry to include the new image URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_uuid</strong> – The UUID of the entity (user or shop).</p></li>
+<li><p><strong>file_path</strong> – The local path to the file to be uploaded.</p></li>
+<li><p><strong>filename</strong> – The filename under which the file should be stored in the bucket.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The update response from DynamoDB if successful, otherwise False if the keys are invalid.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs during the file upload or the DynamoDB update.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb.user_in_db">
+<span class="sig-prename descclassname"><span class="pre">dynamodb.</span></span><span class="sig-name descname"><span class="pre">user_in_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dynamodb.user_in_db" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if a user or shop exists in the DynamoDB ‘UserManagement’ table based on their email.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>email</strong> – Email address to search for in the database.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The first item found matching the email or None if no match is found.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there is an error querying the database.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">User Microservice</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DynamoDB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.add_shop"><code class="docutils literal notranslate"><span class="pre">add_shop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.add_user"><code class="docutils literal notranslate"><span class="pre">add_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.change_password"><code class="docutils literal notranslate"><span class="pre">change_password()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.check_login"><code class="docutils literal notranslate"><span class="pre">check_login()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.create_s3_bucket"><code class="docutils literal notranslate"><span class="pre">create_s3_bucket()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.create_user_management_tables"><code class="docutils literal notranslate"><span class="pre">create_user_management_tables()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.delete_shop"><code class="docutils literal notranslate"><span class="pre">delete_shop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.delete_user"><code class="docutils literal notranslate"><span class="pre">delete_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.delete_user_management_tables"><code class="docutils literal notranslate"><span class="pre">delete_user_management_tables()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_dynamodb_resource"><code class="docutils literal notranslate"><span class="pre">get_dynamodb_resource()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_entity"><code class="docutils literal notranslate"><span class="pre">get_entity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_entity_json"><code class="docutils literal notranslate"><span class="pre">get_entity_json()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_entity_type"><code class="docutils literal notranslate"><span class="pre">get_entity_type()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_shop"><code class="docutils literal notranslate"><span class="pre">get_shop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_shop_json"><code class="docutils literal notranslate"><span class="pre">get_shop_json()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_user"><code class="docutils literal notranslate"><span class="pre">get_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.get_user_json"><code class="docutils literal notranslate"><span class="pre">get_user_json()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.hash_password"><code class="docutils literal notranslate"><span class="pre">hash_password()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.pk_sk_values"><code class="docutils literal notranslate"><span class="pre">pk_sk_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.update_entity"><code class="docutils literal notranslate"><span class="pre">update_entity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.update_profile_picture"><code class="docutils literal notranslate"><span class="pre">update_profile_picture()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb.user_in_db"><code class="docutils literal notranslate"><span class="pre">user_in_db()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="routes.html">Routes/ APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">S3 Bucket</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to the User Service’s documentation!</a></li>
+      <li>Next: <a href="routes.html" title="next chapter">Routes/ APIs</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Lukas.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/dynamodb.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

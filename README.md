@@ -3,6 +3,8 @@ In a world in which consumers are more likely to want local suppliers and sustai
 
 ## Architecture
 
+Link to wiki: http://localhost:63342/ASE24/docs/build/index.html?_ijt=256svf6k730h9c3igiqr5lhu64&_ij_reload=RELOAD_ON_SAVE
+
 The system comprises various microservices: `user-service`, `inventory_management`, `orders`, `reviews` and `financial-service` each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named `app`, housing `__init__.py`, `dynamodb.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service. Additionally, each service includes a test folder to evaluate and test its functionalities.
 
 To coordinate the different services, a `docker-compose.yml` file in the ASE24 directory orchestrates their integration.
