@@ -22,15 +22,14 @@ export default function SpecificCategoryProducts() {
                         <div>{category.toUpperCase()}</div>
                     </div>
                     <div className='SpecificCategoryProducts-allCategoriesProducts'>
-                        {Object.keys(allProducts).map((item, key) => <div className={`SpecificCategoryProducts-allCategoriesProducts-item`} key={key}>
-                            {allProducts !== 0 && <div className='SpecificCategoryProducts-allCategoriesProducts-item-content' >
+                        <div className={`SpecificCategoryProducts-allCategoriesProducts-item`}>
+                            {allProducts.length !== 0 && <div className='SpecificCategoryProducts-allCategoriesProducts-item-content' >
                                 {allProducts.map((item, key) => <CardVertical product={item} key={key} />)}
                             </div>}
                             {allProducts.length !== 0 && <div style={{ color: COLORS.commentText, marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                                 --No more products--
                             </div>}
-
-                        </div>)}
+                        </div>
                         {allProducts.length === 0 && <div className='SpecificCategoryProducts-allCategoriesProducts-item-content-empty' >
                             <Empty description={"No related products"} />
                         </div>}
