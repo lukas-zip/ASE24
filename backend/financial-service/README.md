@@ -4,7 +4,11 @@
 The Financial Service is designed to handle payments and data management for our application. It interfaces with AWS DynamoDB for data storage and provides a Stripe integration.
 
 ## Architecture
-The documentation of the code is provided in the following wiki: http://localhost:63342/ASE24/docs/financial_service/build/html/index.html?_ijt=3qf5qhcm7mhhcouv5gmk5vvig8&_ij_reload=RELOAD_ON_SAVE
+The documentation of the code is provided in the following wiki:
+   ```bash
+   cd docs/financial_service/build/html
+   open index.html
+   ```
 
 The following is the directory structure of the Financial Service, outlining the primary components of the service:
 
