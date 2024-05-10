@@ -1,12 +1,10 @@
 # User Service
 
 ## Overview
-The User Service is a microservice designed to manage user data for our application. It handles tasks such as storing user information, integrating with AWS DynamoDB for data storage, and providing an API for user data operations.
+This inventory_management is a microservice that is designed to manage and administer all data related to products. It therefore handles insertions, deletions, updates etc. related matters with the help of a AWS localstack DynamoDb and S3 Bucket. This functionality is providing a API for product data operations.
 
 ## Architecture
-The documentation of the code is provided in the following wiki: http://localhost:63342/ASE24/docs/user_service/build/html/index.html?_ijt=lb94n4s57l5ph68rmh859d12sq&_ij_reload=RELOAD_ON_SAVE
-
-This service is built using Flask. It is designed to be scalable and efficient, utilizing AWS services such as DynamoDB and S3 for data handling and storage.
+This service is built with the use of a Flask backend technology. It is designed to be scalable and efficient, utilizing AWS Localstack services such as DynamoDB and S3 for product data handling and storage.
 
 ### Directory Structure
 ```
@@ -14,19 +12,18 @@ user-service/
 │
 ├── app/                      # Application code
 │   ├── __init__.py           # Initializes the Flask app
-│   ├── dummydata.py          # Script to generate dummy data
+│   ├── dummydata.py          # Script to integrate dummy data
 │   ├── dynamodb.py           # DynamoDB integration
 │   ├── routes.py             # API routes
 │   └── s3.py                 # S3 integration
 │
 ├── dummydata/                # Contains JSON files for dummy data
-│   ├── shops.json            # Dummy data for shops
-│   └── users.json            # Dummy data for users
+│   └── products.json         # Dummy data for products
 │
 ├── tests/                    # Test cases for the application
 │   ├── __init__.py
 │   ├── conftest.py           # Test configuration
-│   └── user_test.py          # Test cases for user operations
+│   └── inventory_test.py     # Test cases for inventory_management
 │
 ├── Dockerfile                # Dockerfile for building the service container
 ├── docker-compose.yml        # Composes the Docker user-service including LocalStack
@@ -39,13 +36,13 @@ user-service/
 
 ### Prerequisites
 - Python 3.8 or newer
-- Docker and Docker compose
+- Docker Deamon
 
 ### Installation
 1. Clone the repository and navigate to the project directory:
    ```bash
    git clone https://github.com/lukas-zip/ASE24.git
-   cd backend/user-service
+   cd backend/inventory_management
    ```
 
 2. Start the individual microservice using Docker Compose:
@@ -53,32 +50,8 @@ user-service/
    docker-compose up --build
    ```
 
-### Example Login Data
-Below you will find example login data which can be used for testing and demonstration purposes. 
-
-1. Shops:
-- Email: micro@example.com
-- Password: password11
-
-- Email: hydro@example.com
-- Password: password22
-
-- Email: electro@example.com
-- Password: password33
-
-2. Users:
-- Email: john.doe@example.com
-- Password: password1
-
-- Email: jane.doe@example.com
-- Password: password2
-
-- Email: max.smith@example.com
-- Password: password3
-
-
 ## Testing
 To run the tests, execute the command (after starting the user-service):
    ```bash
-   docker-compose exec user-service pytest
+   docker-compose exec inventory_management pytest
    ```

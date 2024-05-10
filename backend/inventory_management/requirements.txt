@@ -4,3 +4,4 @@ localstack==0.12.16
 uuid==1.30
 flask-cors==3.0.10
 Werkzeug==2.0.0
+pytest==6.2.4
