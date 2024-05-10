@@ -43,8 +43,8 @@ export default function ShopDetailPage() {
                             <Avatar icon={<UserOutlined />} src={profile_picture} size={60} />
                             <div>
                                 <div>{shop_name}</div>
-                                <a style={{ color: COLORS.primary, fontSize: 14 }} href={`mailto:${email}`}><MailOutlined /> Connect Us</a>
-                                <a style={{ marginLeft: 10, color: COLORS.primary, fontSize: 14 }} href={`tel:${phone}`}><PhoneOutlined /> Call Us</a>
+                                {email && <a style={{ color: COLORS.primary, fontSize: 14 }} href={`mailto:${email}`}><MailOutlined /> {email}</a>}
+                                {phone && <a style={{ marginLeft: 10, color: COLORS.primary, fontSize: 14 }} href={`tel:${phone}`}><PhoneOutlined /> {phone}</a>}
                             </div>
                         </div>
                         <div className='ShopDetailPage-shopInfo-details'>

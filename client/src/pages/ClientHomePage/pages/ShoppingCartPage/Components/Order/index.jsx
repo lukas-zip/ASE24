@@ -6,9 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import checked from '@/assets/pic/checked.png'
 import unchecked from '@/assets/pic/unchecked.svg'
 import { useEffect, useState } from 'react'
-import { deleteOrder, deleteProductFromCompany, getProductById, getShopById, removeProductFromOrder } from '@/api/user.api'
+import { getProductById, getShopById, removeProductFromOrder } from '@/api/user.api'
 import { useStateContext } from '@/pages/ClientHomePage/context'
-import { order } from '@/assets/data/data'
 
 export default function OrderCard({ orderInfo, specificProductInfo }) {
     const { product_id, quantity, product_owner } = specificProductInfo
@@ -119,7 +118,7 @@ export default function OrderCard({ orderInfo, specificProductInfo }) {
                                 <div style={{ fontSize: 26 }}>{(quantity * product.product_price * (100 - product.product_price_reduction) / 100).toFixed(2)}</div>
                             </div>
                             {(100 - product.product_price_reduction) != 0 && <><div style={{ color: '#4790ff', fontSize: 14, borderRadius: 6, padding: "0 6px", border: "1px solid #4790ff" }}>-{product.product_price_reduction}%</div>
-                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{product.product_price}</div>
+                                <div style={{ color: 'rgb(170, 170, 170)', fontSize: 14, textDecoration: 'line-through' }}>{(quantity * product.product_price).toFixed(2)}</div>
                             </>}
                         </div>
                     </div>

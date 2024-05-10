@@ -82,6 +82,13 @@ def create_product_owner_orders_table():
     except ClientError as e:
         print("Error creating PO OrdersManagement table:", e)
 
+def delete_po_order_management_tables():
+    try:
+        db_order_management.delete_table(TableName=TABLE_NAME)
+    except db_order_management.exceptions.ResourceNotFoundException:
+        print("Table does not exist.")
+
+
 
 
 def get_po_order(po_order_id):
@@ -153,7 +160,7 @@ def add_po_order(po_id,order_id, user_id,product_id = None, quantity = None):
                 'orders': {'M': orders}, # product ids
                 'total_price': {'N': str(total_price)},
                 'execution_time': {'S': current_time},
-                'order_status': {'S': 'processed'}
+                'order_status': {'S': 'unpaid'}
             }
         )
         print("PO order added with UUID:", po_order_uuid)

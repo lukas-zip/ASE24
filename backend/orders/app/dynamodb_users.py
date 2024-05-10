@@ -49,6 +49,15 @@ def create_orders_table():
         print("Error creating OrdersManagement table:", e)
 
 
+def delete_order_management_tables():
+    try:
+        db_order_management.delete_table(TableName=TABLE_NAME)
+    except db_order_management.exceptions.ResourceNotFoundException:
+        print("Table does not exist.")
+
+
+
+
 # add item to the dynamodb
 def add_item(user_id,product_id, quantity):
     try:
@@ -98,6 +107,7 @@ def get_order(order_uuid):
             }
         )
         item = response.get('Item')
+        print('RESONSEE ITEMMM:', response)
 
         # If no order is found, return an error message
         if not item:
@@ -317,8 +327,6 @@ def delete_order(order_id):
 def search_orders(user_id):
     try:
         #terms can include: user_id, product_id, status  #TODO add time
-        search_expression = ""
-        expression_attribute_values = {}
         response = db_order_management.query(
                     TableName=TABLE_NAME,
                     IndexName='userIdIndx',
@@ -335,8 +343,6 @@ def search_orders(user_id):
 def search_orders_by_status(status):
     try:
         #terms can include: user_id, product_id, status  #TODO add time
-        search_expression = ""
-        expression_attribute_values = {}
         response = db_order_management.query(
                     TableName=TABLE_NAME,
                     IndexName='statusIndx',
@@ -349,4 +355,19 @@ def search_orders_by_status(status):
         print(f"Error deleting: {e}")
         return False
 
+
+def search_orders_by_userid_and_status(user_id, status):
+    try:
+        orders = search_orders(user_id)
+        res = []
+        for item in orders['Items']:
+            if item['order_status'] == status :
+                res.append(item)
+
+        return  {"Count":len(res), "Items":res}
+
+    except ClientError as e:
+        print(f"Error searching: {e}")
+        return False
+  
 

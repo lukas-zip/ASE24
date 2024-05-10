@@ -2,7 +2,7 @@ import requests
 import json
 # from requests.adapters import HTTPAdapter
 # from urllib3.util.retry import Retry
-import urllib.request
+#import urllib.request
 
 def get_product_details(product_id):
     url = f"http://inventory_management:8002/product/{product_id}"
@@ -33,18 +33,21 @@ def reformat_order_reponse(item):
 
     orders = item.get('orders', {}).get('M', [])
     product_owners = item.get('product_owners', {}).get('M', [])
-    
+   
    # return orders
     for key, value in orders.items():
-        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S'], "product_details": get_all_product_details(key)})
+        product_details = get_all_product_details(key)
+        orders_arr.append({ "product_id":key , "quantity" : float(value['N']) , "product_owner": product_owners[key]['S'], 
+                           "price": float(product_details['product_price']), 
+                           "price_reduction": float(product_details['product_price_reduction']),
+                             "final_price": calc_discounted_price(float(product_details['product_price']), float(product_details['product_price_reduction'])) })
 
     for order in orders.keys():
         orders_dict[order] = orders[order].get('N', '')
 
     for po in product_owners.keys():
-        product_owners_dict[po] = product_owners[po].get('S', ''),
-
-    
+        product_owners_dict[po] = product_owners[po].get('S', '')
+ 
     return {
                 'order_id': item.get('order_id', {}).get('S', ''),
                 'orders_fe': orders_arr,

@@ -2,6 +2,16 @@ version: '3'
 
 services:
 
+  reviews:
+    build: ./backend/reviews
+    ports:
+      - "8003:8003"
+    command: pytest
+    volumes:
+      - ./backend/reviews:/app
+    environment:
+      - FLASK_ENV=testing
+
   user-service:
     build: ./backend/user-service
     ports:
@@ -19,6 +29,14 @@ services:
     command: pytest
     volumes:
       - ./backend/inventory_management:/app
+
+  financial-service:
+    build: ./backend/financial-service
+    ports:
+      - "8005:8005"
+    command: pytest
+    volumes:
+      - ./backend/financial-service:/app
     environment:
       - FLASK_ENV=testing
 

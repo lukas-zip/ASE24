@@ -8,12 +8,12 @@ import { addProductIntoOrder, createOrder, createReview, deleteReview, getReview
 import { formatNumber } from '@/utils/FormatNumber';
 import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '../../context';
+import { myDebounceFunc } from '@/utils/debounceFunc';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
     const navigateTo = useNavigate()
-    const { getOrders, orders } = useStateContext()
-    console.log(orders);
+    const { getOrders, orders, unpaidOrders } = useStateContext()
     const { user: { user_id } } = useSelector((state) => state.user)
     const {
         product_assemblies,
@@ -148,9 +148,9 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
 
     // order
     const [quantity, setQuantity] = useState(1)
-
     const AddToChart = async () => {
-        if (orders.length === 0) {
+        if (unpaidOrders.length === 0) {
+            console.log("zhele no");
             const reqData = {
                 product_id,
                 quantity,
@@ -163,20 +163,23 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                 setIsOpen(false)
             })
         } else {
+            console.log("zhele you");
             const reqData = {
                 product_id,
                 quantity,
             }
-            await addProductIntoOrder(orders[0].order_id, reqData).then((res) => {
-                console.log(res);
-                getOrders()
-                message.success("Add to cart successfully!")
-                setIsOpen(false)
+            await addProductIntoOrder(unpaidOrders[0].order_id, reqData).then((res) => {
+                if (res.status) {
+                    getOrders()
+                    message.success("Add to cart successfully!")
+                    setIsOpen(false)
+                } else {
+                    message.error(res.message.value)
+                }
             })
         }
     }
-
-
+    const debouncedAddToCart = myDebounceFunc(AddToChart, 500)
     return (
         <Modal destroyOnClose={true} style={{ top: 60 }} styles={{ body: { height: '80vh' }, mask: { 'opacity': 0.8, backgroundColor: '#000' } }} width={"80%"} footer={null} open={isOpen}
             onOk={() => setIsOpen(false)}
@@ -234,7 +237,7 @@ export default function ProductDetailModal({ item, isOpen, setIsOpen }) {
                                 <div><InputNumber min={1} max={product_current_stock} defaultValue={quantity} onChange={(num) => setQuantity(num)} /></div>
                             </div>
                         </div>
-                        <div onClick={AddToChart} className='CheckOutBtn'>Add to cart</div>
+                        <div onClick={debouncedAddToCart} className='CheckOutBtn'>Add to cart</div>
                     </div>
                     <div className='blogComments'>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
