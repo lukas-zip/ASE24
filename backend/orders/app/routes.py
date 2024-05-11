@@ -66,8 +66,6 @@ def delete_order_req(order_id: int):
 @route_blueprint.route("/orders/<order_id>", methods=['PUT'])
 def update_order_req(order_id):
    data = request.json
-
-
    # Check if all required parameters are present
    required_params = ['product_id', 'quantity']
    if not all(param in data for param in required_params):
@@ -75,7 +73,6 @@ def update_order_req(order_id):
 
    try:
         res = dynamodb_users.update_order(order_id, data['product_id'], data['quantity'])
-        print(res)
         return jsonify({'status': True, 'value': res}), 200
    except Exception as e:
        print(e)

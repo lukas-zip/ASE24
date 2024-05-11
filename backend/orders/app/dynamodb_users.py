@@ -222,7 +222,7 @@ def update_order(order_id, product_id, quantity_change):
 
         #update po order db
         if po_order_update_flag:
-            dynamodb_po.update_po_order(po_order_id, product_id, orders_dict[product_id], discounted_price_change)
+            dynamodb_po.update_po_order(po_order_id, product_id, quantity_change, discounted_price_change)
 
         # Dynamically build the update expression based on provided attributes
         # Prepare UpdateExpression and ExpressionAttributeValues
