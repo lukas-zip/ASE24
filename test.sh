@@ -5,4 +5,5 @@ docker-compose logs --tail=1000 -f user-service
 docker-compose logs --tail=1000 -f inventory_management
 docker-compose logs --tail=1000 -f reviews
 docker-compose logs --tail=1000 -f financial-service
+docker-compose logs --tail=1000 -f orders
 docker-compose down

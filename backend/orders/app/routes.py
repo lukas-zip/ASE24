@@ -1,6 +1,7 @@
-from app import dynamodb_po, dynamodb_users, invoice, utils
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
+
+from app import dynamodb_po, dynamodb_users, invoice, utils
 
 route_blueprint = Blueprint(
     "",
@@ -401,7 +402,8 @@ def search_user_order_by_status(status):
 # ----------------------------------------------------------------------------#
 # Create a invoice pdf out of the order details for one order
 
-@route_blueprint.route('/invoice/<order_id>', methods=['POST']) 
+
+@route_blueprint.route("/invoice/<order_id>", methods=["POST"])
 def route_create_invoice(order_id):
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400
@@ -417,7 +419,8 @@ def route_create_invoice(order_id):
 
 ## Download the invoice for a specific order
 
-@route_blueprint.route('/invoice/<order_id>', methods=['GET'])
+
+@route_blueprint.route("/invoice/<order_id>", methods=["GET"])
 def route_get_invoice(order_id):
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400
