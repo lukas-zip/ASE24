@@ -400,7 +400,8 @@ def search_user_order_by_status(status):
 # Invoice APIs
 # ----------------------------------------------------------------------------#
 # Create a invoice pdf out of the order details for one order
-@route_blueprint.route("/invoice/<order_id>", methods=["POST"])
+
+@route_blueprint.route('/invoice/<order_id>', methods=['POST']) 
 def route_create_invoice(order_id):
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400
@@ -415,7 +416,8 @@ def route_create_invoice(order_id):
 
 
 ## Download the invoice for a specific order
-@route_blueprint.route("/invoice/<order_id>", methods=["GET"])
+
+@route_blueprint.route('/invoice/<order_id>', methods=['GET'])
 def route_get_invoice(order_id):
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400

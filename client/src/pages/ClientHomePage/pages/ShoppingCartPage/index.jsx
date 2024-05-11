@@ -1,21 +1,17 @@
-import COLORS from '@/constants/COLORS';
 import './index.less'
-import { Divider, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import EmptyBox from '@/assets/pic/EmptyBox.png'
-import { useNavigate } from 'react-router-dom';
-import OrderCard from './Components/Order';
-import { CarOutlined, ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
 import UnpaidOrders from './Components/UnpaidOrders';
+import PaidOrders from './Components/PaidOrders';
+import { useStateContext } from '../../context';
 
 const tabsKey = {
-    UNPAID: "unpaid",
-    UNDELIVERED: "undelivered",
-    RECEIVED: "received"
+    UNPAID: "Unpaid",
+    PAID: "Paid",
 }
 export default function ShoppingCartPage() {
-    const navigateTo = useNavigate()
+    const { unpaidOrders, paidOrders } = useStateContext()
     const [activeTab, setActiveTab] = useState(tabsKey.UNPAID)
     return (
         <div className='containerWrapper'>
@@ -25,15 +21,13 @@ export default function ShoppingCartPage() {
                     defaultActiveKey={activeTab}
                     onChange={(e) => setActiveTab(e)}
                     items={[
-                        { key: tabsKey.UNPAID, label: `Unpaid`, icon: <WalletOutlined /> },
-                        { key: tabsKey.UNDELIVERED, label: `Undelivered`, icon: <ClockCircleOutlined /> },
-                        { key: tabsKey.RECEIVED, label: `Received`, icon: <CarOutlined /> }
+                        { key: tabsKey.UNPAID, label: `${tabsKey.UNPAID} (${unpaidOrders?.length ? unpaidOrders?.length : 0})`, icon: <ClockCircleOutlined /> },
+                        { key: tabsKey.PAID, label: `${tabsKey.PAID} (${paidOrders?.length ? paidOrders?.length : 0})`, icon: <WalletOutlined /> },
                     ]}
                 />
             </div>
             {activeTab === tabsKey.UNPAID && <UnpaidOrders />}
-            {activeTab === tabsKey.UNDELIVERED && <UnpaidOrders />}
-            {activeTab === tabsKey.RECEIVED && <UnpaidOrders />}
+            {activeTab === tabsKey.PAID && <PaidOrders />}
         </div >
     )
 }

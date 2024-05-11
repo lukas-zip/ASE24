@@ -1,4 +1,3 @@
-import { message as $message } from 'antd';
 import axios from 'axios';
 import { store } from '@/store';
 import { setGlobalState } from '@/store/global.store';
@@ -11,6 +10,8 @@ const serviceBases = {
     payment: 'http://127.0.0.1:8005', // 支付服务端口
     // 其他服务端口...
 };
+
+export { serviceBases }
 
 const createAxiosInstance = (baseURL) => axios.create({ baseURL });
 
@@ -59,6 +60,7 @@ export const request = (serviceType, method, url, data, config) => {
                 errorMessage = error?.message;
             }
             // $message.error(error?.response?.data ? error.response.data : errorMessage)
+            console.log(error);
             return {
                 status: false,
                 message: error?.response?.data ? error.response.data : errorMessage,

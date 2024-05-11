@@ -1,6 +1,9 @@
 boto3==1.18.63
+botocore
 flask==2.0.2
 localstack==0.12.16
+flask-cors==3.0.10
+pytest==6.2.4
 uuid==1.30
 flask-cors==3.0.10
 Werkzeug==2.0.0

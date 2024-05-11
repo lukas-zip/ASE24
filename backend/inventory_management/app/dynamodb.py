@@ -362,7 +362,6 @@ def update_product(product_id, product_owner, updated_data):
         print("Error updating product:", e)
         return False
 
-    
 def perform_sell(product_id, product_owner, ordered_items):
     try:
         table_name = 'Products'
@@ -475,3 +474,9 @@ def search_products_by_attributes(attributes_term):
     except ClientError as e:
         print("Error searching products by attributes:", e)
         return []
+
+def delete_product_table():
+    try:
+        db_inventory_management.delete_table(TableName='Products')
+    except db_inventory_management.exceptions.ResourceNotFoundException:
+        print("The Table could not be found.")
