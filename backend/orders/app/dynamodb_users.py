@@ -13,6 +13,8 @@ db_order_management = initialise_dynamo.db_order_management
 
 # Function to create orders table
 def create_orders_table():
+    """_summary_
+    """
     try:
         response = db_order_management.create_table(
             TableName=TABLE_NAME,
@@ -50,6 +52,8 @@ def create_orders_table():
 
 
 def delete_order_management_tables():
+    """_summary_
+    """
     try:
         db_order_management.delete_table(TableName=TABLE_NAME)
     except db_order_management.exceptions.ResourceNotFoundException:
@@ -60,6 +64,16 @@ def delete_order_management_tables():
 
 # add item to the dynamodb
 def add_item(user_id,product_id, quantity):
+    """_summary_
+
+    Args:
+        user_id (_type_): _description_
+        product_id (_type_): _description_
+        quantity (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         # Generate UUID for the new user
         order_uuid = str(uuid.uuid4())
@@ -99,6 +113,17 @@ def add_item(user_id,product_id, quantity):
         return str(e)
 
 def get_order(order_uuid):
+    """_summary_
+
+    Args:
+        order_uuid (_type_): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.get_item(
             TableName=TABLE_NAME,
@@ -122,6 +147,11 @@ def get_order(order_uuid):
 
 
 def get_all_orders():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.scan(TableName=TABLE_NAME)
         return  utils.reformat_order_arr_reponse(response) 
@@ -132,6 +162,19 @@ def get_all_orders():
 
 
 def update_order(order_id, product_id, quantity_change):
+    """_summary_
+
+    Args:
+        order_id (_type_): _description_
+        product_id (_type_): _description_
+        quantity_change (_type_): _description_
+
+    Raises:
+        str: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #get current order values
         try:
@@ -265,6 +308,18 @@ def update_order(order_id, product_id, quantity_change):
         raise str(e)
 
 def update_status(order_id,status):
+    """_summary_
+
+    Args:
+        order_id (_type_): _description_
+        status (_type_): _description_
+
+    Raises:
+        e: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         current_time = str(datetime.now())
         # Prepare UpdateExpression and ExpressionAttributeValues
@@ -298,6 +353,14 @@ def update_status(order_id,status):
 
 
 def delete_order(order_id):
+    """_summary_
+
+    Args:
+        order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         # Perform the delete operation
         response =  db_order_management.delete_item(
@@ -325,6 +388,14 @@ def delete_order(order_id):
         return False
 
 def search_orders(user_id):
+    """_summary_
+
+    Args:
+        user_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #terms can include: user_id, product_id, status  #TODO add time
         response = db_order_management.query(
@@ -341,6 +412,14 @@ def search_orders(user_id):
 
 
 def search_orders_by_status(status):
+    """_summary_
+
+    Args:
+        status (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #terms can include: user_id, product_id, status  #TODO add time
         response = db_order_management.query(
@@ -357,6 +436,15 @@ def search_orders_by_status(status):
 
 
 def search_orders_by_userid_and_status(user_id, status):
+    """_summary_
+
+    Args:
+        user_id (_type_): _description_
+        status (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         orders = search_orders(user_id)
         res = []

@@ -14,6 +14,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 # Function to create the profiles table
 def create_product_owner_orders_table():
+    """_summary_
+    """
     try:
         response = db_order_management.create_table(
             TableName=TABLE_NAME,
@@ -83,6 +85,8 @@ def create_product_owner_orders_table():
         print("Error creating PO OrdersManagement table:", e)
 
 def delete_po_order_management_tables():
+    """_summary_
+    """
     try:
         db_order_management.delete_table(TableName=TABLE_NAME)
     except db_order_management.exceptions.ResourceNotFoundException:
@@ -92,6 +96,14 @@ def delete_po_order_management_tables():
 
 
 def get_po_order(po_order_id):
+    """_summary_
+
+    Args:
+        po_order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #TODO: handle no order id found case
         response = db_order_management.get_item(
@@ -110,6 +122,11 @@ def get_po_order(po_order_id):
    
 
 def get_all_po_orders():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.scan(TableName=TABLE_NAME)
         return  utils.reformat_po_order_arr_reponse(response)  
@@ -119,6 +136,14 @@ def get_all_po_orders():
 
 
 def delete_po_order(po_order_id):
+    """_summary_
+
+    Args:
+        po_order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         # Perform the delete operation
         response =  db_order_management.delete_item(
@@ -135,6 +160,18 @@ def delete_po_order(po_order_id):
 
 # add order to the dynamodb
 def add_po_order(po_id,order_id, user_id,product_id = None, quantity = None):
+    """_summary_
+
+    Args:
+        po_id (_type_): _description_
+        order_id (_type_): _description_
+        user_id (_type_): _description_
+        product_id (_type_, optional): _description_. Defaults to None.
+        quantity (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     try:
 
         # Generate UUID for the new user
@@ -172,6 +209,14 @@ def add_po_order(po_id,order_id, user_id,product_id = None, quantity = None):
 
 
 def get_po_order(po_order_id):
+    """_summary_
+
+    Args:
+        po_order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #TODO: handle no order id found case
         response = db_order_management.get_item(
@@ -190,16 +235,22 @@ def get_po_order(po_order_id):
 
 
 def update_po_status(product_owner, order_id, status):
+    """_summary_
+
+    Args:
+        product_owner (_type_): _description_
+        order_id (_type_): _description_
+        status (_type_): _description_
+
+    Raises:
+        e: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #get po_order_id
         po_order = search_po_orders(product_owner=product_owner , order_id=order_id)
-        # count = int(po_order['Count'])
-        # if count == 0:
-        #     return 'Error Updating Status: No corresponding po_order found'
-        # elif count > 1:
-        #     return 'Error Updating Status: more than 1 po_order found'
-        #items = po_order['Items']
-        #print('PO Orderrr',po_order)
         if po_order == 'Invalid Search':
             return 'No PO Order Found'
         po_order_id = po_order['po_order_id']
@@ -239,6 +290,20 @@ def update_po_status(product_owner, order_id, status):
 
 
 def update_po_order(po_order_id, product_id, quantity_change, total_discounted_price_change):
+    """_summary_
+
+    Args:
+        po_order_id (_type_): _description_
+        product_id (_type_): _description_
+        quantity_change (_type_): _description_
+        total_discounted_price_change (_type_): _description_
+
+    Raises:
+        e: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #get current order values
         order = get_po_order(po_order_id)
@@ -289,6 +354,20 @@ def update_po_order(po_order_id, product_id, quantity_change, total_discounted_p
 
 
 def remove_po_product(po_order_id, product_id, product_discounted_price_change, total_quantity):
+    """_summary_
+
+    Args:
+        po_order_id (_type_): _description_
+        product_id (_type_): _description_
+        product_discounted_price_change (_type_): _description_
+        total_quantity (_type_): _description_
+
+    Raises:
+        e: _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         #get current order values
         order = get_po_order(po_order_id)
@@ -339,6 +418,14 @@ def remove_po_product(po_order_id, product_id, product_discounted_price_change, 
 
 
 def search_orders_by_po(product_owner):
+    """_summary_
+
+    Args:
+        product_owner (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.query(
                     TableName=TABLE_NAME,
@@ -355,6 +442,14 @@ def search_orders_by_po(product_owner):
 
 
 def search_orders_by_orderid(order_id):
+    """_summary_
+
+    Args:
+        order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.query(
                     TableName=TABLE_NAME,
@@ -371,6 +466,15 @@ def search_orders_by_orderid(order_id):
 
 
 def search_po_orders(product_owner, order_id):
+    """_summary_
+
+    Args:
+        product_owner (_type_): _description_
+        order_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     search_orderid = search_orders_by_orderid(order_id)
     search_po = search_orders_by_po(product_owner)
 
@@ -385,6 +489,14 @@ def search_po_orders(product_owner, order_id):
 
     
 def search_po_orders_by_status(order_status):
+    """_summary_
+
+    Args:
+        order_status (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.query(
                     TableName=TABLE_NAME,
@@ -400,6 +512,14 @@ def search_po_orders_by_status(order_status):
         return False
 
 def search_po_orders_by_userid(user_id):
+    """_summary_
+
+    Args:
+        user_id (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         response = db_order_management.query(
                     TableName=TABLE_NAME,
@@ -416,6 +536,15 @@ def search_po_orders_by_userid(user_id):
 
 
 def search_orders_by_userid_and_status(user_id, status):
+    """_summary_
+
+    Args:
+        user_id (_type_): _description_
+        status (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         orders = search_po_orders_by_userid(user_id)
         res = []
@@ -430,6 +559,15 @@ def search_orders_by_userid_and_status(user_id, status):
         return False
 
 def search_orders_by_po_id_and_status(po_id, status):
+    """_summary_
+
+    Args:
+        po_id (_type_): _description_
+        status (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     try:
         orders = search_orders_by_po(po_id)
         res = []
