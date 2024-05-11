@@ -10,7 +10,28 @@ This service is built using Flask. It is designed to be scalable and efficient, 
 
 ### Directory Structure
 ```
-
+orders
+├── app  # Application code
+│   ├── dynamodb_po.py  # Creates DynamoDB table to handle PO orders 
+│   ├── dynamodb_users.py # Creates DynamoDB table to handle user orders 
+│   ├── initialise_dynamo.py # Integrates with AWS DynamoDB for data operations
+│   ├── __init__.py # Initializes the Flask application
+│   ├── invoice.py #Handles invoice creation
+│   ├── routes.py  # Defines all the Flask routes for the orders endpoints
+│   └── utils.py #Helper functions 
+├── docker-compose.yml # Composes the Docker orders-service including LocalStack
+├── Dockerfile # Docker configuration for building the service container
+├── pytest.ini # Pytest configuration file
+├── README.md # This README file
+├── requirements.txt # Python package dependencies
+├── run.py  # Entry point to run the Flask application
+└── tests
+    ├── conftest.py # Configurations for pytest
+    ├── __init__.py # Makes the directory a Python module
+    ├── orders_dummy_data.py #Json files to compare orders reponse against
+    ├── product_dummy_data.py #Dummy Product data
+    ├── user_orders_test.py  # Tests related to orders functionalities
+    └── utils.py #helper functions used by tests
 ```
 
 ## Getting Started
