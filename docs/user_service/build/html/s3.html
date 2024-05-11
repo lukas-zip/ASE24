@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>S3 Bucket &#8212; User Microservice 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=61cd365c" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Routes/ APIs" href="routes.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-s3">
+<span id="s3-bucket"></span><h1>S3 Bucket<a class="headerlink" href="#module-s3" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="s3.bucket_exists">
+<span class="sig-prename descclassname"><span class="pre">s3.</span></span><span class="sig-name descname"><span class="pre">bucket_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#s3.bucket_exists" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if an S3 bucket exists by attempting to retrieve its metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bucket_name</strong> – The name of the bucket to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the bucket exists, False if the bucket does not exist or an error occurs.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an unexpected error occurs during the check (other than 404 not found).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="s3.create_bucket">
+<span class="sig-prename descclassname"><span class="pre">s3.</span></span><span class="sig-name descname"><span class="pre">create_bucket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#s3.create_bucket" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an S3 bucket with the specified name using the Boto3 S3 client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bucket_name</strong> – The name of the bucket to create.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None, prints success or error message.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s an error during the bucket creation process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="s3.delete_object">
+<span class="sig-prename descclassname"><span class="pre">s3.</span></span><span class="sig-name descname"><span class="pre">delete_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#s3.delete_object" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes an object from an S3 bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_key</strong> – The key of the object to delete.</p></li>
+<li><p><strong>bucket_name</strong> – The name of the bucket from which the object will be deleted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the object is successfully deleted, False otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s an error during the deletion process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="s3.retrieve_image">
+<span class="sig-prename descclassname"><span class="pre">s3.</span></span><span class="sig-name descname"><span class="pre">retrieve_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#s3.retrieve_image" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves image data from an S3 bucket at the specified object key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_key</strong> – The key of the object to retrieve.</p></li>
+<li><p><strong>bucket_name</strong> – The name of the bucket from which the object is retrieved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The image data as a bytes object if successful, None otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s an error retrieving the object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="s3.upload_fileobj">
+<span class="sig-prename descclassname"><span class="pre">s3.</span></span><span class="sig-name descname"><span class="pre">upload_fileobj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#s3.upload_fileobj" title="Link to this definition">¶</a></dt>
+<dd><p>Uploads a file object to an S3 bucket at the specified object key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_file</strong> – The file-like object to upload.</p></li>
+<li><p><strong>bucket_name</strong> – The name of the S3 bucket where the file will be uploaded.</p></li>
+<li><p><strong>object_key</strong> – The key under which the file object will be stored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the upload is successful, False otherwise.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s an error during the file upload process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">User Microservice</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dynamodb.html">DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="routes.html">Routes/ APIs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">S3 Bucket</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s3.bucket_exists"><code class="docutils literal notranslate"><span class="pre">bucket_exists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3.create_bucket"><code class="docutils literal notranslate"><span class="pre">create_bucket()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3.delete_object"><code class="docutils literal notranslate"><span class="pre">delete_object()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3.retrieve_image"><code class="docutils literal notranslate"><span class="pre">retrieve_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#s3.upload_fileobj"><code class="docutils literal notranslate"><span class="pre">upload_fileobj()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="routes.html" title="previous chapter">Routes/ APIs</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Lukas.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/s3.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

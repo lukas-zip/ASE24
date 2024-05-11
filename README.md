@@ -1,6 +1,28 @@
 # ASE24
 In a world in which consumers are more likely to want local suppliers and sustainable individualized products, we pursue building a platform that gives creative individuals, artists and small businesses an opportunity to sell their products of any kind. Mainly having in mind handcrafted products like jewelry, headbands, paintings, pottery and other accessories for individuals, their home, their loved ones and places their life takes place in. Consumers are able to sign up, browse through the products on offer, inspect and also buy them.
 
+## Wiki
+User Service
+   ```bash
+   cd docs/user_service/build/html
+   open index.html
+   ```
+Reviews
+   ```bash
+   cd docs/reviews/build/html
+   open index.html
+   ```
+Inventory Management
+   ```bash
+   cd docs/inventory_management/build/html
+   open index.html
+   ```
+Financial Service
+   ```bash
+   cd docs/financial_service/build/html
+   open index.html
+   ```
+
 ## Architecture
 
 The system comprises various microservices: `user-service`, `inventory_management`, `orders`, `reviews` and `financial-service` each with its distinct Dockerfile responsible for building a Docker image. These services also maintain their respective directories named `app`, housing `__init__.py`, `dynamodb.py`  and `routes.py`. Moreover, every service includes a `requirements.txt` file outlining its dependencies and a `run.py` file for initiating the service. Additionally, each service includes a test folder to evaluate and test its functionalities.
