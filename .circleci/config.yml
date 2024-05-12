@@ -31,6 +31,9 @@ jobs:
       - run:
           name: Run Tests
           command: docker-compose -f docker-compose.test.yml run reviews pytest tests/
+      - run:
+          name: Run Tests
+          command: docker-compose -f docker-compose.test.yml run inventory_management pytest tests/
 
 
 
