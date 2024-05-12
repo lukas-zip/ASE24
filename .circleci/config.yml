@@ -28,6 +28,9 @@ jobs:
       - run:
           name: Run Tests
           command: docker-compose -f docker-compose.test.yml run reviews pytest tests/
+      - run:
+          name: Run Tests
+          command: docker-compose -f docker-compose.test.yml run orders pytest tests/
 
 
 workflows:
