@@ -5,7 +5,7 @@
     "product_description": "Description of Product X",
     "product_current_stock": 100,
     "product_should_stock": 50,
-    "product_price": 50.00,
+    "product_price": 100.00,
     "product_picture": ["http://localhost:4566/productpictures/thisexampleproduct.png"],
     "product_price_reduction": 0.00,
     "product_sale": false,
