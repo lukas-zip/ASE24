@@ -298,6 +298,8 @@ def update_po_order(
 
         # modify total price
         total_price += float(total_discounted_price_change)
+        if product_id not in orders_dict.keys():
+            orders_dict[product_id] = 0
         orders_dict[product_id] = float(orders_dict[product_id]) + float(
             quantity_change
         )
@@ -365,6 +367,8 @@ def remove_po_product(
         # modify total price
         total_price += product_discounted_price_change
         orders_dict[product_id] = total_quantity
+        # remove product from PO order
+        del orders_dict[product_id]
 
         # Dynamically build the update expression based on provided attributes
         # Prepare UpdateExpression and ExpressionAttributeValues
