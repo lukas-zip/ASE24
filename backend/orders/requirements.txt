@@ -9,3 +9,4 @@ bcrypt==3.2.0
 datetime
 reportlab==4.1.0
 pytest==6.2.4
+pytest-mock==3.14.0

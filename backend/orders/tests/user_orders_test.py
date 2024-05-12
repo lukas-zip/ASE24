@@ -1,17 +1,6 @@
 import json
 from unittest.mock import patch
 
-from tests.conftest import (
-    client,
-    mock_get_all_product_details,
-    mock_get_product_details,
-)
-
-# dummy_products_data = dummy_products.get_dummy_data()
-
-ORDER1_ID = ""
-ORDER2_ID = ""
-
 
 def test_endpoint(client):
     response = client.get("/")
@@ -20,68 +9,243 @@ def test_endpoint(client):
 
 def test_get_all_orders(client):
     response = client.get("/orders")
-    # product_details = mock_get_product_details(3, 5)
-
-    # POST request to '/users' to register a new user
-    response = client.get("/orders")
     response_data = json.loads(response.data)
     response_data["value"]["Count"] = 0
 
 
-# def test_get_order_by_id(client):
-#     order_id = ""
-#     response = client.get(f"/orders/{order_id}")
-#     response["status"] == "unpaid"
-#     pass
+def test_add_order(client):
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    assert response.status_code == 200
+    response_json = response.get_json()
+    assert response_json["value"]["user_id"] == order_data["user_id"]
+    # check only one product is available in order
+    assert len(response_json["value"]["orders_fe"]) == 1
+    assert (
+        response_json["value"]["orders_fe"][0]["product_id"] == order_data["product_id"]
+    )
+    assert response_json["value"]["orders_fe"][0]["quantity"] == order_data["quantity"]
+    assert response_json["value"]["order_status"] == "unpaid"
+    expected_total_price = 100.0 * float(order_data["quantity"])
+    assert float(response_json["value"]["total_price"]) == expected_total_price
 
 
-# def test_add_order(client):
-#     # Setup: Create a table and add an item
+def test_get_order_by_id(client):
 
-#     user_data = {
-#         "user_id": "username_test",
-#         "product_id": dummy_products_data[0]["product_id"],
-#         "quantity": 7,
-#     }
-#     # POST request to '/users' to register a new user
-#     response = client.post(
-#         "/users", data=json.dumps(user_data), content_type="application/json"
-#     )
-#     # Check if the request was successful
-#     assert response.status_code == 200
-#     response_json = response.get_json()
-#     assert response.json["status"] == True
-#     assert "user_id" in response_json["value"], "user_id key is missing in the response"
-#     assert response_json["value"]["address"] == user_data["address"]
-#     assert response_json["value"]["email"] == user_data["email"]
-#     assert response_json["value"]["phone"] == user_data["phone"]
-#     assert response_json["value"]["profile_picture"] == ""
-#     assert response_json["value"]["type"] == "User"
-#     assert response_json["value"]["username"] == user_data["username"]
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+
+    # update order
+    response = client.get(f"/orders/{order_id}")
+    assert response.status_code == 200
 
 
-# def test_update_order(client):
-#     pass
+def test_delete_order_by_id(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+
+    # update order
+    response = client.delete(f"/orders/{order_id}")
+    assert response.status_code == 200
 
 
-# def test_delete_order(client):
-#     pass
+def test_update_order(client):
+
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+
+    update_order_data = {
+        "product_id": "product_id_test1",
+        "quantity": 2,
+    }
+    response = client.put(
+        f"/orders/{order_id}",
+        data=json.dumps(update_order_data),
+        content_type="application/json",
+    )
+    response_json = response.get_json()
+
+    assert response.status_code == 200
+    # check price is calculated correctly
+    expected_total_price = 100.0 * float(order_data["quantity"]) + 90.0 * float(
+        update_order_data["quantity"]
+    )
+    assert float(response_json["value"]["total_price"]) == expected_total_price
+    assert response_json["value"]["order_status"] == "unpaid"
 
 
-# def test_update_order_status(client):
-#     # check orders status changed
+def test_set_order_to_paid(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
 
-#     # check po order status changed
-#     pass
+    # change status to paid
+    response = client.get(f"/orders/{order_id}/status/paid")
+    response_json = response.get_json()
+    assert response.status_code == 200
+
+    assert response_json["value"]["order_status"] == "paid"
 
 
-# def test_search_user_order_by_status(client):
-#     pass
+def test_search_unpaid_orders(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    assert response.status_code == 200
+
+    # search unpaid user orders
+    response = client.get("/orders/search/status/unpaid")
+
+    assert response.status_code == 200
+
+    response_json = response.get_json()
+    assert response_json["value"]["Count"] == 1
+    assert response_json["value"]["Items"][0]["order_status"] == "unpaid"
 
 
-# def test_search_po_order_by_status(client):
-#     pass
+def test_search_paid_orders(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+    assert response.status_code == 200
+
+    # change status to paid
+    response = client.get(f"/orders/{order_id}/status/paid")
+    response_json = response.get_json()
+    assert response.status_code == 200
+
+    # search paid user orders
+    response = client.get("/orders/search/status/paid")
+    assert response.status_code == 200
+
+    response_json = response.get_json()
+    assert response_json["value"]["Count"] == 1
+    assert response_json["value"]["Items"][0]["order_status"] == "paid"
 
 
-# def search_po_orders_by_po_id(client):
-#     pass
+def test_search_po_unpaid_orders(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    assert response.status_code == 200
+
+    # search unpaid po orders
+    response = client.get("/orders/product/search/status/unpaid")
+    assert response.status_code == 200
+
+    response_json = response.get_json()
+    assert response_json["value"]["Count"] == 1
+    assert response_json["value"]["Items"][0]["order_status"] == "unpaid"
+
+
+def test_set_po_order_to_paid(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+
+    # change po order status to paid
+    response = client.get(
+        f"/orders/product/{order_id}/{'1324a686-c8b1-4c84-bbd6-17325209d78c6'}/paid"
+    )
+    response_json = response.get_json()
+    assert response.status_code == 200
+    assert response_json["value"]["order_status"] == "paid"
+
+
+def test_search_po_order_by_paid_status(client):
+    # Add order
+    order_data = {
+        "user_id": "username_test",
+        "product_id": "product_id_test0",
+        "quantity": 7,
+    }
+    response = client.post(
+        "/orders", data=json.dumps(order_data), content_type="application/json"
+    )
+    response_json = response.get_json()
+    order_id = response_json["value"]["order_id"]
+
+    # change po order status to paid
+    response = client.get(
+        f"/orders/product/{order_id}/{'1324a686-c8b1-4c84-bbd6-17325209d78c6'}/paid"
+    )
+    response_json = response.get_json()
+    assert response.status_code == 200
+    assert response_json["value"]["order_status"] == "paid"
+
+    # search paid po orders
+    response = client.get("/orders/product/search/status/paid")
+    assert response.status_code == 200
+
+    response_json = response.get_json()
+    assert response_json["value"]["Count"] == 1
+    assert response_json["value"]["Items"][0]["order_status"] == "paid"
