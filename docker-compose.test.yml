@@ -40,15 +40,15 @@ services:
     environment:
       - FLASK_ENV=testing
 
-  orders:
-    build: ./backend/orders
-    ports:
-      - "8004:8004"
-    command: pytest
-    volumes:
-      - ./backend/orders:/app
-    environment:
-      - FLASK_ENV=testing
+  # orders:
+  #   build: ./backend/orders
+  #   ports:
+  #     - "8004:8004"
+  #   command: pytest
+  #   volumes:
+  #     - ./backend/orders:/app
+  #   environment:
+  #     - FLASK_ENV=testing
 
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
