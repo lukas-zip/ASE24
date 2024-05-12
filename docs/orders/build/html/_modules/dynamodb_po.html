@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dynamodb_po &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for dynamodb_po</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">ClientError</span>
+
+<span class="kn">import</span> <span class="nn">initialise_dynamo</span><span class="o">,</span> <span class="nn">utils</span>
+
+<span class="n">TABLE_NAME</span> <span class="o">=</span> <span class="s2">&quot;ProductOwnerOrdersManagement&quot;</span>
+<span class="n">db_order_management</span> <span class="o">=</span> <span class="n">initialise_dynamo</span><span class="o">.</span><span class="n">db_order_management</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<span class="c1"># Function to create the profiles table</span>
+<div class="viewcode-block" id="create_product_owner_orders_table">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.create_product_owner_orders_table">[docs]</a>
+<span class="k">def</span> <span class="nf">create_product_owner_orders_table</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates PO DynamoDB orders table&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">KeySchema</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;po_order_id&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyType&quot;</span><span class="p">:</span> <span class="s2">&quot;HASH&quot;</span><span class="p">}],</span>
+            <span class="n">AttributeDefinitions</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;po_order_id&quot;</span><span class="p">,</span> <span class="s2">&quot;AttributeType&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;order_id&quot;</span><span class="p">,</span> <span class="s2">&quot;AttributeType&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;product_owner&quot;</span><span class="p">,</span> <span class="s2">&quot;AttributeType&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;order_status&quot;</span><span class="p">,</span> <span class="s2">&quot;AttributeType&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="s2">&quot;AttributeType&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+            <span class="n">ProvisionedThroughput</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ReadCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;WriteCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+            <span class="n">GlobalSecondaryIndexes</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;IndexName&quot;</span><span class="p">:</span> <span class="s2">&quot;POIndx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KeySchema&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;product_owner&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyType&quot;</span><span class="p">:</span> <span class="s2">&quot;HASH&quot;</span><span class="p">}</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;Projection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ProjectionType&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;ProvisionedThroughput&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ReadCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="s2">&quot;WriteCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;IndexName&quot;</span><span class="p">:</span> <span class="s2">&quot;OrderStatusIndx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KeySchema&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;order_status&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyType&quot;</span><span class="p">:</span> <span class="s2">&quot;HASH&quot;</span><span class="p">}],</span>
+                    <span class="s2">&quot;Projection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ProjectionType&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;ProvisionedThroughput&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ReadCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="s2">&quot;WriteCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;IndexName&quot;</span><span class="p">:</span> <span class="s2">&quot;OrderIDIndx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KeySchema&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;order_id&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyType&quot;</span><span class="p">:</span> <span class="s2">&quot;HASH&quot;</span><span class="p">}],</span>
+                    <span class="s2">&quot;Projection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ProjectionType&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;ProvisionedThroughput&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ReadCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="s2">&quot;WriteCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;IndexName&quot;</span><span class="p">:</span> <span class="s2">&quot;UserIDIndx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KeySchema&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;AttributeName&quot;</span><span class="p">:</span> <span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyType&quot;</span><span class="p">:</span> <span class="s2">&quot;HASH&quot;</span><span class="p">}],</span>
+                    <span class="s2">&quot;Projection&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ProjectionType&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;ProvisionedThroughput&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ReadCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="s2">&quot;WriteCapacityUnits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PO OrdersManagement table created:&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error creating PO OrdersManagement table:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_po_order_management_tables">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.delete_po_order_management_tables">[docs]</a>
+<span class="k">def</span> <span class="nf">delete_po_order_management_tables</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete PO orders table&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db_order_management</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ResourceNotFoundException</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Table does not exist.&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetches PO order from the table by its ID</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_order_id (string): Product Owner ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: corresponding PO order</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">}}</span>
+        <span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">)</span>
+        <span class="n">order_info</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">order_info</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error getting po order:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_all_po_orders">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.get_all_po_orders">[docs]</a>
+<span class="k">def</span> <span class="nf">get_all_po_orders</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetches all PO orders, used for debugging</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: All PO orders in the database</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error getting po order:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_po_order">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.delete_po_order">[docs]</a>
+<span class="k">def</span> <span class="nf">delete_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deletes PO order from the table by ID</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_order_id (string): Product Owner ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        : table response if successful, error if not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Perform the delete operation</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">delete_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Key</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error deleting: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="c1"># add order to the dynamodb</span>
+<div class="viewcode-block" id="add_po_order">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.add_po_order">[docs]</a>
+<span class="k">def</span> <span class="nf">add_po_order</span><span class="p">(</span><span class="n">po_id</span><span class="p">,</span> <span class="n">order_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">product_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a new PO order with the passed product and its quantity</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_id (string): Product Owner ID</span>
+<span class="sd">        order_id (string): Order ID</span>
+<span class="sd">        user_id (string): User ID</span>
+<span class="sd">        product_id (string, optional): Product ID. Defaults to None.</span>
+<span class="sd">        quantity (integer, optional): Product Quantity . Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: PO order json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="c1"># Generate UUID for the new user</span>
+        <span class="n">po_order_uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+
+        <span class="n">orders</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_price</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">product_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">orders</span> <span class="o">=</span> <span class="p">{</span><span class="n">product_id</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantity</span><span class="p">)}}</span>
+            <span class="n">product_price</span><span class="p">,</span> <span class="n">product_price_reduction</span><span class="p">,</span> <span class="n">product_owner</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">get_product_details</span><span class="p">(</span><span class="n">product_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">total_price</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_discounted_price</span><span class="p">(</span>
+                <span class="n">product_price</span><span class="p">,</span> <span class="n">product_price_reduction</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span>
+
+        <span class="c1"># Put the new item into the table</span>
+        <span class="n">db_order_management</span><span class="o">.</span><span class="n">put_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Item</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">po_order_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;product_owner&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">po_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">},</span>
+                <span class="s2">&quot;orders&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">orders</span><span class="p">},</span>  <span class="c1"># product ids</span>
+                <span class="s2">&quot;total_price&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">total_price</span><span class="p">)},</span>
+                <span class="s2">&quot;execution_time&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">},</span>
+                <span class="s2">&quot;order_status&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;unpaid&quot;</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PO order added with UUID:&quot;</span><span class="p">,</span> <span class="n">po_order_uuid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_uuid</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error adding user:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_po_order">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.get_po_order">[docs]</a>
+<span class="k">def</span> <span class="nf">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetches PO Order by ID</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_order_id (string): Product Owner ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json:  PO order json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># TODO: handle no order id found case</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Key</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">)</span>
+
+        <span class="n">order_info</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">order_info</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error getting order:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_po_status">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.update_po_status">[docs]</a>
+<span class="k">def</span> <span class="nf">update_po_status</span><span class="p">(</span><span class="n">product_owner</span><span class="p">,</span> <span class="n">order_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Updates PO order status from unpaid to paid or vice versa</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product_owner (string): product owner ID</span>
+<span class="sd">        order_id (string): order ID</span>
+<span class="sd">        status (string): order status (paid/unpaid)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        e: error</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json:  PO order json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># get po_order_id</span>
+        <span class="n">po_order</span> <span class="o">=</span> <span class="n">search_po_orders</span><span class="p">(</span><span class="n">product_owner</span><span class="o">=</span><span class="n">product_owner</span><span class="p">,</span> <span class="n">order_id</span><span class="o">=</span><span class="n">order_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">po_order</span> <span class="o">==</span> <span class="s2">&quot;Invalid Search&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;No PO Order Found&quot;</span>
+        <span class="n">po_order_id</span> <span class="o">=</span> <span class="n">po_order</span><span class="p">[</span><span class="s2">&quot;po_order_id&quot;</span><span class="p">]</span>
+
+        <span class="n">current_time</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="c1"># Prepare UpdateExpression and ExpressionAttributeValues</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="s2">&quot;set &quot;</span>
+        <span class="n">expression_attribute_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;execution_time&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;execution_time&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;execution_time&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">}</span>
+
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;order_status&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;order_status&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;order_status&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+
+        <span class="c1"># Remove the trailing comma and space from the update expression</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="n">update_expression</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Execute the update operation</span>
+        <span class="n">db_order_management</span><span class="o">.</span><span class="n">update_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Key</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">},</span>
+            <span class="p">},</span>
+            <span class="n">UpdateExpression</span><span class="o">=</span><span class="n">update_expression</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="n">expression_attribute_values</span><span class="p">,</span>
+            <span class="n">ReturnValues</span><span class="o">=</span><span class="s2">&quot;UPDATED_NEW&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;order </span><span class="si">{</span><span class="n">po_order_id</span><span class="si">}</span><span class="s2"> status updated successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
+
+
+
+<div class="viewcode-block" id="update_po_order">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.update_po_order">[docs]</a>
+<span class="k">def</span> <span class="nf">update_po_order</span><span class="p">(</span>
+    <span class="n">po_order_id</span><span class="p">,</span> <span class="n">product_id</span><span class="p">,</span> <span class="n">quantity_change</span><span class="p">,</span> <span class="n">total_discounted_price_change</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds/Removes PO orders, and updates total price</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_order_id (string): Product Owner ID</span>
+<span class="sd">        product_id (string): Product ID</span>
+<span class="sd">        quantity_change : Product quantity (negative if removed, positive if added)</span>
+<span class="sd">        total_discounted_price_change : change in price</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        e: error</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: PO order json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># get current order values</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">)</span>
+        <span class="n">orders_dict</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="s2">&quot;orders&quot;</span><span class="p">]</span>
+        <span class="n">total_price</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="s2">&quot;total_price&quot;</span><span class="p">])</span>
+
+        <span class="c1"># modify total price</span>
+        <span class="n">total_price</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_discounted_price_change</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">product_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">orders_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">orders_dict</span><span class="p">[</span><span class="n">product_id</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">orders_dict</span><span class="p">[</span><span class="n">product_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">orders_dict</span><span class="p">[</span><span class="n">product_id</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">quantity_change</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Dynamically build the update expression based on provided attributes</span>
+        <span class="c1"># Prepare UpdateExpression and ExpressionAttributeValues</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="s2">&quot;set &quot;</span>
+        <span class="n">expression_attribute_values</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># {&quot;product_id1&quot;: 2, &quot;product_id2&quot;:  2} --&gt; {&quot;product_id1&quot;: {&quot;N&quot;: &quot;2&quot;}, &quot;product_id2&quot;: {&quot;N&quot;: &quot;2&quot;}}</span>
+        <span class="n">orders_exp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">orders_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">orders_exp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
+
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">orders_exp</span><span class="p">}</span>
+
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">total_price</span><span class="p">)}</span>
+
+        <span class="c1"># Remove the trailing comma and space from the update expression</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="n">update_expression</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Execute the update operation</span>
+        <span class="n">db_order_management</span><span class="o">.</span><span class="n">update_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Key</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">},</span>
+            <span class="p">},</span>
+            <span class="n">UpdateExpression</span><span class="o">=</span><span class="n">update_expression</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="n">expression_attribute_values</span><span class="p">,</span>
+            <span class="n">ReturnValues</span><span class="o">=</span><span class="s2">&quot;UPDATED_NEW&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;order </span><span class="si">{</span><span class="n">po_order_id</span><span class="si">}</span><span class="s2"> updated successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
+
+
+
+<div class="viewcode-block" id="remove_po_product">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.remove_po_product">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_po_product</span><span class="p">(</span>
+    <span class="n">po_order_id</span><span class="p">,</span> <span class="n">product_id</span><span class="p">,</span> <span class="n">product_discounted_price_change</span><span class="p">,</span> <span class="n">total_quantity</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes product from  PO order</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_order_id (string): Product Owner ID</span>
+<span class="sd">        product_id (string): Product ID</span>
+<span class="sd">        product_discounted_price_change : product price after discount</span>
+<span class="sd">        total_quantity : quantity removed</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        e: error</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json : PO order json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># get current order values</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">)</span>
+        <span class="n">orders_dict</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="s2">&quot;orders&quot;</span><span class="p">]</span>
+        <span class="n">total_price</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="s2">&quot;total_price&quot;</span><span class="p">])</span>
+
+        <span class="c1"># modify total price</span>
+        <span class="n">total_price</span> <span class="o">+=</span> <span class="n">product_discounted_price_change</span>
+        <span class="n">orders_dict</span><span class="p">[</span><span class="n">product_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_quantity</span>
+        <span class="c1"># remove product from PO order</span>
+        <span class="k">del</span> <span class="n">orders_dict</span><span class="p">[</span><span class="n">product_id</span><span class="p">]</span>
+
+        <span class="c1"># Dynamically build the update expression based on provided attributes</span>
+        <span class="c1"># Prepare UpdateExpression and ExpressionAttributeValues</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="s2">&quot;set &quot;</span>
+        <span class="n">expression_attribute_values</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># {&quot;product_id1&quot;: 2, &quot;product_id2&quot;:  2} --&gt; {&quot;product_id1&quot;: {&quot;N&quot;: &quot;2&quot;}, &quot;product_id2&quot;: {&quot;N&quot;: &quot;2&quot;}}</span>
+        <span class="n">orders_exp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">orders_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">orders_exp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
+
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;orders&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">orders_exp</span><span class="p">}</span>
+
+        <span class="n">update_expression</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2"> = :</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2">,&quot;</span>
+        <span class="n">expression_attribute_values</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;:</span><span class="si">{</span><span class="s1">&#39;total_price&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">total_price</span><span class="p">)}</span>
+
+        <span class="c1"># Remove the trailing comma and space from the update expression</span>
+        <span class="n">update_expression</span> <span class="o">=</span> <span class="n">update_expression</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Execute the update operation</span>
+        <span class="n">db_order_management</span><span class="o">.</span><span class="n">update_item</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">Key</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">po_order_id</span><span class="p">},</span>
+            <span class="p">},</span>
+            <span class="n">UpdateExpression</span><span class="o">=</span><span class="n">update_expression</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="n">expression_attribute_values</span><span class="p">,</span>
+            <span class="n">ReturnValues</span><span class="o">=</span><span class="s2">&quot;UPDATED_NEW&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;order </span><span class="si">{</span><span class="n">po_order_id</span><span class="si">}</span><span class="s2"> updated successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_po_order</span><span class="p">(</span><span class="n">po_order_id</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
+
+
+
+<div class="viewcode-block" id="search_orders_by_po">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_orders_by_po">[docs]</a>
+<span class="k">def</span> <span class="nf">search_orders_by_po</span><span class="p">(</span><span class="n">product_owner</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to product owner</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product_owner (string): Product owner name</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner orders jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">IndexName</span><span class="o">=</span><span class="s2">&quot;POIndx&quot;</span><span class="p">,</span>
+            <span class="n">KeyConditionExpression</span><span class="o">=</span><span class="s2">&quot;product_owner = :product_owner&quot;</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;:product_owner&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">product_owner</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="search_orders_by_orderid">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_orders_by_orderid">[docs]</a>
+<span class="k">def</span> <span class="nf">search_orders_by_orderid</span><span class="p">(</span><span class="n">order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to user order id</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        order_id (string): User order id</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">IndexName</span><span class="o">=</span><span class="s2">&quot;OrderIDIndx&quot;</span><span class="p">,</span>
+            <span class="n">KeyConditionExpression</span><span class="o">=</span><span class="s2">&quot;order_id = :order_id&quot;</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;:order_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">order_id</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="search_po_orders">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_po_orders">[docs]</a>
+<span class="k">def</span> <span class="nf">search_po_orders</span><span class="p">(</span><span class="n">product_owner</span><span class="p">,</span> <span class="n">order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to user order id and product owner name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product_owner (string): Product Owner name</span>
+<span class="sd">        order_id (string): Order ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">search_orderid</span> <span class="o">=</span> <span class="n">search_orders_by_orderid</span><span class="p">(</span><span class="n">order_id</span><span class="p">)</span>
+    <span class="n">search_po</span> <span class="o">=</span> <span class="n">search_orders_by_po</span><span class="p">(</span><span class="n">product_owner</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">search_orderid</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">search_po</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Invalid Search&quot;</span>
+
+    <span class="c1"># Look for overlapping results</span>
+    <span class="k">for</span> <span class="n">po_order</span> <span class="ow">in</span> <span class="n">search_orderid</span><span class="p">[</span><span class="s2">&quot;Items&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">po_order</span> <span class="ow">in</span> <span class="n">search_po</span><span class="p">[</span><span class="s2">&quot;Items&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">po_order</span>
+    <span class="k">return</span> <span class="s2">&quot;Invalid Search&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="search_po_orders_by_status">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_po_orders_by_status">[docs]</a>
+<span class="k">def</span> <span class="nf">search_po_orders_by_status</span><span class="p">(</span><span class="n">order_status</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to  order status</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        order_status (string): PO order status</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">IndexName</span><span class="o">=</span><span class="s2">&quot;OrderStatusIndx&quot;</span><span class="p">,</span>
+            <span class="n">KeyConditionExpression</span><span class="o">=</span><span class="s2">&quot;order_status = :order_status &quot;</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;:order_status&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">order_status</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="search_po_orders_by_userid">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_po_orders_by_userid">[docs]</a>
+<span class="k">def</span> <span class="nf">search_po_orders_by_userid</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to  user ID</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id (string): User ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">db_order_management</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">TableName</span><span class="o">=</span><span class="n">TABLE_NAME</span><span class="p">,</span>
+            <span class="n">IndexName</span><span class="o">=</span><span class="s2">&quot;UserIDIndx&quot;</span><span class="p">,</span>
+            <span class="n">KeyConditionExpression</span><span class="o">=</span><span class="s2">&quot;user_id = :user_id &quot;</span><span class="p">,</span>
+            <span class="n">ExpressionAttributeValues</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;:user_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="search_orders_by_userid_and_status">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_orders_by_userid_and_status">[docs]</a>
+<span class="k">def</span> <span class="nf">search_orders_by_userid_and_status</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to  user ID and PO order status</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id (string): User ID</span>
+<span class="sd">        status (string): PO order status</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">orders</span> <span class="o">=</span> <span class="n">search_po_orders_by_userid</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">[</span><span class="s2">&quot;Items&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;order_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="s2">&quot;Items&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">}</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="search_orders_by_po_id_and_status">
+<a class="viewcode-back" href="../dynamodb_po.html#dynamodb_po.search_orders_by_po_id_and_status">[docs]</a>
+<span class="k">def</span> <span class="nf">search_orders_by_po_id_and_status</span><span class="p">(</span><span class="n">po_id</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Searches PO orders according to PO ID and PO order status</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        po_id (string): Product Owner name/ID</span>
+<span class="sd">        status (string): PO order status</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Array of product owner jsons that match the search criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">orders</span> <span class="o">=</span> <span class="n">search_orders_by_po</span><span class="p">(</span><span class="n">po_id</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">[</span><span class="s2">&quot;Items&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;order_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="s2">&quot;Items&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">}</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_po.html">DaynamoDB Product Owner Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_users.html">DanamoDB Users Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../invoice.html">Invoice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../routes.html">Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

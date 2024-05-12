@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DanamoDB Users Orders &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Initialise DynamoDB" href="initialise_dynamo.html" />
+    <link rel="prev" title="DaynamoDB Product Owner Orders" href="dynamodb_po.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-dynamodb_users">
+<span id="danamodb-users-orders"></span><h1>DanamoDB Users Orders<a class="headerlink" href="#module-dynamodb_users" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.add_item">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">add_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#add_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.add_item" title="Link to this definition">¶</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>product_id</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>quantity</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.create_orders_table">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">create_orders_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#create_orders_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.create_orders_table" title="Link to this definition">¶</a></dt>
+<dd><p>Creates user orders DynamoDB  table</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.delete_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">delete_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#delete_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.delete_order" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes user order from the table by ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – User order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>table response if successful, error if not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.delete_order_management_tables">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">delete_order_management_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#delete_order_management_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.delete_order_management_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes user orders DynamoDB  table</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.get_all_orders">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">get_all_orders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#get_all_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.get_all_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches all user orders, used for debugging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>All user orders in the database</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.get_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">get_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#get_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.get_order" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches user order from the table by its ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_uuid</strong> (<em>string</em>) – User order ID</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>corresponding user order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.search_orders">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">search_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#search_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.search_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Searches user orders according to user ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>string</em>) – User ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of user orders jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.search_orders_by_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#search_orders_by_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.search_orders_by_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches user orders according to status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>status</strong> (<em>string</em>) – _description_</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of user orders jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.search_orders_by_userid_and_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_userid_and_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#search_orders_by_userid_and_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.search_orders_by_userid_and_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches user orders according to status and user ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>string</em>) – User ID</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – Order Status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of user orders jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.update_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">update_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#update_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.update_order" title="Link to this definition">¶</a></dt>
+<dd><p>Updates user order with the product id, and quantity passed (negative quantity to remove product)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> (<em>string</em>) – User order ID</p></li>
+<li><p><strong>product_id</strong> (<em>string</em>) – Product ID</p></li>
+<li><p><strong>quantity_change</strong> – Product quantity (negative if removed, positive if added)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>str</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>User order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_users.update_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_users.</span></span><span class="sig-name descname"><span class="pre">update_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_users.html#update_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_users.update_status" title="Link to this definition">¶</a></dt>
+<dd><p>Updates User order status from unpaid to paid or vice versa</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> (<em>string</em>) – Order ID</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – order status (paid/unpaid)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>User order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dynamodb_po.html">DaynamoDB Product Owner Orders</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DanamoDB Users Orders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.add_item"><code class="docutils literal notranslate"><span class="pre">add_item()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.create_orders_table"><code class="docutils literal notranslate"><span class="pre">create_orders_table()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.delete_order"><code class="docutils literal notranslate"><span class="pre">delete_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.delete_order_management_tables"><code class="docutils literal notranslate"><span class="pre">delete_order_management_tables()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.get_all_orders"><code class="docutils literal notranslate"><span class="pre">get_all_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.get_order"><code class="docutils literal notranslate"><span class="pre">get_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.search_orders"><code class="docutils literal notranslate"><span class="pre">search_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.search_orders_by_status"><code class="docutils literal notranslate"><span class="pre">search_orders_by_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.search_orders_by_userid_and_status"><code class="docutils literal notranslate"><span class="pre">search_orders_by_userid_and_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.update_order"><code class="docutils literal notranslate"><span class="pre">update_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_users.update_status"><code class="docutils literal notranslate"><span class="pre">update_status()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invoice.html">Invoice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="routes.html">Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="dynamodb_po.html" title="previous chapter">DaynamoDB Product Owner Orders</a></li>
+      <li>Next: <a href="initialise_dynamo.html" title="next chapter">Initialise DynamoDB</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/dynamodb_users.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

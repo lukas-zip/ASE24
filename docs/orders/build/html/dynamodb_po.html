@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DaynamoDB Product Owner Orders &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DanamoDB Users Orders" href="dynamodb_users.html" />
+    <link rel="prev" title="Welcome to Orders Service’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-dynamodb_po">
+<span id="daynamodb-product-owner-orders"></span><h1>DaynamoDB Product Owner Orders<a class="headerlink" href="#module-dynamodb_po" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.add_po_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">add_po_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#add_po_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.add_po_order" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a new PO order with the passed product and its quantity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>po_id</strong> (<em>string</em>) – Product Owner ID</p></li>
+<li><p><strong>order_id</strong> (<em>string</em>) – Order ID</p></li>
+<li><p><strong>user_id</strong> (<em>string</em>) – User ID</p></li>
+<li><p><strong>product_id</strong> (<em>string</em><em>, </em><em>optional</em>) – Product ID. Defaults to None.</p></li>
+<li><p><strong>quantity</strong> (<em>integer</em><em>, </em><em>optional</em>) – Product Quantity . Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PO order json</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.create_product_owner_orders_table">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">create_product_owner_orders_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#create_product_owner_orders_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.create_product_owner_orders_table" title="Link to this definition">¶</a></dt>
+<dd><p>Creates PO DynamoDB orders table</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.delete_po_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">delete_po_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#delete_po_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.delete_po_order" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes PO order from the table by ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>po_order_id</strong> (<em>string</em>) – Product Owner ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>table response if successful, error if not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.delete_po_order_management_tables">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">delete_po_order_management_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#delete_po_order_management_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.delete_po_order_management_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Delete PO orders table</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.get_all_po_orders">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">get_all_po_orders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#get_all_po_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.get_all_po_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches all PO orders, used for debugging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>All PO orders in the database</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.get_po_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">get_po_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#get_po_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.get_po_order" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches PO Order by ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>po_order_id</strong> (<em>string</em>) – Product Owner ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PO order json</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.remove_po_product">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">remove_po_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_discounted_price_change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#remove_po_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.remove_po_product" title="Link to this definition">¶</a></dt>
+<dd><p>Removes product from  PO order</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>po_order_id</strong> (<em>string</em>) – Product Owner ID</p></li>
+<li><p><strong>product_id</strong> (<em>string</em>) – Product ID</p></li>
+<li><p><strong>product_discounted_price_change</strong> – product price after discount</p></li>
+<li><p><strong>total_quantity</strong> – quantity removed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PO order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_orders_by_orderid">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_orderid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_orders_by_orderid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_orders_by_orderid" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to user order id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – User order id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_orders_by_po">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_po</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_owner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_orders_by_po"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_orders_by_po" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to product owner</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>product_owner</strong> (<em>string</em>) – Product owner name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner orders jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_orders_by_po_id_and_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_po_id_and_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_orders_by_po_id_and_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_orders_by_po_id_and_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to PO ID and PO order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>po_id</strong> (<em>string</em>) – Product Owner name/ID</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – PO order status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_orders_by_userid_and_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_orders_by_userid_and_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_orders_by_userid_and_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_orders_by_userid_and_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to  user ID and PO order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>string</em>) – User ID</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – PO order status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_po_orders">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_po_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_po_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_po_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to user order id and product owner name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>product_owner</strong> (<em>string</em>) – Product Owner name</p></li>
+<li><p><strong>order_id</strong> (<em>string</em>) – Order ID</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_po_orders_by_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_po_orders_by_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_po_orders_by_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_po_orders_by_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to  order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_status</strong> (<em>string</em>) – PO order status</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.search_po_orders_by_userid">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">search_po_orders_by_userid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#search_po_orders_by_userid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.search_po_orders_by_userid" title="Link to this definition">¶</a></dt>
+<dd><p>Searches PO orders according to  user ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>string</em>) – User ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of product owner jsons that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.update_po_order">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">update_po_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_discounted_price_change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#update_po_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.update_po_order" title="Link to this definition">¶</a></dt>
+<dd><p>Adds/Removes PO orders, and updates total price</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>po_order_id</strong> (<em>string</em>) – Product Owner ID</p></li>
+<li><p><strong>product_id</strong> (<em>string</em>) – Product ID</p></li>
+<li><p><strong>quantity_change</strong> – Product quantity (negative if removed, positive if added)</p></li>
+<li><p><strong>total_discounted_price_change</strong> – change in price</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PO order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dynamodb_po.update_po_status">
+<span class="sig-prename descclassname"><span class="pre">dynamodb_po.</span></span><span class="sig-name descname"><span class="pre">update_po_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dynamodb_po.html#update_po_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_po.update_po_status" title="Link to this definition">¶</a></dt>
+<dd><p>Updates PO order status from unpaid to paid or vice versa</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>product_owner</strong> (<em>string</em>) – product owner ID</p></li>
+<li><p><strong>order_id</strong> (<em>string</em>) – order ID</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – order status (paid/unpaid)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>e</strong> – error</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PO order json</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DaynamoDB Product Owner Orders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.add_po_order"><code class="docutils literal notranslate"><span class="pre">add_po_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.create_product_owner_orders_table"><code class="docutils literal notranslate"><span class="pre">create_product_owner_orders_table()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.delete_po_order"><code class="docutils literal notranslate"><span class="pre">delete_po_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.delete_po_order_management_tables"><code class="docutils literal notranslate"><span class="pre">delete_po_order_management_tables()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.get_all_po_orders"><code class="docutils literal notranslate"><span class="pre">get_all_po_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.get_po_order"><code class="docutils literal notranslate"><span class="pre">get_po_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.remove_po_product"><code class="docutils literal notranslate"><span class="pre">remove_po_product()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_orders_by_orderid"><code class="docutils literal notranslate"><span class="pre">search_orders_by_orderid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_orders_by_po"><code class="docutils literal notranslate"><span class="pre">search_orders_by_po()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_orders_by_po_id_and_status"><code class="docutils literal notranslate"><span class="pre">search_orders_by_po_id_and_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_orders_by_userid_and_status"><code class="docutils literal notranslate"><span class="pre">search_orders_by_userid_and_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_po_orders"><code class="docutils literal notranslate"><span class="pre">search_po_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_po_orders_by_status"><code class="docutils literal notranslate"><span class="pre">search_po_orders_by_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.search_po_orders_by_userid"><code class="docutils literal notranslate"><span class="pre">search_po_orders_by_userid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.update_po_order"><code class="docutils literal notranslate"><span class="pre">update_po_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamodb_po.update_po_status"><code class="docutils literal notranslate"><span class="pre">update_po_status()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamodb_users.html">DanamoDB Users Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invoice.html">Invoice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="routes.html">Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Orders Service’s documentation!</a></li>
+      <li>Next: <a href="dynamodb_users.html" title="next chapter">DanamoDB Users Orders</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/dynamodb_po.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

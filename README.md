@@ -17,6 +17,11 @@ Inventory Management
    cd docs/inventory_management/build/html
    open index.html
    ```
+Orders
+   ```bash
+   cd docs/orders/build/html
+   open index.html
+   ```
 Financial Service
    ```bash
    cd docs/financial_service/build/html

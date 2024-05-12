@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>invoice &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for invoice</h1><div class="highlight"><pre>
+<span></span><span class="c1"># importing modules</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">ClientError</span>
+<span class="kn">from</span> <span class="nn">reportlab.lib</span> <span class="kn">import</span> <span class="n">colors</span>
+<span class="kn">from</span> <span class="nn">reportlab.lib.pagesizes</span> <span class="kn">import</span> <span class="n">letter</span>
+<span class="kn">from</span> <span class="nn">reportlab.pdfgen</span> <span class="kn">import</span> <span class="n">canvas</span>
+<span class="kn">from</span> <span class="nn">reportlab.platypus</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">TableStyle</span>
+
+<span class="kn">import</span> <span class="nn">dynamodb_po</span><span class="o">,</span> <span class="nn">dynamodb_users</span><span class="o">,</span> <span class="nn">initialise_dynamo</span><span class="o">,</span> <span class="nn">utils</span>
+
+<span class="n">s3_invoice</span> <span class="o">=</span> <span class="n">initialise_dynamo</span><span class="o">.</span><span class="n">s3_client</span>
+
+
+<span class="c1"># Create S3 bucket on LocalStack</span>
+<div class="viewcode-block" id="create_s3_bucket">
+<a class="viewcode-back" href="../invoice.html#invoice.create_s3_bucket">[docs]</a>
+<span class="k">def</span> <span class="nf">create_s3_bucket</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">bucket_name</span> <span class="o">=</span> <span class="s2">&quot;invoice-bucket&quot;</span>
+        <span class="n">s3_invoice</span><span class="o">.</span><span class="n">create_bucket</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bucket </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2"> created successfully.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating bucket: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_invoice">
+<a class="viewcode-back" href="../invoice.html#invoice.get_invoice">[docs]</a>
+<span class="k">def</span> <span class="nf">get_invoice</span><span class="p">(</span><span class="n">order_id</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">object_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;invoice_</span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="c1"># List Objects in Buckets</span>
+        <span class="n">response_list</span> <span class="o">=</span> <span class="n">s3_invoice</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="s2">&quot;invoice-bucket&quot;</span><span class="p">)</span>
+        <span class="n">response_obj</span> <span class="o">=</span> <span class="n">s3_invoice</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="s2">&quot;invoice-bucket&quot;</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">object_key</span><span class="p">)</span>
+        <span class="c1"># Iterate over the objects in the response</span>
+        <span class="k">if</span> <span class="s2">&quot;Contents&quot;</span> <span class="ow">in</span> <span class="n">response_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">response_list</span><span class="p">[</span><span class="s2">&quot;Contents&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Key&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">object_key</span><span class="p">:</span>
+                    <span class="c1"># Return Object Name</span>
+                    <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;Key&quot;</span><span class="p">],</span> <span class="kc">True</span>
+                    <span class="c1"># Return Object</span>
+                    <span class="c1"># object_data = response_obj[&#39;Body&#39;].read()</span>
+                    <span class="c1"># return object_data, True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Not successful (get function)&quot;</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error creating invoice:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Error creating invoice!&quot;</span><span class="p">,</span> <span class="n">e</span></div>
+
+
+
+<span class="c1"># create the invoice pdf for an orde and store it in s3 bucket</span>
+<div class="viewcode-block" id="create_pdf">
+<a class="viewcode-back" href="../invoice.html#invoice.create_pdf">[docs]</a>
+<span class="k">def</span> <span class="nf">create_pdf</span><span class="p">(</span><span class="n">order_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create pdf invoice for a certain user order</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        order_id (string): Order ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        boolean: true if successful, false if not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+
+        <span class="c1"># get the order information new</span>
+        <span class="n">response_order</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://orders:8004/orders/</span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">order_resp_json</span> <span class="o">=</span> <span class="n">response_order</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">order_details</span> <span class="o">=</span> <span class="n">order_resp_json</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+        <span class="n">total_price</span> <span class="o">=</span> <span class="n">order_details</span><span class="p">[</span><span class="s2">&quot;total_price&quot;</span><span class="p">]</span>
+        <span class="n">product_list</span> <span class="o">=</span> <span class="n">order_details</span><span class="p">[</span>
+            <span class="s2">&quot;orders_fe&quot;</span>
+        <span class="p">]</span>  <span class="c1"># list with order lines (id, owner and quantity)</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">order_details</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>  <span class="c1"># just name, adress missing</span>
+        <span class="n">response_user</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://user-service:8001/users/</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">user_details</span> <span class="o">=</span> <span class="n">response_user</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">shipping_adress</span> <span class="o">=</span> <span class="n">user_details</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="s2">&quot;address&quot;</span><span class="p">]</span>
+        <span class="n">user_name</span> <span class="o">=</span> <span class="n">user_details</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
+
+        <span class="c1"># creating a pdf object</span>
+        <span class="n">fileName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;invoice_</span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">Canvas</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">pagesize</span><span class="o">=</span><span class="n">letter</span><span class="p">)</span>
+        <span class="c1"># Define layout parameters</span>
+        <span class="n">top_margin</span> <span class="o">=</span> <span class="mi">730</span>
+        <span class="n">table_start</span> <span class="o">=</span> <span class="mi">480</span>
+        <span class="n">page_width</span><span class="p">,</span> <span class="n">page_height</span> <span class="o">=</span> <span class="n">letter</span>
+        <span class="c1"># Draw order ID and &quot;Invoice&quot;</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Order ID: </span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="s2">&quot;Helvetica-Bold&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawRightString</span><span class="p">(</span><span class="n">page_width</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span><span class="p">,</span> <span class="s2">&quot;Invoice&quot;</span><span class="p">)</span>
+        <span class="c1"># Draw separation line</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="n">page_width</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="c1"># Draw shipping and billing addresses</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Shipping Address: &quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">65</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">80</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shipping_adress</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Bill To: &quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">65</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">80</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shipping_adress</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">top_margin</span> <span class="o">-</span> <span class="mi">195</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Thank you for your order.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create table for products new</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;Product Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Quantity&quot;</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">,</span> <span class="s2">&quot;Discount&quot;</span><span class="p">,</span> <span class="s2">&quot;Reduced Price&quot;</span><span class="p">,</span> <span class="s2">&quot;Sum&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">product_list</span><span class="p">)):</span>  <span class="c1"># hier noch pro product</span>
+            <span class="n">product_id</span> <span class="o">=</span> <span class="n">product_list</span><span class="p">[</span><span class="n">no</span><span class="p">][</span><span class="s2">&quot;product_id&quot;</span><span class="p">]</span>
+            <span class="n">product_quantity</span> <span class="o">=</span> <span class="n">product_list</span><span class="p">[</span><span class="n">no</span><span class="p">][</span><span class="s2">&quot;quantity&quot;</span><span class="p">]</span>
+            <span class="n">product_price</span><span class="p">,</span> <span class="n">product_disc</span><span class="p">,</span> <span class="n">product_owner</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_product_details</span><span class="p">(</span>
+                <span class="n">product_id</span>
+            <span class="p">)</span>
+            <span class="n">reduced_price</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_discounted_price</span><span class="p">(</span><span class="n">product_price</span><span class="p">,</span> <span class="n">product_disc</span><span class="p">)</span>
+            <span class="n">response_product</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;http://inventory_management:8002/product/</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">product_details</span> <span class="o">=</span> <span class="n">response_product</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">product_name</span> <span class="o">=</span> <span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="s2">&quot;product_name&quot;</span><span class="p">]</span>
+            <span class="n">product_sum</span> <span class="o">=</span> <span class="n">reduced_price</span> <span class="o">*</span> <span class="n">product_quantity</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">product_name</span><span class="p">,</span>
+                    <span class="n">product_quantity</span><span class="p">,</span>
+                    <span class="n">product_price</span><span class="p">,</span>
+                    <span class="n">product_disc</span><span class="p">,</span>
+                    <span class="n">reduced_price</span><span class="p">,</span>
+                    <span class="n">product_sum</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">table_width</span> <span class="o">=</span> <span class="n">page_width</span> <span class="o">-</span> <span class="mi">100</span>  <span class="c1"># Adjusted width for table</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">colWidths</span><span class="o">=</span><span class="p">[</span><span class="n">table_width</span> <span class="o">/</span> <span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+        <span class="p">)</span>  <span class="c1"># Equal width for each column</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span>
+            <span class="n">TableStyle</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;BACKGROUND&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">colors</span><span class="o">.</span><span class="n">grey</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;TEXTCOLOR&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">colors</span><span class="o">.</span><span class="n">whitesmoke</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;ALIGN&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;CENTER&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;FONTNAME&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;Helvetica-Bold&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;BOTTOMPADDING&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">12</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;BACKGROUND&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;GRID&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">black</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">wrapOn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">drawOn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">table_start</span><span class="p">)</span>
+        <span class="c1"># Add total price</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawRightString</span><span class="p">(</span>
+            <span class="n">page_width</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="n">table_start</span> <span class="o">-</span> <span class="mi">30</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Total Price: </span><span class="si">{</span><span class="n">total_price</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Other comments:&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;- Already payed with credit card&quot;</span><span class="p">)</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">drawString</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;- Our general terms and conditions apply&quot;</span><span class="p">)</span>
+        <span class="c1">##add shop details</span>
+        <span class="c1"># pdf.drawRightString(page_width - 50, 50 , f&#39;//Store details&#39;)</span>
+
+        <span class="c1"># saving the pdf</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="c1"># store pdf in s3 bucket</span>
+        <span class="n">object_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;invoice_</span><span class="si">{</span><span class="n">order_id</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">upload_pdf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="s2">&quot;invoice-bucket&quot;</span><span class="p">,</span> <span class="n">object_key</span><span class="p">)</span>
+
+        <span class="n">item</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">get_invoice</span><span class="p">(</span><span class="n">order_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Successfully uploaded (create function)&quot;</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Not successful (create function)&quot;</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error getting review:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Error getting review!&quot;</span><span class="p">,</span> <span class="n">e</span></div>
+
+
+
+<div class="viewcode-block" id="upload_pdf">
+<a class="viewcode-back" href="../invoice.html#invoice.upload_pdf">[docs]</a>
+<span class="k">def</span> <span class="nf">upload_pdf</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">,</span> <span class="n">object_key</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Uploads PDF to S3 bucket</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file : invoice file</span>
+<span class="sd">        bucket_name : S3 bucket name</span>
+<span class="sd">        object_key : S3 Object Key</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Boolean: true if uploaded successfully, raises an error otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">s3_invoice</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">Body</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span> <span class="n">Bucket</span><span class="o">=</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Key</span><span class="o">=</span><span class="n">object_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error uploading file to S3:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_po.html">DaynamoDB Product Owner Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_users.html">DanamoDB Users Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../invoice.html">Invoice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../routes.html">Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
