@@ -1,0 +1,7 @@
+Initialise DynamoDB
+==================
+
+.. automodule:: initialise_dynamo
+   :members:
+   :undoc-members:
+   :show-inheritance:
