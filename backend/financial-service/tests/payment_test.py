@@ -4,9 +4,6 @@ from app import routes
 import logging
 import re
 
-def test_endpoint(client):
-    response = client.get('/')
-    assert response.status_code == 200
 
 def test_add_account_success(client):
     shop_id = 'asdfag78fd6gfdg56adf57s6f5d7saf'

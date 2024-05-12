@@ -30,6 +30,7 @@ const StateContextProvider = ({ children }) => {
             })
             user?.shop_id && await getSellerPaidOrders(user.shop_id).then(res => {
                 if (res.status) {
+                    console.log("here sele", res);
                     const resObj = res.value
                     setPaidOrders(resObj.Items)
                 }

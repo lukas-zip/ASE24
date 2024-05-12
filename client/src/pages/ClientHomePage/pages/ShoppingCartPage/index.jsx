@@ -1,18 +1,17 @@
-import COLORS from '@/constants/COLORS';
 import './index.less'
 import { Tabs } from 'antd';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ClockCircleOutlined, WalletOutlined } from '@ant-design/icons';
 import UnpaidOrders from './Components/UnpaidOrders';
 import PaidOrders from './Components/PaidOrders';
+import { useStateContext } from '../../context';
 
 const tabsKey = {
-    UNPAID: "unpaid",
-    PAID: "paid",
+    UNPAID: "Unpaid",
+    PAID: "Paid",
 }
 export default function ShoppingCartPage() {
-    const navigateTo = useNavigate()
+    const { unpaidOrders, paidOrders } = useStateContext()
     const [activeTab, setActiveTab] = useState(tabsKey.UNPAID)
     return (
         <div className='containerWrapper'>
@@ -22,8 +21,8 @@ export default function ShoppingCartPage() {
                     defaultActiveKey={activeTab}
                     onChange={(e) => setActiveTab(e)}
                     items={[
-                        { key: tabsKey.UNPAID, label: `Unpaid`, icon: <ClockCircleOutlined /> },
-                        { key: tabsKey.PAID, label: `Paid`, icon: <WalletOutlined /> },
+                        { key: tabsKey.UNPAID, label: `${tabsKey.UNPAID} (${unpaidOrders?.length ? unpaidOrders?.length : 0})`, icon: <ClockCircleOutlined /> },
+                        { key: tabsKey.PAID, label: `${tabsKey.PAID} (${paidOrders?.length ? paidOrders?.length : 0})`, icon: <WalletOutlined /> },
                     ]}
                 />
             </div>

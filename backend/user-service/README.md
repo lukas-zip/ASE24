@@ -4,7 +4,11 @@
 The User Service is a microservice designed to manage user data for our application. It handles tasks such as storing user information, integrating with AWS DynamoDB for data storage, and providing an API for user data operations.
 
 ## Architecture
-The documentation of the code is provided in the following wiki: http://localhost:63342/ASE24/docs/user_service/build/html/index.html?_ijt=lb94n4s57l5ph68rmh859d12sq&_ij_reload=RELOAD_ON_SAVE
+The documentation of the code is available in the following wiki: 
+   ```bash
+   cd docs/user_service/build/html
+   open index.html
+   ```
 
 This service is built using Flask. It is designed to be scalable and efficient, utilizing AWS services such as DynamoDB and S3 for data handling and storage.
 

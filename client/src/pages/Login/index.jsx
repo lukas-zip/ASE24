@@ -56,7 +56,6 @@ export default function Login() {
     }
     const [role, setRole] = useState(CONSTANTS.USER_TYPE.USER)
 
-    const [messageApi, contextHolder] = message.useMessage();
     const registerUser = async () => {
         const { name, email, password } = sigUpInfo
         if (role === CONSTANTS.USER_TYPE.USER) {

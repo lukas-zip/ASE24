@@ -22,6 +22,14 @@ services:
     environment:
       - FLASK_ENV=testing
 
+  inventory_management:
+    build: ./backend/inventory_management
+    ports:
+      - "8002:8002"
+    command: pytest
+    volumes:
+      - ./backend/inventory_management:/app
+
   financial-service:
     build: ./backend/financial-service
     ports:
@@ -29,6 +37,16 @@ services:
     command: pytest
     volumes:
       - ./backend/financial-service:/app
+    environment:
+      - FLASK_ENV=testing
+
+  orders:
+    build: ./backend/orders
+    ports:
+      - "8004:8004"
+    command: pytest
+    volumes:
+      - ./backend/orders:/app
     environment:
       - FLASK_ENV=testing
 

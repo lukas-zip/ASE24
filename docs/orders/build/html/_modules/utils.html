@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utils &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="c1"># from requests.adapters import HTTPAdapter</span>
+<span class="c1"># from urllib3.util.retry import Retry</span>
+<span class="c1"># import urllib.request</span>
+
+
+<div class="viewcode-block" id="get_product_details">
+<a class="viewcode-back" href="../utils.html#utils.get_product_details">[docs]</a>
+<span class="k">def</span> <span class="nf">get_product_details</span><span class="p">(</span><span class="n">product_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get product details from inventory management service</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product_id (string): Product ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        : product price, discount percentage and product owner name/ID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://inventory_management:8002/product/</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">product_details</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+
+    <span class="c1"># get product details</span>
+    <span class="n">product_price_reduction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price_reduction&quot;</span><span class="p">])</span>
+    <span class="n">product_price</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price&quot;</span><span class="p">])</span>
+    <span class="n">product_owner</span> <span class="o">=</span> <span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_owner&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">product_price</span><span class="p">,</span> <span class="n">product_price_reduction</span><span class="p">,</span> <span class="n">product_owner</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_product_details">
+<a class="viewcode-back" href="../utils.html#utils.get_all_product_details">[docs]</a>
+<span class="k">def</span> <span class="nf">get_all_product_details</span><span class="p">(</span><span class="n">product_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get product details from inventory management service</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product_id (string): Product ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        : json of all product info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://inventory_management:8002/product/</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">product_details</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">product_details</span></div>
+
+
+
+<div class="viewcode-block" id="calc_discounted_price">
+<a class="viewcode-back" href="../utils.html#utils.calc_discounted_price">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_discounted_price</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">discount</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate product price after discount</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        price : product price</span>
+<span class="sd">        discount : product discount</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: product price after discount</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">price</span> <span class="o">-</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">price</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">discount</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reformat_order_reponse">
+<a class="viewcode-back" href="../utils.html#utils.reformat_order_reponse">[docs]</a>
+<span class="k">def</span> <span class="nf">reformat_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformats order form DynamoDB format that includes object type, to a more readable format</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        item : DynamoDB item</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Reformatted json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">orders_arr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orders_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">product_owners_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">orders</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">product_owners</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_owners&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="c1"># return orders</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">product_details</span> <span class="o">=</span> <span class="n">get_all_product_details</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">orders_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;product_id&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
+                <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;product_owner&quot;</span><span class="p">:</span> <span class="n">product_owners</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;S&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;price_reduction&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price_reduction&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;final_price&quot;</span><span class="p">:</span> <span class="n">calc_discounted_price</span><span class="p">(</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price&quot;</span><span class="p">]),</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">product_details</span><span class="p">[</span><span class="s2">&quot;product_price_reduction&quot;</span><span class="p">]),</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">orders_dict</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders</span><span class="p">[</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">po</span> <span class="ow">in</span> <span class="n">product_owners</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">product_owners_dict</span><span class="p">[</span><span class="n">po</span><span class="p">]</span> <span class="o">=</span> <span class="n">product_owners</span><span class="p">[</span><span class="n">po</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;order_id&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;orders_fe&quot;</span><span class="p">:</span> <span class="n">orders_arr</span><span class="p">,</span>
+        <span class="s2">&quot;orders&quot;</span><span class="p">:</span> <span class="n">orders_dict</span><span class="p">,</span>
+        <span class="s2">&quot;product_owners&quot;</span><span class="p">:</span> <span class="n">product_owners_dict</span><span class="p">,</span>
+        <span class="s2">&quot;total_price&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_price&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;execution_time&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;execution_time&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;order_status&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;order_status&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="reformat_po_order_reponse">
+<a class="viewcode-back" href="../utils.html#utils.reformat_po_order_reponse">[docs]</a>
+<span class="k">def</span> <span class="nf">reformat_po_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformats PO order form DynamoDB format that includes object type, to a more readable format</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        item : DynamoDB item</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Reformatted json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">orders_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">orders</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="n">po_orders_arr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># return orders</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">po_orders_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;product_id&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
+                <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;product_details&quot;</span><span class="p">:</span> <span class="n">get_all_product_details</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">orders_dict</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders</span><span class="p">[</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;po_order_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;po_order_id&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;execution_time&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;execution_time&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;order_id&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;orders&quot;</span><span class="p">:</span> <span class="n">orders_dict</span><span class="p">,</span>
+        <span class="s2">&quot;order_status&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;order_status&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;total_price&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_price&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;product_owner&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_owner&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;orders_fe&quot;</span><span class="p">:</span> <span class="n">po_orders_arr</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="reformat_order_arr_reponse">
+<a class="viewcode-back" href="../utils.html#utils.reformat_order_arr_reponse">[docs]</a>
+<span class="k">def</span> <span class="nf">reformat_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformats an array of user orders form DynamoDB format that includes object type, to a more readable format</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        response : DynamoDB reponse</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Reformatted json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Items&quot;</span><span class="p">)</span>
+    <span class="n">final_res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">final_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reformat_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Count&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">),</span> <span class="s2">&quot;Items&quot;</span><span class="p">:</span> <span class="n">final_res</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="reformat_po_order_arr_reponse">
+<a class="viewcode-back" href="../utils.html#utils.reformat_po_order_arr_reponse">[docs]</a>
+<span class="k">def</span> <span class="nf">reformat_po_order_arr_reponse</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformats an array of PO orders form DynamoDB format that includes object type, to a more readable format</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        response : DynamoDB reponse</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        json: Reformatted json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Items&quot;</span><span class="p">)</span>
+    <span class="n">final_res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">final_res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reformat_po_order_reponse</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Count&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">),</span> <span class="s2">&quot;Items&quot;</span><span class="p">:</span> <span class="n">final_res</span><span class="p">}</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_po.html">DaynamoDB Product Owner Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dynamodb_users.html">DanamoDB Users Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../invoice.html">Invoice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../routes.html">Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

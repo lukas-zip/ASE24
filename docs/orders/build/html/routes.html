@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Routes &#8212; Orders Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utils" href="utils.html" />
+    <link rel="prev" title="Invoice" href="invoice.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-routes">
+<span id="routes"></span><h1>Routes<a class="headerlink" href="#module-routes" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.add_order_req">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">add_order_req</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#add_order_req"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.add_order_req" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new order to users order table. This function requires the user id, product id, and product quantity in the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response containing the order details. Returns status true if the operation is successful, and false otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.delete_order_req">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">delete_order_req</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#delete_order_req"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.delete_order_req" title="Link to this definition">¶</a></dt>
+<dd><p>Delete order from user order table, using the passed unique order ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON with status indicating if the order was successfully removed or nor, with the response from DynamoDB</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_all_orders_req">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_all_orders_req</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_all_orders_req"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_all_orders_req" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches user order from user order table, used mainly for debugging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Array of JSON response containing the orders details</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_all_po_orders">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_all_po_orders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_all_po_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_all_po_orders" title="Link to this definition">¶</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Array of JSON response containing all po orders details in the PO order table.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.get_order_req">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">get_order_req</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#get_order_req"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.get_order_req" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches user order by unique ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response containing the order details if found, or an error message if not.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.internal_server_error">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">internal_server_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#internal_server_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.internal_server_error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.method_not_allowed">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">method_not_allowed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#method_not_allowed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.method_not_allowed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.not_found">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">not_found</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.not_found" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.route_create_invoice">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">route_create_invoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#route_create_invoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.route_create_invoice" title="Link to this definition">¶</a></dt>
+<dd><p>Create a invoice pdf out of the order details for one order</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>staus true if invoice creation was successful, and false otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.route_get_invoice">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">route_get_invoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#route_get_invoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.route_get_invoice" title="Link to this definition">¶</a></dt>
+<dd><p>Download the invoice for a specific order</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>invoice contents</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_orders">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Searches user orders with the specified User ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>string</em>) – Unique user ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_orders_status_and_po_id">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_orders_status_and_po_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">po_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_orders_status_and_po_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_orders_status_and_po_id" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for PO orders with the specified Product Owner and order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>po_id</strong> (<em>string</em>) – Product Owner ID</p></li>
+<li><p><strong>order_status</strong> (<em>string</em>) – Product Owner order status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_orders_status_and_user_id">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_orders_status_and_user_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_orders_status_and_user_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_orders_status_and_user_id" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for user orders with the specified user ID and order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>string</em>) – Unique user ID</p></li>
+<li><p><strong>order_status</strong> (<em>string</em>) – User order status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_po_orders">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_po_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_owner_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_po_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_po_orders" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for PO orders with the specified Product Owner name/ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>product_owner_id</strong> (<em>string</em>) – Unique product owner name/id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing po orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_po_orders_orderid">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_po_orders_orderid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_po_orders_orderid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_po_orders_orderid" title="Link to this definition">¶</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing PO orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_po_orders_status">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_po_orders_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_po_orders_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_po_orders_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for PO orders with the specified order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_status</strong> (<em>string</em>) – Product Owner order status</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing po orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.search_user_order_by_status">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">search_user_order_by_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#search_user_order_by_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.search_user_order_by_status" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for user orders with the passed order status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>status</strong> (<em>string</em>) – User order status</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.set_po_orders_paid">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">set_po_orders_paid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_owner_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#set_po_orders_paid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.set_po_orders_paid" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the status of PO order which has a unique order_id, product_owner_id combination, from unpaid to paid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p></li>
+<li><p><strong>product_owner_id</strong> (<em>string</em>) – Unique product owner name/id</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response containing the order details, with status true if successful operation, and false otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.set_user_order_status_paid">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">set_user_order_status_paid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#set_user_order_status_paid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.set_user_order_status_paid" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for user orders with the passed order id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response containing the order details, with status true if successful operation, and false otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.test">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.test" title="Link to this definition">¶</a></dt>
+<dd><p>Test API to check endpoint works properly</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>success message if endpoint is working, error otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.test_search_po_orders">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">test_search_po_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_owner_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#test_search_po_orders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.test_search_po_orders" title="Link to this definition">¶</a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p></li>
+<li><p><strong>product_owner_id</strong> (<em>string</em>) – Unique product owner name/id</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of JSON response containing PO orders details of orders that match the search criteria</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error/function during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.unprocessable">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">unprocessable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#unprocessable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.unprocessable" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.update_order_req">
+<span class="sig-prename descclassname"><span class="pre">routes.</span></span><span class="sig-name descname"><span class="pre">update_order_req</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes.html#update_order_req"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes.update_order_req" title="Link to this definition">¶</a></dt>
+<dd><p>Updates order by adding/removing a certain product with a certain quantity
+body format eg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>string</em>) – Unique order ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response containing the order details, with status true if successful operation, and false otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>json</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Raises</dt><dd><p>ClientError: If there’s a DynamoDB client error during account retrieval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Orders Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dynamodb_po.html">DaynamoDB Product Owner Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamodb_users.html">DanamoDB Users Orders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="initialise_dynamo.html">Initialise DynamoDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invoice.html">Invoice</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Routes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#routes.add_order_req"><code class="docutils literal notranslate"><span class="pre">add_order_req()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.delete_order_req"><code class="docutils literal notranslate"><span class="pre">delete_order_req()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_all_orders_req"><code class="docutils literal notranslate"><span class="pre">get_all_orders_req()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_all_po_orders"><code class="docutils literal notranslate"><span class="pre">get_all_po_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.get_order_req"><code class="docutils literal notranslate"><span class="pre">get_order_req()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.internal_server_error"><code class="docutils literal notranslate"><span class="pre">internal_server_error()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.method_not_allowed"><code class="docutils literal notranslate"><span class="pre">method_not_allowed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.not_found"><code class="docutils literal notranslate"><span class="pre">not_found()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.route_create_invoice"><code class="docutils literal notranslate"><span class="pre">route_create_invoice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.route_get_invoice"><code class="docutils literal notranslate"><span class="pre">route_get_invoice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_orders"><code class="docutils literal notranslate"><span class="pre">search_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_orders_status_and_po_id"><code class="docutils literal notranslate"><span class="pre">search_orders_status_and_po_id()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_orders_status_and_user_id"><code class="docutils literal notranslate"><span class="pre">search_orders_status_and_user_id()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_po_orders"><code class="docutils literal notranslate"><span class="pre">search_po_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_po_orders_orderid"><code class="docutils literal notranslate"><span class="pre">search_po_orders_orderid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_po_orders_status"><code class="docutils literal notranslate"><span class="pre">search_po_orders_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.search_user_order_by_status"><code class="docutils literal notranslate"><span class="pre">search_user_order_by_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.set_po_orders_paid"><code class="docutils literal notranslate"><span class="pre">set_po_orders_paid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.set_user_order_status_paid"><code class="docutils literal notranslate"><span class="pre">set_user_order_status_paid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.test_search_po_orders"><code class="docutils literal notranslate"><span class="pre">test_search_po_orders()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.unprocessable"><code class="docutils literal notranslate"><span class="pre">unprocessable()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes.update_order_req"><code class="docutils literal notranslate"><span class="pre">update_order_req()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="invoice.html" title="previous chapter">Invoice</a></li>
+      <li>Next: <a href="utils.html" title="next chapter">Utils</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Heba.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/routes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

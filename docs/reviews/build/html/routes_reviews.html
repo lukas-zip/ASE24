@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Routes &#8212; Reviews Service 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=61cd365c" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to Reviews Service’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-routes_reviews">
+<span id="routes"></span><h1>Routes<a class="headerlink" href="#module-routes_reviews" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_add_review">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_add_review</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_add_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_add_review" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new review for a product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – A dictionary containing the review details including product_id, customer_id, reviewcontent, and rating.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response indicating the success or failure of the review addition.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while adding the review to DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_check_review">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_check_review</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_check_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_check_review" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if a review exists for a product by a customer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – A dictionary containing the review details including product_id and customer_id.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response indicating the existence of the review.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while checking the review in DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_delete_review">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_delete_review</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_delete_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_delete_review" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes a review for a product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – A dictionary containing the review details including review_id, product_id, and customer_id.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response indicating the success or failure of the review deletion.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while deleting the review from DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_edit_review">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_edit_review</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_edit_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_edit_review" title="Link to this definition">¶</a></dt>
+<dd><p>Edits an existing review for a product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – A dictionary containing the review details including review_id, product_id, customer_id, reviewcontent, and rating.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response indicating the success or failure of the review editing.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while editing the review in DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_get_batch">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_get_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_get_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_get_batch" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves all reviews for a specific product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>product_id</strong> – The ID of the product.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response containing the reviews for the product.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while retrieving the reviews from DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.route_get_review">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">route_get_review</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#route_get_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.route_get_review" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves a single review for a product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – A dictionary containing the review details including review_id and product_id.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A JSON response containing the review details.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ClientError</strong> – If an error occurs while retrieving the review from DynamoDB.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes_reviews.test">
+<span class="sig-prename descclassname"><span class="pre">routes_reviews.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/routes_reviews.html#test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#routes_reviews.test" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Reviews Service</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Routes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_add_review"><code class="docutils literal notranslate"><span class="pre">route_add_review()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_check_review"><code class="docutils literal notranslate"><span class="pre">route_check_review()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_delete_review"><code class="docutils literal notranslate"><span class="pre">route_delete_review()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_edit_review"><code class="docutils literal notranslate"><span class="pre">route_edit_review()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_get_batch"><code class="docutils literal notranslate"><span class="pre">route_get_batch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.route_get_review"><code class="docutils literal notranslate"><span class="pre">route_get_review()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes_reviews.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Reviews Service’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Lena.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/routes_reviews.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
