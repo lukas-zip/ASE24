@@ -1,6 +1,7 @@
-from app import dynamodb_po, dynamodb_users, invoice, utils
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
+
+from app import dynamodb_po, dynamodb_users, invoice, utils
 
 route_blueprint = Blueprint(
     "",
@@ -8,27 +9,35 @@ route_blueprint = Blueprint(
 )
 
 
-# Test if endpoint is available
 @route_blueprint.route("/", methods=["GET"])
 def test():
-    """_summary_
+    """Test API to check endpoint works properly
 
     Returns:
-        _type_: _description_
+        json: success message if endpoint is working, error otherwise
     """
-    # Return success response
-    return jsonify({"status": True, "message": "Test successful"}), 201
+    try:
+        # Return success response
+        return jsonify({"status": True, "message": "Test successful"}), 201
+    except Exception as e:
+        # Handle the exception
+        error_message = "An error occurred: " + str(e)
+        # Return error response
+        return jsonify({"status": False, "message": error_message}), 500
 
 
 @route_blueprint.route("/orders/<order_id>", methods=["GET"])
 def get_order_req(order_id):
-    """_summary_
+    """Fetches user order by unique ID
 
     Args:
-        order_id (_type_): _description_
+        order_id (string): Unique order ID
 
     Returns:
-        _type_: _description_
+        json : JSON response containing the order details if found, or an error message if not.
+
+    Raises
+       ClientError: If there's a DynamoDB client error during account retrieval.
     """
     try:
         # Check if the order_id parameter is provided
@@ -47,10 +56,13 @@ def get_order_req(order_id):
 
 @route_blueprint.route("/orders", methods=["GET"])
 def get_all_orders_req():
-    """_summary_
+    """Fetches user order from user order table, used mainly for debugging
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing the orders details
+
+    Raises
+       ClientError: If there's a DynamoDB client error during account retrieval.
     """
     try:
         # Call the get_all_orders function
@@ -65,13 +77,16 @@ def get_all_orders_req():
 
 @route_blueprint.route("/orders/<order_id>", methods=["DELETE"])
 def delete_order_req(order_id: int):
-    """_summary_
+    """Delete order from user order table, using the passed unique order ID
 
     Args:
-        order_id (int): _description_
+        order_id (string): Unique order ID
 
     Returns:
-        _type_: _description_
+        json: JSON with status indicating if the order was successfully removed or nor, with the response from DynamoDB
+
+    Raises
+       ClientError: If there's a DynamoDB client error during account retrieval.
     """
     try:
         # Check if the order_id parameter is provided
@@ -90,13 +105,22 @@ def delete_order_req(order_id: int):
 
 @route_blueprint.route("/orders/<order_id>", methods=["PUT"])
 def update_order_req(order_id):
-    """_summary_
+    """Updates order by adding/removing a certain product with a certain quantity
+    body format eg.
+
+    {
+      "product_id":"71ee0ea3-f7a8-4371-8396-cbba4f12137b",
+      "quantity":-2
+    }
 
     Args:
-        order_id (_type_): _description_
+        order_id (string): Unique order ID
 
     Returns:
-        _type_: _description_
+        json : JSON response containing the order details, with status true if successful operation, and false otherwise.
+
+    Raises
+       ClientError: If there's a DynamoDB client error during account retrieval.
     """
     data = request.json
     # Check if all required parameters are present
@@ -116,13 +140,16 @@ def update_order_req(order_id):
 
 @route_blueprint.route("/orders/users/search/<user_id>", methods=["GET"])
 def search_orders(user_id):
-    """_summary_
+    """Searches user orders with the specified User ID
 
     Args:
-        user_id (_type_): _description_
+        user_id (string): Unique user ID
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     data = request.json
     try:
@@ -142,10 +169,19 @@ def search_orders(user_id):
 
 @route_blueprint.route("/orders", methods=["POST"])
 def add_order_req():
-    """_summary_
+    """Adds a new order to users order table, needs to pass user id, product id and product quantity in the body
+    body format eg.
+    {
+     "user_id": "useID_example",
+     "product_id": "61363bc2-0aba-4d0f-aa84-4e4af17086b6",
+     "quantity": 7
+    }
 
     Returns:
-        _type_: _description_
+        json : JSON response containing the order details, with status true if successful operation, and false otherwise.
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     data = request.json
 
@@ -174,13 +210,16 @@ def add_order_req():
 
 @route_blueprint.route("/orders/product/search/<product_owner_id>", methods=["GET"])
 def search_po_orders(product_owner_id):
-    """_summary_
+    """Searches for PO orders with the specified Product Owner name/ID
 
     Args:
-        product_owner_id (_type_): _description_
+        product_owner_id (string): Unique product owner name/id
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing po orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if the product_owner_id parameter is provided
@@ -202,13 +241,16 @@ def search_po_orders(product_owner_id):
 
 @route_blueprint.route("/orders/product/search/status/<order_status>", methods=["GET"])
 def search_po_orders_status(order_status):
-    """_summary_
+    """Searches for PO orders with the specified order status
 
     Args:
-        order_status (_type_): _description_
+        order_status (string): Product Owner order status
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing po orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if the order_status parameter is provided
@@ -239,14 +281,17 @@ def search_po_orders_status(order_status):
     "/orders/search/user/<user_id>/status/<order_status>", methods=["GET"]
 )
 def search_orders_status_and_user_id(user_id, order_status):
-    """_summary_
+    """Searches for user orders with the specified user ID and order status
 
     Args:
-        user_id (_type_): _description_
-        order_status (_type_): _description_
+        user_id (string): Unique user ID
+        order_status (string): User order status
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if both user_id and order_status parameters are provided
@@ -283,14 +328,17 @@ def search_orders_status_and_user_id(user_id, order_status):
     "/orders/search/po/<po_id>/status/<order_status>", methods=["GET"]
 )
 def search_orders_status_and_po_id(po_id, order_status):
-    """_summary_
+    """Searches for PO orders with the specified Product Owner and order status
 
     Args:
-        po_id (_type_): _description_
-        order_status (_type_): _description_
+        po_id (string): Product Owner ID
+        order_status (string): Product Owner order status
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if both user_id and order_status parameters are provided
@@ -325,14 +373,17 @@ def search_orders_status_and_po_id(po_id, order_status):
     "/orders/product/<order_id>/<product_owner_id>/paid", methods=["GET"]
 )
 def set_po_orders_paid(order_id, product_owner_id):
-    """_summary_
+    """Sets the status of PO order which has a unique order_id, product_owner_id combination, from unpaid to paid
 
     Args:
-        order_id (_type_): _description_
-        product_owner_id (_type_): _description_
+        order_id (string): Unique order ID
+        product_owner_id (string): Unique product owner name/id
 
     Returns:
-        _type_: _description_
+        json : JSON response containing the order details, with status true if successful operation, and false otherwise.
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if both order_id and product_owner_id parameters are provided
@@ -359,13 +410,16 @@ def set_po_orders_paid(order_id, product_owner_id):
 
 @route_blueprint.route("/orders/<order_id>/status/paid", methods=["GET"])
 def set_user_order_status_paid(order_id):
-    """_summary_
+    """Searches for user orders with the passed order id
 
     Args:
-        order_id (_type_): _description_
+        order_id (string): Unique order ID
 
     Returns:
-        _type_: _description_
+        json : JSON response containing the order details, with status true if successful operation, and false otherwise.
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         res = dynamodb_users.update_status(order_id, "paid")
@@ -377,13 +431,16 @@ def set_user_order_status_paid(order_id):
 
 @route_blueprint.route("/orders/search/status/<status>", methods=["GET"])
 def search_user_order_by_status(status):
-    """_summary_
+    """Searches for user orders with the passed order status
 
     Args:
-        status (_type_): _description_
+        status (string): User order status
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         res = dynamodb_users.search_orders_by_status(status)
@@ -401,8 +458,20 @@ def search_user_order_by_status(status):
 # ----------------------------------------------------------------------------#
 # Create a invoice pdf out of the order details for one order
 
-@route_blueprint.route('/invoice/<order_id>', methods=['POST']) 
+
+@route_blueprint.route("/invoice/<order_id>", methods=["POST"])
 def route_create_invoice(order_id):
+    """Create a invoice pdf out of the order details for one order
+
+    Args:
+        order_id (string): Unique order ID
+
+    Returns:
+        boolean: staus true if invoice creation was successful, and false otherwise
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
+    """
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400
     try:
@@ -417,8 +486,20 @@ def route_create_invoice(order_id):
 
 ## Download the invoice for a specific order
 
-@route_blueprint.route('/invoice/<order_id>', methods=['GET'])
+
+@route_blueprint.route("/invoice/<order_id>", methods=["GET"])
 def route_get_invoice(order_id):
+    """Download the invoice for a specific order
+
+    Args:
+        order_id (string): Unique order ID
+
+    Returns:
+         : invoice contents
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
+    """
     if not order_id:
         return jsonify({"error": "ID is required!"}), 400
     try:
@@ -434,37 +515,15 @@ def route_get_invoice(order_id):
 # ----------------------------------------------------------------------------#
 
 
-@route_blueprint.route("/orders/test/<product_id>", methods=["GET"])
-def test_orders(product_id):
-    """_summary_
-
-    Args:
-        product_id (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    try:
-        # Check if the product_id parameter is provided
-        if not product_id:
-            return jsonify({"error": "Product ID is missing", "status": False}), 400
-
-        # Call the get_product_details function
-        res = utils.get_all_product_details(product_id)
-
-        # Return the response
-        return jsonify({"status": True, "value": res}), 200
-    except Exception as e:
-        # If an exception occurs, return an error response
-        return jsonify({"error": str(e), "status": False}), 500
-
-
 @route_blueprint.route("/orders/po", methods=["GET"])
 def get_all_po_orders():
     """_summary_
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing all po orders details in the PO order table.
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Call the get_all_po_orders function
@@ -482,10 +541,13 @@ def search_po_orders_orderid(order_id):
     """_summary_
 
     Args:
-        order_id (_type_): _description_
+        order_id (string): Unique order ID
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing PO orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if the order_id parameter is provided
@@ -509,11 +571,14 @@ def test_search_po_orders(order_id, product_owner_id):
     """_summary_
 
     Args:
-        order_id (_type_): _description_
-        product_owner_id (_type_): _description_
+        order_id (string): Unique order ID
+        product_owner_id (string): Unique product owner name/id
 
     Returns:
-        _type_: _description_
+        json : Array of JSON response containing PO orders details of orders that match the search criteria
+
+    Raises
+       ClientError: If there's a DynamoDB client error/function during account retrieval.
     """
     try:
         # Check if both order_id and product_owner_id parameters are provided

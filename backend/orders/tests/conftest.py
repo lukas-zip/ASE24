@@ -28,7 +28,7 @@ def teardown_dynamodb():
     dynamodb_po.delete_po_order_management_tables()
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def mock_get_product_details():
     with patch("app.utils.get_product_details") as mock:
         # Define the behavior of the mock function
